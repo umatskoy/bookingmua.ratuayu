@@ -1,0 +1,425 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .mua-wrap {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--color-background-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem 3rem;
+  }
+
+  .mua-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .mua-header .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .mua-header h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 32px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+  }
+
+  .mua-header p {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    font-weight: 300;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group.full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  label .req {
+    color: #D4537E;
+    margin-left: 2px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="time"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--color-text-primary);
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: #D4537E;
+    box-shadow: 0 0 0 2px rgba(212, 83, 126, 0.12);
+  }
+
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  .section-label {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0.5rem;
+  }
+
+  .section-label span {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 0.5px;
+    background: var(--color-border-tertiary);
+  }
+
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 13px;
+    color: var(--color-text-primary);
+    font-weight: 300;
+  }
+
+  .check-item:hover {
+    border-color: #D4537E;
+    background: rgba(212, 83, 126, 0.04);
+  }
+
+  .check-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #D4537E;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+
+  .upload-zone {
+    border: 1px dashed var(--color-border-secondary);
+    border-radius: 8px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    background: var(--color-background-secondary);
+  }
+
+  .upload-zone:hover {
+    border-color: #D4537E;
+    background: rgba(212, 83, 126, 0.03);
+  }
+
+  .upload-zone i {
+    font-size: 24px;
+    color: #D4537E;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .upload-zone p {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+
+  .upload-zone span {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    opacity: 0.6;
+  }
+
+  .upload-zone input[type="file"] {
+    display: none;
+  }
+
+  #file-name {
+    font-size: 12px;
+    color: #3B6D11;
+    margin-top: 4px;
+    display: none;
+  }
+
+  .submit-row {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0.5rem;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    background: #D4537E;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn-submit:hover { background: #c04470; }
+  .btn-submit:active { transform: scale(0.99); }
+
+  .privacy-note {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  .success-msg {
+    display: none;
+    grid-column: 1/-1;
+    background: rgba(59,109,17,0.08);
+    border: 0.5px solid rgba(59,109,17,0.3);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    text-align: center;
+    color: #3B6D11;
+    font-size: 14px;
+  }
+</style>
+
+<div class="mua-wrap">
+  <div class="mua-header">
+    <p class="eyebrow">✦ Professional Beauty Services ✦</p>
+    <h1>Booking Make Up Artist</h1>
+    <p>Isi form di bawah dan kami akan konfirmasi via WhatsApp dalam 1×24 jam</p>
+  </div>
+
+  <form class="form-grid" id="bookingForm" onsubmit="handleSubmit(event)">
+
+    <div class="section-label"><span>Informasi Klien</span></div>
+
+    <div class="form-group">
+      <label>Nama Lengkap <span class="req">*</span></label>
+      <input type="text" name="nama" placeholder="Nama sesuai KTP" required />
+    </div>
+
+    <div class="form-group">
+      <label>Nomor WhatsApp <span class="req">*</span></label>
+      <input type="tel" name="wa" placeholder="08xxxxxxxxxx" required />
+    </div>
+
+    <div class="form-group full">
+      <label>Email <span class="req">*</span></label>
+      <input type="email" name="email" placeholder="contoh@email.com" required />
+    </div>
+
+    <div class="form-group full">
+      <label>Lokasi Make Up <span class="req">*</span></label>
+      <input type="text" name="lokasi" placeholder="Alamat lengkap tempat make up dilakukan" required />
+    </div>
+
+    <div class="section-label"><span>Detail Jadwal</span></div>
+
+    <div class="form-group">
+      <label>Tanggal Make Up <span class="req">*</span></label>
+      <input type="date" name="tanggal" required />
+    </div>
+
+    <div class="form-group">
+      <label>Jam Selesai Target</label>
+      <input type="time" name="jam_selesai" />
+    </div>
+
+    <div class="section-label"><span>Paket & Layanan</span></div>
+
+    <div class="form-group">
+      <label>Pilihan Paket <span class="req">*</span></label>
+      <select name="paket" required>
+        <option value="" disabled selected>Pilih paket...</option>
+        <option>Paket Basic – Rp 500.000</option>
+        <option>Paket Wisuda – Rp 750.000</option>
+        <option>Paket Pengantin – Rp 1.500.000</option>
+        <option>Paket Full Day – Rp 2.000.000</option>
+        <option>Custom / Diskusi</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Jumlah Orang <span class="req">*</span></label>
+      <input type="number" name="jumlah_orang" min="1" max="50" placeholder="1" required />
+    </div>
+
+    <div class="form-group full">
+      <label>Add On (pilih lebih dari satu)</label>
+      <div class="checkbox-grid">
+        <label class="check-item">
+          <input type="checkbox" name="addon" value="Hijab Styling" /> Hijab Styling
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="addon" value="Hair Do" /> Hair Do
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="addon" value="False Lashes" /> False Lashes
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="addon" value="Body Shimmer" /> Body Shimmer
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="addon" value="Touch Up Kit" /> Touch Up Kit
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="addon" value="Skincare Prep" /> Skincare Prep
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group full">
+      <label>Transport</label>
+      <select name="transport">
+        <option value="Tidak perlu transport">Tidak perlu (lokasi sudah termasuk)</option>
+        <option value="Dalam kota">Dalam kota – gratis</option>
+        <option value="Luar kota">Luar kota – akan dikonfirmasi</option>
+      </select>
+    </div>
+
+    <div class="section-label"><span>Pembayaran</span></div>
+
+    <div class="form-group">
+      <label>Jumlah DP <span class="req">*</span></label>
+      <input type="text" name="dp" placeholder="Rp 250.000" required />
+    </div>
+
+    <div class="form-group">
+      <label>Metode Transfer</label>
+      <select name="metode">
+        <option>BCA – 1234567890</option>
+        <option>BRI – 0987654321</option>
+        <option>GoPay / OVO / Dana</option>
+      </select>
+    </div>
+
+    <div class="form-group full">
+      <label>Bukti Transfer <span class="req">*</span></label>
+      <div class="upload-zone" onclick="document.getElementById('bukti').click()">
+        <i class="ti ti-upload" aria-hidden="true"></i>
+        <p>Klik untuk upload bukti transfer</p>
+        <span>JPG, PNG, PDF — maks. 5 MB</span>
+        <input type="file" id="bukti" name="bukti" accept="image/*,.pdf" onchange="showFileName(this)" />
+      </div>
+      <div id="file-name"></div>
+    </div>
+
+    <div class="success-msg" id="successMsg">
+      <i class="ti ti-circle-check" style="font-size:20px; display:block; margin-bottom:6px;" aria-hidden="true"></i>
+      <strong>Booking berhasil dikirim!</strong><br>
+      Kami akan konfirmasi via WhatsApp dalam 1×24 jam. Terima kasih 🌸
+    </div>
+
+    <div class="submit-row">
+      <button type="submit" class="btn-submit">Kirim Booking</button>
+      <p class="privacy-note">Data Anda aman dan hanya digunakan untuk keperluan booking.</p>
+    </div>
+
+  </form>
+</div>
+
+<script>
+function showFileName(input) {
+  const label = document.getElementById('file-name');
+  if (input.files && input.files[0]) {
+    label.textContent = '✓ ' + input.files[0].name;
+    label.style.display = 'block';
+  }
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  const addons = [...document.querySelectorAll('input[name="addon"]:checked')].map(c => c.value).join(', ') || 'Tidak ada';
+  
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = 'Mengirim...';
+  btn.disabled = true;
+  
+  setTimeout(() => {
+    document.getElementById('successMsg').style.display = 'block';
+    btn.style.display = 'none';
+    document.getElementById('successMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 1200);
+}
+</script>
