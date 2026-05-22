@@ -138,6 +138,30 @@
 
     .mua-footer { text-align: center; margin-top: 2rem; font-size: 12px; color: #c0c0c0; }
 
+    .gs-subtotal-row, .gs-dp-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0; font-size: 13px;
+    }
+    .gs-subtotal-row { border-top: 0.5px solid rgba(212,83,126,0.15); margin-top: 8px; padding-top: 10px; color: var(--text-secondary); }
+    .gs-dp-row { color: var(--text-secondary); border-bottom: 0.5px solid rgba(212,83,126,0.15); padding-bottom: 8px; margin-bottom: 2px; }
+    .gs-dp-row span:last-child { color: #c04470; }
+
+    .rekening-note {
+      grid-column: 1 / -1;
+      background: #fff8fb;
+      border: 0.5px solid rgba(212,83,126,0.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #7a1f3d;
+      line-height: 1.6;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .rekening-note i { font-size: 18px; flex-shrink: 0; margin-top: 1px; color: var(--pink); }
+
     @media (max-width: 520px) {
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full, .section-label, .submit-row, .success-msg, .error-msg, .info-note, .grand-summary { grid-column: 1; }
@@ -223,9 +247,22 @@
         <input type="text" id="transport" name="transport" placeholder="contoh: Dalam kota, Luar kota – Sleman, dst." />
       </div>
 
+      <!-- Pembayaran -->
+      <div class="section-label"><span>Pembayaran</span></div>
+
+      <div class="form-group">
+        <label class="field-label" for="transport_biaya">Biaya Transport</label>
+        <input type="text" id="transport_biaya" name="transport_biaya" placeholder="Masukkan nominal rupiah" oninput="refreshSummary()" />
+      </div>
+
+      <div class="form-group">
+        <label class="field-label" for="dp">Jumlah DP <span class="req">*</span></label>
+        <input type="text" id="dp" name="dp" placeholder="Masukkan nominal rupiah" required oninput="refreshSummary()" />
+      </div>
+
       <!-- Grand Summary -->
       <div class="grand-summary" id="grandSummary">
-        <p class="gs-title">✦ Ringkasan Pesanan</p>
+        <p class="gs-title">✦ Ringkasan Total</p>
         <div id="gs-paket-section" class="gs-section">
           <p class="gs-section-label">Paket Make Up</p>
           <div id="gs-paket-rows"></div>
@@ -234,27 +271,27 @@
           <p class="gs-section-label">Add On</p>
           <div id="gs-addon-rows"></div>
         </div>
+        <div id="gs-transport-section" class="gs-section" style="display:none;">
+          <p class="gs-section-label">Transport</p>
+          <div id="gs-transport-rows"></div>
+        </div>
+        <div class="gs-subtotal-row">
+          <span>Subtotal</span>
+          <span id="gs-subtotal">Rp 0</span>
+        </div>
+        <div class="gs-dp-row">
+          <span>DP</span>
+          <span id="gs-dp-val">−</span>
+        </div>
         <div class="gs-total">
-          <span>Estimasi Total</span>
+          <span>Sisa Pembayaran</span>
           <span class="gs-total-val" id="gs-grand-total">Rp 0</span>
         </div>
       </div>
 
-      <!-- Pembayaran -->
-      <div class="section-label"><span>Pembayaran</span></div>
-
-      <div class="form-group">
-        <label class="field-label" for="dp">Jumlah DP <span class="req">*</span></label>
-        <input type="text" id="dp" name="dp" placeholder="contoh: Rp 250.000" required />
-      </div>
-
-      <div class="form-group">
-        <label class="field-label" for="metode">Metode Transfer</label>
-        <select id="metode" name="metode">
-          <option value="BCA – 1234567890">BCA – 1234567890</option>
-          <option value="BRI – 0987654321">BRI – 0987654321</option>
-          <option value="GoPay / OVO / Dana">GoPay / OVO / Dana</option>
-        </select>
+      <div class="rekening-note">
+        <i class="ti ti-shield-check" aria-hidden="true"></i>
+        <span>Transfer hanya ke rekening <strong>Seabank – 123456</strong> a.n. <strong>Fairuz Ayu</strong><br>Hati-hati penipuan</span>
       </div>
 
       <div class="form-group full">
@@ -421,24 +458,31 @@
     refreshSummary();
   }
 
+  /* ── PARSE RUPIAH ── */
+  function parseRp(str) {
+    if (!str) return 0;
+    const cleaned = str.replace(/[^0-9]/g, '');
+    return parseInt(cleaned, 10) || 0;
+  }
+
   /* ── SUMMARY ── */
   function refreshSummary() {
     const gs = document.getElementById('grandSummary');
     if (paketRows.length === 0 && addonRows.length === 0) { gs.style.display = 'none'; return; }
     gs.style.display = 'block';
 
-    let grandTotal = 0;
+    let subtotal = 0;
 
     // Paket rows
     const paketContainer = document.getElementById('gs-paket-rows');
     paketContainer.innerHTML = paketRows.map(r => {
       const opt = PAKET_OPTIONS.find(o => o.value === r.value) || PAKET_OPTIONS[0];
-      const subtotal = opt.harga * r.jumlah;
-      grandTotal += subtotal;
+      const sub = opt.harga * r.jumlah;
+      subtotal += sub;
       return `<div class="gs-row">
         <span class="gs-name">${opt.value}</span>
         <span class="gs-qty">${r.jumlah} orang</span>
-        <span class="gs-price">${opt.harga === 0 ? 'Diskusi' : fmtRp(subtotal)}</span>
+        <span class="gs-price">${opt.harga === 0 ? 'Diskusi' : fmtRp(sub)}</span>
       </div>`;
     }).join('') || '<div style="font-size:13px;color:#b0b0b0;padding:4px 0;">Belum ada paket</div>';
 
@@ -449,19 +493,43 @@
       addonSection.style.display = 'block';
       addonContainer.innerHTML = addonRows.map(r => {
         const opt = ADDON_OPTIONS.find(o => o.value === r.value) || ADDON_OPTIONS[0];
-        const subtotal = opt.harga * r.jumlah;
-        grandTotal += subtotal;
+        const sub = opt.harga * r.jumlah;
+        subtotal += sub;
         return `<div class="gs-row">
           <span class="gs-name">${opt.value}</span>
           <span class="gs-qty">×${r.jumlah}</span>
-          <span class="gs-price">${opt.harga === 0 ? 'Gratis' : fmtRp(subtotal)}</span>
+          <span class="gs-price">${opt.harga === 0 ? 'Gratis' : fmtRp(sub)}</span>
         </div>`;
       }).join('');
     } else {
       addonSection.style.display = 'none';
     }
 
-    document.getElementById('gs-grand-total').textContent = fmtRp(grandTotal);
+    // Transport biaya
+    const transportBiayaStr = document.getElementById('transport_biaya')?.value || '';
+    const transportBiaya = parseRp(transportBiayaStr);
+    const transportSection = document.getElementById('gs-transport-section');
+    const transportRows = document.getElementById('gs-transport-rows');
+    if (transportBiaya > 0) {
+      transportSection.style.display = 'block';
+      subtotal += transportBiaya;
+      transportRows.innerHTML = `<div class="gs-row">
+        <span class="gs-name">Biaya Transport</span>
+        <span class="gs-qty"></span>
+        <span class="gs-price">${fmtRp(transportBiaya)}</span>
+      </div>`;
+    } else {
+      transportSection.style.display = 'none';
+    }
+
+    // DP
+    const dpStr = document.getElementById('dp')?.value || '';
+    const dpVal = parseRp(dpStr);
+    const sisaBayar = Math.max(0, subtotal - dpVal);
+
+    document.getElementById('gs-subtotal').textContent = fmtRp(subtotal);
+    document.getElementById('gs-dp-val').textContent = dpVal > 0 ? '− ' + fmtRp(dpVal) : '−';
+    document.getElementById('gs-grand-total').textContent = dpVal > 0 ? fmtRp(sisaBayar) : fmtRp(subtotal);
   }
 
   /* ── PAYLOAD HELPERS ── */
@@ -551,10 +619,11 @@
       jumlah_orang: getTotalOrang(),
       addon: getAddonString(),
       transport: form.transport.value.trim() || '-',
+      transport_biaya: form.transport_biaya.value.trim() || '-',
       dp: form.dp.value.trim(),
-      metode: form.metode.value,
       bukti: buktiInfo,
-      total_estimasi: document.getElementById('gs-grand-total').textContent
+      subtotal: document.getElementById('gs-subtotal').textContent,
+      sisa_bayar: document.getElementById('gs-grand-total').textContent
     };
 
     btn.disabled = true; spinner.style.display = 'block'; btnText.textContent = 'Mengirim...';
