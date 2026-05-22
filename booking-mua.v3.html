@@ -241,12 +241,6 @@
         </button>
       </div>
 
-      <!-- Transport -->
-      <div class="form-group full">
-        <label class="field-label" for="transport">Transport</label>
-        <input type="text" id="transport" name="transport" placeholder="contoh: Dalam kota, Luar kota – Sleman, dst." />
-      </div>
-
       <!-- Pembayaran -->
       <div class="section-label"><span>Pembayaran</span></div>
 
@@ -618,7 +612,6 @@
       paket: getPaketString(),
       jumlah_orang: getTotalOrang(),
       addon: getAddonString(),
-      transport: form.transport.value.trim() || '-',
       transport_biaya: form.transport_biaya.value.trim() || '-',
       dp: form.dp.value.trim(),
       bukti: buktiInfo,
