@@ -830,7 +830,7 @@ function doOptions(e) {
     window.print();
   }
 
-  /* ── SUBMIT FORM & AUTOMATIC GENERATE BASE64 PDF ── */
+ /* ── SUBMIT FORM (VERSI TEMPLATE GOOGLE SLIDES) ── */
   document.getElementById('bookingForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const form = e.target;
@@ -841,7 +841,7 @@ function doOptions(e) {
     const errorMsg = document.getElementById('errorMsg');
     errorMsg.style.display = 'none';
 
-    // Validasi data input
+    // Validasi data input wajib
     const requiredIds = ['nama','wa','email','lokasi','tanggal','dp'];
     let valid = true;
     requiredIds.forEach(fid => {
@@ -854,115 +854,63 @@ function doOptions(e) {
       valid = false;
       errorMsg.innerHTML = '⚠ Tambahkan minimal satu paket make up.';
       errorMsg.style.display = 'block';
-      errorMsg.scrollIntoView({ behavior:'smooth', block:'center' });
       return;
     }
 
     if (!valid) {
       errorMsg.innerHTML = '⚠ Harap isi semua field yang wajib (bertanda *).';
       errorMsg.style.display = 'block';
-      errorMsg.scrollIntoView({ behavior:'smooth', block:'center' });
       return;
     }
 
-    // Mengunci tombol saat loading awal
-    btn.disabled = true; spinner.style.display = 'block'; btnText.textContent = 'Menyiapkan PDF...';
+    // Mengunci tombol saat loading
+    btn.disabled = true; spinner.style.display = 'block'; btnText.textContent = 'Mengirim Booking...';
 
-    // Konversi file Klien (Bukti Transfer) ke Base64
+    // Ambil info nama file bukti transfer murni (opsional teks)
     let buktiInfo = 'Tidak diupload';
     const buktiFile = document.getElementById('bukti').files[0];
-    if (buktiFile) {
-      if (buktiFile.size > 5 * 1024 * 1024) {
-        errorMsg.innerHTML = '⚠ Ukuran file bukti transfer melebihi 5 MB.';
-        errorMsg.style.display = 'block';
-        btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
-        return;
-      }
-      try { 
-        const b64 = await toBase64(buktiFile); 
-        buktiInfo = buktiFile.name + ' (' + b64.substring(0,50) + '...)'; 
-      } catch { 
-        buktiInfo = buktiFile.name + ' (gagal dikonversi)'; 
-      }
-    }
+    if (buktiFile) { buktiInfo = buktiFile.name; }
 
-    // FASE 3 ALTERNATIF 1: Pembuatan Tampilan Invoice PDF murni di Sisi Frontend
-    const invoice = buildPrintArea();
-    const tempContainer = document.createElement('div');
-    tempContainer.innerHTML = invoice.htmlContent;
-    document.body.appendChild(tempContainer); // Masukkan sementara ke dokumen agar terbaca html2pdf
-
-    const pdfOptions = {
-      margin:       10,
-      filename:     invoice.fileName,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    // Susun Payload Teks untuk dikirim ke Google Apps Script
+    const payload = {
+      nama: form.nama.value.trim(),
+      wa: form.wa.value.trim(),
+      email: form.email.value.trim(),
+      lokasi: form.lokasi.value.trim(),
+      tanggal: form.tanggal.value,
+      jam_selesai: form.jam_selesai.value || '-',
+      paket: getPaketString(),
+      jumlah_orang: getTotalOrang(),
+      addon: getAddonString(),
+      transport_biaya: form.transport_biaya.value.trim() || 'Rp 0',
+      dp: form.dp.value.trim(),
+      bukti: buktiInfo,
+      subtotal: document.getElementById('gs-subtotal').textContent,
+      sisa_bayar: document.getElementById('gs-grand-total').textContent
     };
 
-    // Eksekusi html2pdf menghasilkan string Uri Base64
-    html2pdf().set(pdfOptions).from(tempContainer).outputPdf('datauristring').then(async function(pdfBase64Uri) {
-      // Hapus container sementara dari layar browser
-      tempContainer.remove();
+    // Kirim Data ke Google Apps Script
+    try {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await response.json();
 
-      // Pisahkan header URI untuk mendapatkan string Base64 murni
-      const base64CleanPdf = pdfBase64Uri.split(',')[1];
-
-      // Menyusun Full Payload Data
-      const payload = {
-        nama: form.nama.value.trim(),
-        wa: form.wa.value.trim(),
-        email: form.email.value.trim(),
-        lokasi: form.lokasi.value.trim(),
-        tanggal: form.tanggal.value,
-        jam_selesai: form.jam_selesai.value || '-',
-        paket: getPaketString(),
-        jumlah_orang: getTotalOrang(),
-        addon: getAddonString(),
-        transport_biaya: form.transport_biaya.value.trim() || '-',
-        dp: form.dp.value.trim(),
-        bukti: buktiInfo,
-        subtotal: document.getElementById('gs-subtotal').textContent,
-        sisa_bayar: document.getElementById('gs-grand-total').textContent,
-        
-        // Data Tambahan untuk Fase 3 Baru
-        pdfBlob: base64CleanPdf,
-        pdfName: invoice.fileName
-      };
-
-      btnText.textContent = 'Mengirim Data...';
-
-      // Kirim Data dengan metode Fetch API POST
-      try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Menghindari CORS preflight di GAS
-          body: JSON.stringify(payload)
-        });
-        
-        const result = await response.json();
-
-        if (result.status === 'success') {
-          successMsg.style.display = 'block';
-          btn.style.display = 'none';
-          form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-          successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
-        } else {
-          throw new Error(result.message || 'Gagal menyimpan berkas.');
-        }
-
-      } catch (err) {
-        errorMsg.innerHTML = '⚠ Gagal terhubung ke server: ' + err.message + '. Cek koneksi Anda dan coba lagi.';
-        errorMsg.style.display = 'block';
-        btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
+      if (result.status === 'success') {
+        successMsg.style.display = 'block';
+        btn.style.display = 'none';
+        form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
+        successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+      } else {
+        throw new Error(result.message || 'Gagal memproses di server.');
       }
-    });
-  });
 
-  document.querySelectorAll('input, select').forEach(el => {
-    el.addEventListener('input', () => { el.style.borderColor = ''; });
+    } catch (err) {
+      errorMsg.innerHTML = '⚠ Error: ' + err.message;
+      errorMsg.style.display = 'block';
+      btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
+    }
   });
-</script>
-
-</body>
-</html>
