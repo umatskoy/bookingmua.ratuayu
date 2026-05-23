@@ -396,7 +396,109 @@
 </div>
 
 <script>
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdESmXZLn-3El_qs5qhGfFBUL0sBdMjm3HwwiNGtQD581lTLFhxkW-UU8Nb5w6x_2uZw/exec";
+  const APPS_SCRIPT_URL = "function doPost(e) {
+  // Setup Header CORS agar tidak terkena block saat diakses dari GitHub Pages/Lokal
+  var headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  };
+
+  try {
+    // 1. Ambil dan parse data JSON yang dikirim oleh HTML Frontend
+    var data = JSON.parse(e.postData.contents);
+    
+    // 2. Hubungkan ke Google Sheet aktif
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getActiveSheet();
+    
+    // Buat judul kolom otomatis jika sheet masih benar-benar kosong
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        "Timestamp", "Nama Klien", "WhatsApp", "Email", "Lokasi", 
+        "Tanggal Acara", "Jam Selesai", "Paket Layanan", "Jumlah Orang", 
+        "Add On", "Biaya Transport", "DP Paid", "Subtotal", "Sisa Bayar", 
+        "Bukti Transfer (Info)", "Link Invoice PDF"
+      ]);
+    }
+    
+    // 3. Simpan data teks ke baris baru Google Sheets
+    var timestamp = new Date();
+    sheet.appendRow([
+      timestamp,
+      data.nama,
+      "'" + data.wa, // Diberi tanda petik (') agar angka 0 di depan nomor WA tidak hilang
+      data.email,
+      data.lokasi,
+      data.tanggal,
+      data.jam_selesai,
+      data.paket,
+      data.jumlah_orang,
+      data.addon,
+      data.transport_biaya,
+      data.dp,
+      data.subtotal,
+      data.sisa_bayar,
+      data.bukti,
+      "" // Kolom ke-16 (Link Invoice PDF) dikosongkan dulu, akan diisi di bawah
+    ]);
+    
+    var lastRow = sheet.getLastRow();
+    
+    // 4. Proses Base64 dari frontend menjadi File PDF asli di Google Drive
+    var pdfUrl = "";
+    if (data.pdfBlob && data.pdfName) {
+      
+      // Decode string Base64 murni kembali menjadi file binary PDF
+      var decodedPdf = Utilities.newBlob(Utilities.base64Decode(data.pdfBlob), 'application/pdf', data.pdfName);
+      
+      // Cari atau buat folder master "Invoice Booking MUA"
+      var folderName = "Invoice Booking MUA";
+      var folders = DriveApp.getFoldersByName(folderName);
+      var folder;
+      
+      if (folders.hasNext()) {
+        folder = folders.next();
+      } else {
+        folder = DriveApp.createFolder(folderName);
+      }
+      
+      // Simpan file PDF ke dalam folder tersebut
+      var file = folder.createFile(decodedPdf);
+      
+      // Atur izin akses file agar "Siapa saja yang memiliki link bisa melihat" (Penting untuk klien/fitur email)
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      pdfUrl = file.getUrl();
+      
+      // Tulis Link PDF yang sukses dibuat ke kolom ke-16 di baris data tadi
+      sheet.getRange(lastRow, 16).setValue(pdfUrl);
+    }
+
+    // 5. Kembalikan respon sukses ke HTML Frontend
+    return ContentService.createTextOutput(JSON.stringify({
+      "status": "success",
+      "row": lastRow,
+      "pdfUrl": pdfUrl
+    })).setMimeType(ContentService.MimeType.JSON).setHeaders(headers);
+
+  } catch (error) {
+    // Kembalikan respon error jika terjadi kegagalan di server
+    return ContentService.createTextOutput(JSON.stringify({
+      "status": "error",
+      "message": error.toString()
+    })).setMimeType(ContentService.MimeType.JSON).setHeaders(headers);
+  }
+}
+
+// Handler untuk request OPTIONS (Mencegah error CORS Preflight di beberapa browser)
+function doOptions(e) {
+  var headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  };
+  return ContentService.createTextOutput("").setMimeType(ContentService.MimeType.TEXT).setHeaders(headers);
+}";
 
   const PAKET_OPTIONS = [
     { label: 'Wisuda Hijab – Rp 600.000',     value: 'Wisuda Hijab',     harga: 600000 },
