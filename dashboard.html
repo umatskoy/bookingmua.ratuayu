@@ -633,9 +633,13 @@
     const months = new Set();
 
     allBookings.forEach(b => {
-      if (b.tanggal) {
-        const [year, month] = b.tanggal.split('-');
-        months.add(year + '-' + month);
+      if (b.tanggal || b.tanggal === 0) {
+        const d = parseDate(b.tanggal);
+        if (d) {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          months.add(year + '-' + month);
+        }
       }
     });
 
@@ -665,7 +669,10 @@
 
       if (monthFilter) {
         const [year, month] = monthFilter.split('-');
-        match = match && b.tanggal && b.tanggal.startsWith(year + '-' + month);
+        const bd = parseDate(b.tanggal);
+        const bYear = bd ? String(bd.getFullYear()) : '';
+        const bMonth = bd ? String(bd.getMonth() + 1).padStart(2, '0') : '';
+        match = match && bd && (bYear + '-' + bMonth) === (year + '-' + month);
       }
 
       if (statusFilter) {
