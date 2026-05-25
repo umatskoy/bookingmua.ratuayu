@@ -6,7 +6,7 @@
   <title>Dashboard Booking MUA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,373 +14,310 @@
     :root {
       --pink: #D4537E;
       --pink-light: rgba(212, 83, 126, 0.08);
+      --pink-focus: rgba(212, 83, 126, 0.15);
+      --green: #3b6d11;
+      --green-light: rgba(59, 109, 17, 0.08);
+      --yellow: #d4871c;
+      --yellow-light: rgba(212, 135, 28, 0.08);
+      --red: #a32d2d;
+      --red-light: rgba(163, 45, 45, 0.08);
       --text-primary: #1a1a1a;
       --text-secondary: #6b6b6b;
       --border: #e0e0e0;
       --bg: #fff;
       --bg-soft: #fafaf9;
-      --success: #3b6d11;
-      --warning: #f59e0b;
-      --danger: #ef4444;
     }
 
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--bg-soft);
       color: var(--text-primary);
-      display: flex;
       min-height: 100vh;
     }
 
-    /* Sidebar */
-    .sidebar {
-      width: 280px;
-      background: var(--bg);
-      border-right: 1px solid var(--border);
-      padding: 2rem 0;
-      overflow-y: auto;
-      position: fixed;
-      height: 100vh;
-      left: 0;
-      top: 0;
-    }
-
-    .sidebar-header {
-      padding: 0 1.5rem 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sidebar-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--pink);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 20px;
-    }
-
-    .sidebar-brand h2 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .sidebar-brand p {
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .sidebar-menu {
-      list-style: none;
-    }
-
-    .sidebar-menu li {
-      margin: 0;
-    }
-
-    .sidebar-menu a {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 1.5rem;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 13.5px;
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
-    }
-
-    .sidebar-menu a:hover {
-      background: var(--pink-light);
-      color: var(--pink);
-      border-left-color: var(--pink);
-    }
-
-    .sidebar-menu a.active {
-      background: var(--pink-light);
-      color: var(--pink);
-      border-left-color: var(--pink);
-      font-weight: 600;
-    }
-
-    .sidebar-menu a i {
-      font-size: 18px;
-    }
-
-    /* Main Content */
-    .main-content {
-      margin-left: 280px;
-      flex: 1;
-      padding: 2rem;
-    }
+    .dashboard-wrap { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
 
     /* Header */
     .dashboard-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
-      background: var(--bg);
-      padding: 1.5rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1.5rem;
     }
 
     .dashboard-header h1 {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 600;
       color: var(--text-primary);
+      margin: 0;
     }
 
-    .header-actions {
+    .header-controls {
       display: flex;
-      gap: 12px;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
     }
 
-    .btn {
-      padding: 10px 16px;
-      border: 0.5px solid var(--border);
+    /* Search & Filter */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .search-box i { color: var(--text-secondary); font-size: 16px; }
+
+    .filter-select {
+      padding: 8px 12px;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
       color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .filter-select:hover { border-color: var(--pink); }
+    .filter-select:focus { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-focus); }
+
+    .btn-refresh {
+      padding: 8px 14px;
+      background: var(--pink);
+      color: white;
+      border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
       font-weight: 500;
-      transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 6px;
+      transition: background 0.15s;
     }
 
-    .btn:hover {
-      background: var(--pink-light);
-      border-color: var(--pink);
-      color: var(--pink);
-    }
+    .btn-refresh:hover { background: #bf4570; }
+    .btn-refresh:disabled { opacity: 0.65; cursor: not-allowed; }
 
-    .btn-primary {
-      background: var(--pink);
-      color: white;
-      border-color: var(--pink);
-    }
-
-    .btn-primary:hover {
-      background: #bf4570;
-      border-color: #bf4570;
-    }
-
-    /* Stats Grid */
-    .stats-grid {
+    /* Stats */
+    .stats-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 1rem;
       margin-bottom: 2rem;
     }
 
     .stat-card {
       background: var(--bg);
-      border: 1px solid var(--border);
+      border: 0.5px solid var(--border);
       border-radius: 12px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
-      font-weight: 500;
+      padding: 1.25rem;
+      text-align: center;
     }
 
     .stat-value {
       font-size: 28px;
       font-weight: 600;
-      color: var(--pink);
+      color: var(--text-primary);
+      margin-bottom: 4px;
     }
 
-    .stat-desc {
-      font-size: 11px;
-      color: #999;
-    }
-
-    /* Booking List */
-    .booking-section {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .booking-section-header {
-      padding: 1.5rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .booking-section-header h2 {
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .filter-tabs {
-      display: flex;
-      gap: 8px;
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .filter-tab {
-      padding: 6px 14px;
-      border: 0.5px solid var(--border);
-      background: transparent;
-      color: var(--text-secondary);
-      border-radius: 6px;
-      cursor: pointer;
+    .stat-label {
       font-size: 12px;
       font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .filter-tab:hover,
-    .filter-tab.active {
-      background: var(--pink-light);
-      color: var(--pink);
-      border-color: var(--pink);
-    }
-
-    .booking-list {
-      overflow-x: auto;
-    }
-
-    .booking-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .booking-table th {
-      background: var(--bg-soft);
-      padding: 12px 16px;
-      text-align: left;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-secondary);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .booking-table td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-    }
-
-    .booking-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .booking-table tr:hover {
-      background: var(--bg-soft);
-    }
-
-    .booking-client {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .booking-client-name {
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    .booking-client-info {
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .booking-date {
-      color: var(--text-primary);
-      font-weight: 500;
-    }
-
-    .booking-date-info {
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
       letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    /* Bookings List */
+    .bookings-container {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .booking-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.5rem;
+      align-items: start;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .booking-card:hover {
+      border-color: var(--pink);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .booking-info {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .booking-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .booking-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .booking-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      width: fit-content;
     }
 
     .status-pending {
-      background: rgba(245, 158, 11, 0.1);
-      color: #b45309;
+      background: var(--yellow-light);
+      color: var(--yellow);
+      border: 0.5px solid rgba(212, 135, 28, 0.3);
     }
 
     .status-confirmed {
-      background: rgba(59, 109, 17, 0.1);
-      color: var(--success);
+      background: var(--green-light);
+      color: var(--green);
+      border: 0.5px solid rgba(59, 109, 17, 0.3);
     }
 
-    .status-done {
-      background: rgba(59, 109, 17, 0.15);
-      color: var(--success);
+    .status-completed {
+      background: #f0f0f0;
+      color: #888;
+      border: 0.5px solid var(--border);
     }
 
-    .price-cell {
-      font-weight: 600;
-      color: var(--pink);
+    .booking-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      font-size: 13px;
     }
 
-    .action-cell {
+    .booking-meta-item {
       display: flex;
+      align-items: center;
       gap: 8px;
     }
 
-    .action-btn {
-      width: 32px;
-      height: 32px;
-      border: 0.5px solid var(--border);
-      background: transparent;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-      font-size: 16px;
-    }
-
-    .action-btn:hover {
-      background: var(--pink-light);
+    .booking-meta-item i {
       color: var(--pink);
-      border-color: var(--pink);
+      font-size: 16px;
+      flex-shrink: 0;
     }
 
-    /* Detail Modal */
+    .booking-meta-label {
+      color: var(--text-secondary);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .booking-meta-value {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .booking-price {
+      text-align: right;
+      min-width: 120px;
+    }
+
+    .price-subtotal {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .price-dp {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pink);
+      margin-bottom: 8px;
+    }
+
+    .price-sisa {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      padding-top: 8px;
+      border-top: 0.5px solid var(--border);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* Loading */
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid rgba(0,0,0,0.1);
+      border-top-color: var(--pink);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -391,7 +328,8 @@
       background: rgba(0,0,0,0.5);
       z-index: 1000;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: center;
+      padding: 1rem;
     }
 
     .modal.active {
@@ -400,520 +338,453 @@
 
     .modal-content {
       background: var(--bg);
-      width: 420px;
-      height: 100vh;
+      border-radius: 16px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
       overflow-y: auto;
-      padding: 2rem;
-      animation: slideIn 0.3s ease-out;
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
+      position: relative;
     }
 
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border);
+      padding: 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
     }
 
-    .modal-header h2 {
+    .modal-title {
       font-size: 18px;
       font-weight: 600;
+      margin: 0;
     }
 
-    .close-btn {
+    .modal-close {
       background: none;
       border: none;
-      font-size: 24px;
+      font-size: 22px;
       cursor: pointer;
       color: var(--text-secondary);
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
     }
 
-    .detail-group {
+    .modal-close:hover { color: var(--text-primary); }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-section {
       margin-bottom: 1.5rem;
     }
 
-    .detail-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
+    .modal-section:last-child { margin-bottom: 0; }
+
+    .modal-section-title {
+      font-size: 13px;
       font-weight: 600;
-      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 0.5px solid var(--border);
     }
 
-    .detail-value {
-      font-size: 14px;
-      color: var(--text-primary);
-      line-height: 1.6;
-    }
-
-    .detail-value.phone {
-      color: var(--pink);
-      font-weight: 500;
-    }
-
-    .detail-items {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .detail-item {
+    .modal-row {
       display: flex;
       justify-content: space-between;
-      padding: 8px;
-      background: var(--bg-soft);
-      border-radius: 6px;
+      align-items: flex-start;
+      font-size: 14px;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-row:last-child { margin-bottom: 0; }
+
+    .modal-label {
+      color: var(--text-secondary);
+      font-weight: 500;
+      flex: 0 0 35%;
+    }
+
+    .modal-value {
+      color: var(--text-primary);
+      font-weight: 500;
+      flex: 1;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .paket-item {
+      background: var(--pink-light);
+      border: 0.5px solid rgba(212,83,126,0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 0.5rem;
       font-size: 13px;
+      color: var(--text-primary);
     }
 
-    .loading {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-secondary);
-    }
+    .paket-item:last-child { margin-bottom: 0; }
 
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--text-secondary);
-    }
-
-    .empty-state i {
-      font-size: 48px;
-      opacity: 0.3;
-      display: block;
-      margin-bottom: 1rem;
-    }
-
-    @media (max-width: 1200px) {
-      .sidebar { width: 250px; }
-      .main-content { margin-left: 250px; }
-      .modal-content { width: 100%; }
-    }
-
+    /* Responsive */
     @media (max-width: 768px) {
-      .sidebar { width: 100%; height: auto; position: relative; padding: 1rem 0; }
-      .main-content { margin-left: 0; padding: 1rem; }
-      .dashboard-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .booking-table { font-size: 12px; }
-      .booking-table th, .booking-table td { padding: 10px; }
+      .dashboard-wrap { padding: 1.5rem 1rem; }
+      .dashboard-header { flex-direction: column; align-items: flex-start; }
+      .header-controls { width: 100%; }
+      .search-box { min-width: auto; flex: 1; }
+      .booking-card { grid-template-columns: 1fr; gap: 1rem; }
+      .booking-header { flex-direction: column; align-items: flex-start; }
+      .booking-price { text-align: left; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-header h1 { font-size: 22px; }
+      .booking-meta { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<aside class="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-logo">🌸</div>
-    <div class="sidebar-brand">
-      <h2>Happy MUA</h2>
-      <p>Booking Management</p>
-    </div>
-  </div>
-  
-  <ul class="sidebar-menu">
-    <li><a href="#dashboard" class="active" onclick="setActive(this)"><i class="ti ti-layout-dashboard"></i> Dashboard</a></li>
-    <li><a href="#bookings" onclick="setActive(this)"><i class="ti ti-calendar"></i> Booking</a></li>
-    <li><a href="#clients" onclick="setActive(this)"><i class="ti ti-users"></i> Klien</a></li>
-    <li><a href="#reports" onclick="setActive(this)"><i class="ti ti-chart-bar"></i> Laporan</a></li>
-    <li><a href="#settings" onclick="setActive(this)"><i class="ti ti-settings"></i> Pengaturan</a></li>
-  </ul>
-</aside>
+<div class="dashboard-wrap">
 
-<!-- Main Content -->
-<main class="main-content">
-  
   <!-- Header -->
   <div class="dashboard-header">
-    <h1>Dashboard Booking</h1>
-    <div class="header-actions">
-      <button class="btn" onclick="exportData()"><i class="ti ti-download"></i> Export</button>
-      <button class="btn btn-primary" onclick="openNewBooking()"><i class="ti ti-plus"></i> Booking Baru</button>
+    <h1>📋 Dashboard Booking MUA</h1>
+    <div class="header-controls">
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" id="searchInput" placeholder="Cari nama atau nomor WA..." />
+      </div>
+      <select id="filterStatus" class="filter-select">
+        <option value="">Semua Status</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="completed">Completed</option>
+      </select>
+      <button id="refreshBtn" class="btn-refresh">
+        <i class="ti ti-refresh"></i> Refresh
+      </button>
     </div>
   </div>
 
-  <!-- Stats Grid -->
-  <div class="stats-grid">
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow">
     <div class="stat-card">
-      <span class="stat-label">Total Booking</span>
-      <span class="stat-value" id="totalBooking">0</span>
-      <span class="stat-desc" id="totalBookingDesc">Bulan ini</span>
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-label">Total Booking</div>
     </div>
     <div class="stat-card">
-      <span class="stat-label">Pending</span>
-      <span class="stat-value" style="color: var(--warning);" id="pendingBooking">0</span>
-      <span class="stat-desc">Menunggu konfirmasi</span>
+      <div class="stat-value" id="statPending">0</div>
+      <div class="stat-label">Pending</div>
     </div>
     <div class="stat-card">
-      <span class="stat-label">Pendapatan</span>
-      <span class="stat-value" id="revenue">Rp 0</span>
-      <span class="stat-desc" id="revenueDesc">Bulan ini</span>
+      <div class="stat-value" id="statConfirmed">0</div>
+      <div class="stat-label">Confirmed</div>
     </div>
     <div class="stat-card">
-      <span class="stat-label">Total Klien</span>
-      <span class="stat-value" style="color: var(--success);" id="totalClients">0</span>
-      <span class="stat-desc">Unik klien</span>
+      <div class="stat-value" id="statRevenue">Rp 0</div>
+      <div class="stat-label">Total Revenue</div>
     </div>
   </div>
 
-  <!-- Booking Section -->
-  <div class="booking-section">
-    <div class="booking-section-header">
-      <h2>Booking Terbaru</h2>
-      <input type="search" id="searchInput" placeholder="Cari nama atau nomor..." style="padding: 8px 12px; border: 0.5px solid var(--border); border-radius: 6px; font-size: 13px; width: 250px;">
-    </div>
-
-    <div class="filter-tabs">
-      <button class="filter-tab active" onclick="filterBookings('all')">Semua</button>
-      <button class="filter-tab" onclick="filterBookings('pending')">Pending</button>
-      <button class="filter-tab" onclick="filterBookings('confirmed')">Confirmed</button>
-      <button class="filter-tab" onclick="filterBookings('done')">Selesai</button>
-    </div>
-
-    <div class="booking-list">
-      <table class="booking-table">
-        <thead>
-          <tr>
-            <th>Klien</th>
-            <th>Tanggal</th>
-            <th>Paket</th>
-            <th>Total</th>
-            <th>DP</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="bookingBody">
-          <tr><td colspan="7" class="loading"><i class="ti ti-loader"></i> Memuat data...</td></tr>
-        </tbody>
-      </table>
+  <!-- Bookings List -->
+  <div class="bookings-container" id="bookingsContainer">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
     </div>
   </div>
 
-</main>
+</div>
 
-<!-- Detail Modal -->
+<!-- Modal Detail -->
 <div class="modal" id="detailModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>Detail Booking</h2>
-      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <h2 class="modal-title">Detail Booking</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
-    <div id="detailContent"></div>
+    <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
 
 <script>
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeJ30SxQOh-YlGgfJgURvKdpyMJHLGrn0wtxsPTaPhMmejM3QOqiotSkCmspNV8pL7/exec";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdESmXZLn-3El_qs5qhGfFBUL0sBdMjm3HwwiNGtQD581lTLFhxkW-UU8Nb5w6x_2uZw/exec";
+  
   let allBookings = [];
   let filteredBookings = [];
-  let currentFilter = 'all';
 
-  // Format Rupiah
-  function fmtRp(n) {
-    if (n === 0 || n === '0') return 'Rp 0';
-    if (typeof n === 'string') n = parseInt(n.replace(/[^0-9]/g, '')) || 0;
-    return 'Rp ' + n.toLocaleString('id-ID');
+  /* Format Rupiah */
+  function fmtRp(str) {
+    if (!str) return 'Rp 0';
+    const num = parseInt(str.replace(/[^0-9]/g, ''), 10) || 0;
+    return 'Rp ' + num.toLocaleString('id-ID');
   }
 
-  // Format Tanggal
-  function formatTanggal(tanggalStr) {
-    if (!tanggalStr || tanggalStr === '-') return '-';
-    const date = new Date(tanggalStr);
-    if (isNaN(date.getTime())) return tanggalStr; // Return as-is jika invalid
-    return date.toLocaleDateString('id-ID');
+  /* Parse Date */
+  function parseDate(dateStr) {
+    return new Date(dateStr + 'T00:00:00');
   }
 
-  // Set Active Menu
-  function setActive(el) {
-    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-    el.classList.add('active');
+  /* Format Date */
+  function fmtDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = parseDate(dateStr);
+    return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
-  // Load Bookings
+  /* Load Data */
   async function loadBookings() {
+    document.getElementById('bookingsContainer').innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
     try {
-      const response = await fetch(APPS_SCRIPT_URL + '?action=getBookings');
+      const response = await fetch(APPS_SCRIPT_URL + '?action=getData');
       const data = await response.json();
       
-      allBookings = data.map(row => ({
-        id: row[0] || Math.random(),
-        tanggal_submit: new Date(row[1]),
-        nama: row[2] || '-',
-        wa: row[3] || '-',
-        email: row[4] || '-',
-        lokasi: row[5] || '-',
-        tanggal: row[6] || '-',
-        jam_selesai: row[7] || '-',
-        paket: row[8] || '-',
-        jumlah_orang: row[9] || 1,
-        addon: row[10] || '-',
-        transport_biaya: row[11] || 0,
-        dp: row[12] || 0,
-        subtotal: row[13] || 0,
-        sisa_bayar: row[14] || 0,
-        status: row[15] || 'Pending'
-      }));
-
-      updateStats();
-      renderBookings();
-    } catch (e) {
-      console.error('Error loading bookings:', e);
+      if (data.success) {
+        allBookings = data.bookings || [];
+        filteredBookings = [...allBookings];
+        renderBookings();
+        updateStats();
+      } else {
+        showError('Gagal memuat data');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showError('Gagal terhubung ke server');
     }
   }
 
-  // Update Stats
-  function updateStats() {
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    
-    const thisMonth = allBookings.filter(b => {
-      const d = new Date(b.tanggal_submit);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    });
-
-    const pending = allBookings.filter(b => b.status === 'Pending').length;
-    const monthlyRevenue = thisMonth.reduce((sum, b) => sum + (parseInt(b.subtotal) || 0), 0);
-
-    document.getElementById('totalBooking').textContent = thisMonth.length;
-    document.getElementById('totalBookingDesc').textContent = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-    document.getElementById('pendingBooking').textContent = pending;
-    document.getElementById('revenue').textContent = fmtRp(monthlyRevenue);
-    document.getElementById('revenueDesc').textContent = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-    document.getElementById('totalClients').textContent = new Set(allBookings.map(b => b.wa)).size;
-  }
-
-  // Filter Bookings
-  function filterBookings(filter) {
-    currentFilter = filter;
-    document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
-    event.target.classList.add('active');
-    renderBookings();
-  }
-
-  // Render Bookings Table
+  /* Render Bookings */
   function renderBookings() {
-    let toDisplay = allBookings;
-
-    if (currentFilter !== 'all') {
-      toDisplay = allBookings.filter(b => b.status.toLowerCase() === currentFilter);
-    }
-
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    if (search) {
-      toDisplay = toDisplay.filter(b => 
-        b.nama.toLowerCase().includes(search) || 
-        b.wa.includes(search)
-      );
-    }
-
-    filteredBookings = toDisplay;
-
-    if (toDisplay.length === 0) {
-      document.getElementById('bookingBody').innerHTML = 
-        '<tr><td colspan="7" class="empty-state"><i class="ti ti-inbox"></i> Tidak ada booking</td></tr>';
+    const container = document.getElementById('bookingsContainer');
+    
+    if (filteredBookings.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="ti ti-inbox"></i>
+          <p>Tidak ada booking ditemukan</p>
+        </div>
+      `;
       return;
     }
 
-    document.getElementById('bookingBody').innerHTML = toDisplay.map(b => `
-      <tr>
-        <td>
-          <div class="booking-client">
-            <span class="booking-client-name">${b.nama}</span>
-            <span class="booking-client-info">${b.wa}</span>
+    container.innerHTML = filteredBookings.map(booking => `
+      <div class="booking-card" onclick="showDetail('${booking.id}')">
+        <div class="booking-info">
+          <div class="booking-header">
+            <div class="booking-name">${booking.nama}</div>
+            <span class="booking-status status-${booking.status || 'pending'}">
+              ${booking.status === 'completed' ? 'Selesai' : booking.status === 'confirmed' ? 'Terkonfirmasi' : 'Pending'}
+            </span>
           </div>
-        </td>
-        <td>
-          <div class="booking-date">${b.tanggal}</div>
-          <div class="booking-date-info">${b.jam_selesai !== '-' ? 'Selesai ' + b.jam_selesai : ''}</div>
-        </td>
-        <td>${b.paket.split(' x')[0]}</td>
-        <td class="price-cell">${fmtRp(b.subtotal)}</td>
-        <td>${fmtRp(b.dp)}</td>
-        <td>
-          <span class="status-badge status-${b.status.toLowerCase()}">
-            <i class="ti ${getStatusIcon(b.status)}"></i>
-            ${b.status}
-          </span>
-        </td>
-        <td class="action-cell">
-          <button class="action-btn" onclick="viewDetail(${allBookings.indexOf(b)})" title="Lihat detail">
-            <i class="ti ti-eye"></i>
-          </button>
-          <button class="action-btn" onclick="editBooking(${allBookings.indexOf(b)})" title="Edit">
-            <i class="ti ti-edit"></i>
-          </button>
-        </td>
-      </tr>
+          <div class="booking-meta">
+            <div class="booking-meta-item">
+              <i class="ti ti-calendar"></i>
+              <div>
+                <div class="booking-meta-label">Tanggal</div>
+                <div class="booking-meta-value">${fmtDate(booking.tanggal)}</div>
+              </div>
+            </div>
+            <div class="booking-meta-item">
+              <i class="ti ti-phone"></i>
+              <div>
+                <div class="booking-meta-label">WhatsApp</div>
+                <div class="booking-meta-value">${booking.wa}</div>
+              </div>
+            </div>
+            <div class="booking-meta-item">
+              <i class="ti ti-map-pin"></i>
+              <div>
+                <div class="booking-meta-label">Lokasi</div>
+                <div class="booking-meta-value">${booking.lokasi?.substring(0, 20) || '-'}...</div>
+              </div>
+            </div>
+            <div class="booking-meta-item">
+              <i class="ti ti-users"></i>
+              <div>
+                <div class="booking-meta-label">Jumlah Orang</div>
+                <div class="booking-meta-value">${booking.jumlah_orang || 1} orang</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="booking-price">
+          <div class="price-subtotal">Subtotal</div>
+          <div class="price-dp">${fmtRp(booking.subtotal)}</div>
+          <div class="price-sisa">${fmtRp(booking.sisa_bayar)}</div>
+        </div>
+      </div>
     `).join('');
   }
 
-  function getStatusIcon(status) {
-    const icons = {
-      'pending': 'ti-clock',
-      'confirmed': 'ti-circle-check',
-      'done': 'ti-circle-check'
-    };
-    return icons[status.toLowerCase()] || 'ti-circle';
-  }
+  /* Show Detail Modal */
+  function showDetail(bookingId) {
+    const booking = allBookings.find(b => b.id === bookingId);
+    if (!booking) return;
 
-  // View Detail
-  function viewDetail(index) {
-    const booking = allBookings[index];
-    const html = `
-      <div class="detail-group">
-        <div class="detail-label">Informasi Klien</div>
-        <div class="detail-items">
-          <div class="detail-item">
-            <span>Nama</span>
-            <strong>${booking.nama}</strong>
-          </div>
-          <div class="detail-item">
-            <span>WhatsApp</span>
-            <strong class="detail-value phone">${booking.wa}</strong>
-          </div>
-          <div class="detail-item">
-            <span>Email</span>
-            <span>${booking.email}</span>
-          </div>
-          <div class="detail-item">
-            <span>Lokasi</span>
-            <span>${booking.lokasi}</span>
-          </div>
+    const modalBody = document.getElementById('modalBody');
+    
+    modalBody.innerHTML = `
+      <!-- Client Info -->
+      <div class="modal-section">
+        <div class="modal-section-title">Informasi Klien</div>
+        <div class="modal-row">
+          <div class="modal-label">Nama</div>
+          <div class="modal-value">${booking.nama}</div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-label">Email</div>
+          <div class="modal-value">${booking.email}</div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-label">WhatsApp</div>
+          <div class="modal-value">${booking.wa}</div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-label">Lokasi</div>
+          <div class="modal-value">${booking.lokasi}</div>
         </div>
       </div>
 
-      <div class="detail-group">
-        <div class="detail-label">Jadwal</div>
-        <div class="detail-items">
-          <div class="detail-item">
-            <span>Tanggal</span>
-            <strong>${booking.tanggal}</strong>
-          </div>
-          <div class="detail-item">
-            <span>Jam Selesai</span>
-            <span>${booking.jam_selesai}</span>
-          </div>
+      <!-- Schedule -->
+      <div class="modal-section">
+        <div class="modal-section-title">Detail Jadwal</div>
+        <div class="modal-row">
+          <div class="modal-label">Tanggal</div>
+          <div class="modal-value">${fmtDate(booking.tanggal)}</div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-label">Jam Selesai Target</div>
+          <div class="modal-value">${booking.jam_selesai || '-'}</div>
         </div>
       </div>
 
-      <div class="detail-group">
-        <div class="detail-label">Layanan</div>
-        <div class="detail-value">${booking.paket}</div>
-        <div class="detail-value" style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
-          Jumlah Orang: ${booking.jumlah_orang}
+      <!-- Paket & Layanan -->
+      <div class="modal-section">
+        <div class="modal-section-title">Paket & Layanan</div>
+        <div class="modal-row" style="flex-direction: column; align-items: flex-start;">
+          <div class="modal-label" style="margin-bottom: 0.5rem;">Paket Make Up</div>
+          ${booking.paket ? booking.paket.split(' | ').map(p => `<div class="paket-item">${p}</div>`).join('') : '<div class="paket-item">-</div>'}
+        </div>
+        ${booking.addon && booking.addon !== 'Tidak ada' ? `
+          <div class="modal-row" style="flex-direction: column; align-items: flex-start; margin-top: 1rem;">
+            <div class="modal-label" style="margin-bottom: 0.5rem;">Add On</div>
+            ${booking.addon.split(', ').map(a => `<div class="paket-item">${a}</div>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- Pembayaran -->
+      <div class="modal-section">
+        <div class="modal-section-title">Pembayaran</div>
+        <div class="modal-row">
+          <div class="modal-label">Subtotal</div>
+          <div class="modal-value">${fmtRp(booking.subtotal)}</div>
+        </div>
+        ${booking.transport_biaya && booking.transport_biaya !== '-' ? `
+          <div class="modal-row">
+            <div class="modal-label">Transport</div>
+            <div class="modal-value">${fmtRp(booking.transport_biaya)}</div>
+          </div>
+        ` : ''}
+        <div class="modal-row">
+          <div class="modal-label">DP</div>
+          <div class="modal-value">${fmtRp(booking.dp)}</div>
+        </div>
+        <div class="modal-row" style="border-top: 0.5px solid var(--border); padding-top: 0.75rem; margin-top: 0.75rem;">
+          <div class="modal-label" style="font-weight: 600;">Sisa Pembayaran</div>
+          <div class="modal-value" style="font-weight: 600; color: var(--pink);">${fmtRp(booking.sisa_bayar)}</div>
         </div>
       </div>
 
-      ${booking.addon !== 'Tidak ada' ? `
-      <div class="detail-group">
-        <div class="detail-label">Add On</div>
-        <div class="detail-value">${booking.addon}</div>
-      </div>
-      ` : ''}
-
-      <div class="detail-group">
-        <div class="detail-label">Pembayaran</div>
-        <div class="detail-items">
-          <div class="detail-item">
-            <span>Total</span>
-            <strong>${fmtRp(booking.subtotal)}</strong>
-          </div>
-          <div class="detail-item">
-            <span>DP</span>
-            <strong>${fmtRp(booking.dp)}</strong>
-          </div>
-          <div class="detail-item" style="background: var(--pink-light);">
-            <span style="color: var(--pink); font-weight: 600;">Sisa Bayar</span>
-            <strong style="color: var(--pink);">${fmtRp(booking.sisa_bayar)}</strong>
+      <!-- Status -->
+      <div class="modal-section">
+        <div class="modal-section-title">Status</div>
+        <div class="modal-row">
+          <div class="modal-label">Status Booking</div>
+          <div class="modal-value">
+            <span class="booking-status status-${booking.status || 'pending'}">
+              ${booking.status === 'completed' ? 'Selesai' : booking.status === 'confirmed' ? 'Terkonfirmasi' : 'Pending'}
+            </span>
           </div>
         </div>
-      </div>
-
-      <div class="detail-group">
-        <div class="detail-label">Status</div>
-        <select style="width: 100%; padding: 8px 12px; border: 0.5px solid var(--border); border-radius: 6px; font-size: 13px; color: var(--text-primary);" onchange="updateStatus(${index}, this.value)">
-          <option value="Pending" ${booking.status === 'Pending' ? 'selected' : ''}>Pending</option>
-          <option value="Confirmed" ${booking.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
-          <option value="Done" ${booking.status === 'Done' ? 'selected' : ''}>Done</option>
-        </select>
       </div>
     `;
-    
-    document.getElementById('detailContent').innerHTML = html;
+
     document.getElementById('detailModal').classList.add('active');
   }
 
+  /* Close Modal */
   function closeModal() {
     document.getElementById('detailModal').classList.remove('active');
   }
 
-  function editBooking(index) {
-    alert('Fitur edit akan segera tersedia');
+  /* Update Stats */
+  function updateStats() {
+    const stats = {
+      total: allBookings.length,
+      pending: allBookings.filter(b => !b.status || b.status === 'pending').length,
+      confirmed: allBookings.filter(b => b.status === 'confirmed').length,
+      revenue: allBookings.reduce((sum, b) => {
+        const sisa = parseInt(b.sisa_bayar?.replace(/[^0-9]/g, '') || 0, 10);
+        return sum + sisa;
+      }, 0)
+    };
+
+    document.getElementById('statTotal').textContent = stats.total;
+    document.getElementById('statPending').textContent = stats.pending;
+    document.getElementById('statConfirmed').textContent = stats.confirmed;
+    document.getElementById('statRevenue').textContent = 'Rp ' + stats.revenue.toLocaleString('id-ID');
   }
 
-  function updateStatus(index, newStatus) {
-    allBookings[index].status = newStatus;
-    renderBookings();
-    // TODO: Send update to Apps Script
-  }
+  /* Filter & Search */
+  function applyFilters() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('filterStatus').value;
 
-  function exportData() {
-    const csv = [['Tanggal Submit', 'Nama', 'WhatsApp', 'Email', 'Lokasi', 'Tanggal Acara', 'Jam Selesai', 'Paket', 'Jumlah Orang', 'Add On', 'Total', 'DP', 'Sisa Bayar', 'Status']];
-    allBookings.forEach(b => {
-      csv.push([
-        new Date(b.tanggal_submit).toLocaleDateString('id-ID'),
-        b.nama,
-        b.wa,
-        b.email,
-        b.lokasi,
-        b.tanggal,
-        b.jam_selesai,
-        b.paket,
-        b.jumlah_orang,
-        b.addon,
-        b.subtotal,
-        b.dp,
-        b.sisa_bayar,
-        b.status
-      ]);
+    filteredBookings = allBookings.filter(booking => {
+      const matchSearch = booking.nama.toLowerCase().includes(searchTerm) ||
+                         booking.wa.includes(searchTerm);
+      const matchStatus = !statusFilter || (booking.status || 'pending') === statusFilter;
+      return matchSearch && matchStatus;
     });
 
-    let csvContent = csv.map(row => row.map(cell => '"' + cell + '"').join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'bookings_' + new Date().toISOString().split('T')[0] + '.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  function openNewBooking() {
-    window.location.href = 'booking-mua.v4.html';
-  }
-
-  // Search
-  document.getElementById('searchInput').addEventListener('keyup', () => {
     renderBookings();
+  }
+
+  /* Show Error */
+  function showError(msg) {
+    document.getElementById('bookingsContainer').innerHTML = `
+      <div class="empty-state">
+        <i class="ti ti-alert-circle"></i>
+        <p>${msg}</p>
+      </div>
+    `;
+  }
+
+  /* Event Listeners */
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('filterStatus').addEventListener('change', applyFilters);
+  document.getElementById('refreshBtn').addEventListener('click', loadBookings);
+  document.getElementById('detailModal').addEventListener('click', (e) => {
+    if (e.target.id === 'detailModal') closeModal();
   });
 
-  // Load on page load
-  window.addEventListener('DOMContentLoaded', () => {
-    loadBookings();
-    setInterval(loadBookings, 30000); // Refresh setiap 30 detik
-  });
+  /* Init */
+  window.addEventListener('DOMContentLoaded', loadBookings);
 </script>
 
 </body>
