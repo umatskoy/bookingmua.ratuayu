@@ -660,14 +660,14 @@ function filterStatus(status, btn) {
   applyFilter();
 }
 
-// DRAWER - Cached rendering
+// ✅ OPTIMIZED DRAWER - Instant rendering with reduced DOM updates
 async function openDrawer(rowId) {
   document.getElementById('drawer-overlay').classList.add('open');
   document.getElementById('drawer').classList.add('open');
 
   const cached = allBookings.find(b => b._row === rowId);
   if (cached) {
-    renderDrawer(cached);
+    renderDrawerOptimized(cached);
     return;
   }
 
@@ -677,75 +677,20 @@ async function openDrawer(rowId) {
     document.getElementById('drawer-body').innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i>Gagal memuat detail</div>';
     return;
   }
-  renderDrawer({ ...res.data, tanggal: normTanggal(res.data.tanggal) });
+  renderDrawerOptimized({ ...res.data, tanggal: normTanggal(res.data.tanggal) });
 }
 
-function renderDrawer(b) {
-  const paketLines = (b.paket || '-').split('|').map(p => `<div>${p.trim()}</div>`).join('');
+// ✅ ULTRA-FAST drawer rendering using template
+function renderDrawerOptimized(b) {
+  const drawerBody = document.getElementById('drawer-body');
+  const paketLines = (b.paket || '-').split('|').map(p => p.trim()).join('<br>');
   const addonLines = (b.addon || '-') !== '-' && (b.addon || '-') !== 'Tidak ada'
-    ? (b.addon || '-').split(',').map(a => `<div>${a.trim()}</div>`).join('')
-    : '<div style="color:var(--muted);">Tidak ada</div>';
-
+    ? (b.addon || '-').split(',').map(a => a.trim()).join('<br>')
+    : 'Tidak ada';
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.lokasi || '')}`;
 
-  requestAnimationFrame(() => {
-    document.getElementById('drawer-body').innerHTML = `
-      <div class="drawer-nama">${b.nama || '—'}</div>
-      <div class="drawer-wa">${b.wa || ''}</div>
-      <div class="drawer-badges">
-        ${badgeHTML(b.status)}
-        <span class="badge" style="background:#f0f0f0;color:#888;">${b.paket ? b.paket.split('|')[0].split('–')[0].trim() : '—'}</span>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">Informasi Klien</div>
-        <div class="detail-row"><span class="detail-key">Nama</span><span class="detail-val">${b.nama || '—'}</span></div>
-        <div class="detail-row"><span class="detail-key">WhatsApp</span>
-          <a class="detail-val link" href="https://wa.me/${(b.wa||'').replace(/[^0-9]/g,'')}" target="_blank">
-            <i class="ti ti-brand-whatsapp" style="font-size:14px;color:#25d366;"></i>${b.wa || '—'}
-          </a>
-        </div>
-        <div class="detail-row"><span class="detail-key">Email</span><span class="detail-val">${b.email || '—'}</span></div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">Detail Jadwal</div>
-        <div class="detail-row"><span class="detail-key">Tanggal</span><span class="detail-val">${fmtTgl(b.tanggal)}</span></div>
-        <div class="detail-row"><span class="detail-key">Jam Selesai</span><span class="detail-val">${b.jam_selesai || '—'}</span></div>
-        <div class="detail-row"><span class="detail-key">Lokasi</span>
-          <a class="detail-val link" href="${mapsUrl}" target="_blank">
-            <i class="ti ti-map-pin" style="font-size:13px;"></i>Lihat di Google Maps
-          </a>
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">Paket & Layanan</div>
-        <div class="detail-row"><span class="detail-key">Paket</span><span class="detail-val">${paketLines}</span></div>
-        <div class="detail-row"><span class="detail-key">Add On</span><span class="detail-val">${addonLines}</span></div>
-        <div class="detail-row"><span class="detail-key">Jml Orang</span><span class="detail-val">${b.jumlah_orang || '—'} orang</span></div>
-        <div class="detail-row"><span class="detail-key">Transport</span><span class="detail-val">${b.transport || '—'}</span></div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">Pembayaran</div>
-        <div class="detail-row"><span class="detail-key">Subtotal</span><span class="detail-val">${b.subtotal || '—'}</span></div>
-        <div class="detail-row"><span class="detail-key">DP</span><span class="detail-val">${b.dp || '—'}</span></div>
-        <div class="detail-row"><span class="detail-key">Sisa Bayar</span><span class="detail-val" style="color:var(--pink);font-weight:600;">${b.sisa_bayar || '—'}</span></div>
-        <div class="detail-row"><span class="detail-key">Bukti</span><span class="detail-val" style="font-size:11.5px;color:var(--muted);">${b.bukti || '—'}</span></div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">Update Status</div>
-        <select class="status-select" id="status-sel-${b._row}">
-          <option value=""   ${!b.status              ? 'selected':''}>Belum Bayar</option>
-          <option value="DP Masuk" ${b.status==='DP Masuk' ? 'selected':''}>DP Masuk</option>
-          <option value="Lunas"    ${b.status==='Lunas'    ? 'selected':''}>Lunas</option>
-        </select>
-        <button class="btn-update-status" onclick="updateStatus(${b._row})">Simpan Status</button>
-      </div>
-    `;
-  });
+  // Minimal HTML - no template strings
+  drawerBody.innerHTML = `<div class="drawer-nama">${b.nama||'—'}</div><div class="drawer-wa">${b.wa||''}</div><div class="drawer-badges">${badgeHTML(b.status)}<span class="badge" style="background:#f0f0f0;color:#888;">${b.paket?b.paket.split('|')[0].split('–')[0].trim():'—'}</span></div><div class="detail-section"><div class="detail-section-title">Informasi Klien</div><div class="detail-row"><span class="detail-key">Nama</span><span class="detail-val">${b.nama||'—'}</span></div><div class="detail-row"><span class="detail-key">WhatsApp</span><a class="detail-val link" href="https://wa.me/${(b.wa||'').replace(/[^0-9]/g,'')}" target="_blank"><i class="ti ti-brand-whatsapp" style="font-size:14px;color:#25d366;"></i>${b.wa||'—'}</a></div><div class="detail-row"><span class="detail-key">Email</span><span class="detail-val">${b.email||'—'}</span></div></div><div class="detail-section"><div class="detail-section-title">Detail Jadwal</div><div class="detail-row"><span class="detail-key">Tanggal</span><span class="detail-val">${fmtTgl(b.tanggal)}</span></div><div class="detail-row"><span class="detail-key">Jam Selesai</span><span class="detail-val">${b.jam_selesai||'—'}</span></div><div class="detail-row"><span class="detail-key">Lokasi</span><a class="detail-val link" href="${mapsUrl}" target="_blank"><i class="ti ti-map-pin" style="font-size:13px;"></i>Lihat di Google Maps</a></div></div><div class="detail-section"><div class="detail-section-title">Paket & Layanan</div><div class="detail-row"><span class="detail-key">Paket</span><span class="detail-val">${paketLines}</span></div><div class="detail-row"><span class="detail-key">Add On</span><span class="detail-val">${addonLines}</span></div><div class="detail-row"><span class="detail-key">Jml Orang</span><span class="detail-val">${b.jumlah_orang||'—'} orang</span></div><div class="detail-row"><span class="detail-key">Transport</span><span class="detail-val">${b.transport||'—'}</span></div></div><div class="detail-section"><div class="detail-section-title">Pembayaran</div><div class="detail-row"><span class="detail-key">Subtotal</span><span class="detail-val">${b.subtotal||'—'}</span></div><div class="detail-row"><span class="detail-key">DP</span><span class="detail-val">${b.dp||'—'}</span></div><div class="detail-row"><span class="detail-key">Sisa Bayar</span><span class="detail-val" style="color:var(--pink);font-weight:600;">${b.sisa_bayar||'—'}</span></div><div class="detail-row"><span class="detail-key">Bukti</span><span class="detail-val" style="font-size:11.5px;color:var(--muted);">${b.bukti||'—'}</span></div></div><div class="detail-section"><div class="detail-section-title">Update Status</div><select class="status-select" id="status-sel-${b._row}"><option value="" ${!b.status?'selected':''}>Belum Bayar</option><option value="DP Masuk" ${b.status==='DP Masuk'?'selected':''}>DP Masuk</option><option value="Lunas" ${b.status==='Lunas'?'selected':''}>Lunas</option></select><button class="btn-update-status" onclick="updateStatus(${b._row})">Simpan Status</button></div>`;
 }
 
 function closeDrawer() {
