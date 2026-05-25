@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Booking MUA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink: #D4537E;
+      --pink-light: rgba(212, 83, 126, 0.08);
+      --text-primary: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --border: #e0e0e0;
+      --bg: #fff;
+      --bg-soft: #fafaf9;
+      --success: #3b6d11;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-soft);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      padding: 2rem 0;
+      overflow-y: auto;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+    }
+
+    .sidebar-header {
+      padding: 0 1.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--pink);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 20px;
+    }
+
+    .sidebar-brand h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .sidebar-brand p {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .sidebar-menu li {
+      margin: 0;
+    }
+
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13.5px;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-menu a:hover {
+      background: var(--pink-light);
+      color: var(--pink);
+      border-left-color: var(--pink);
+    }
+
+    .sidebar-menu a.active {
+      background: var(--pink-light);
+      color: var(--pink);
+      border-left-color: var(--pink);
+      font-weight: 600;
+    }
+
+    .sidebar-menu a i {
+      font-size: 18px;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      flex: 1;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background: var(--bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .dashboard-header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: 0.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text-primary);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--pink-light);
+      border-color: var(--pink);
+      color: var(--pink);
+    }
+
+    .btn-primary {
+      background: var(--pink);
+      color: white;
+      border-color: var(--pink);
+    }
+
+    .btn-primary:hover {
+      background: #bf4570;
+      border-color: #bf4570;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--pink);
+    }
+
+    .stat-desc {
+      font-size: 11px;
+      color: #999;
+    }
+
+    /* Booking List */
+    .booking-section {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .booking-section-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .booking-section-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .filter-tab {
+      padding: 6px 14px;
+      border: 0.5px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .filter-tab:hover,
+    .filter-tab.active {
+      background: var(--pink-light);
+      color: var(--pink);
+      border-color: var(--pink);
+    }
+
+    .booking-list {
+      overflow-x: auto;
+    }
+
+    .booking-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .booking-table th {
+      background: var(--bg-soft);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .booking-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .booking-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .booking-table tr:hover {
+      background: var(--bg-soft);
+    }
+
+    .booking-client {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .booking-client-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .booking-client-info {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .booking-date {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .booking-date-info {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-pending {
+      background: rgba(245, 158, 11, 0.1);
+      color: #b45309;
+    }
+
+    .status-confirmed {
+      background: rgba(59, 109, 17, 0.1);
+      color: var(--success);
+    }
+
+    .status-done {
+      background: rgba(59, 109, 17, 0.15);
+      color: var(--success);
+    }
+
+    .price-cell {
+      font-weight: 600;
+      color: var(--pink);
+    }
+
+    .action-cell {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border: 0.5px solid var(--border);
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      font-size: 16px;
+    }
+
+    .action-btn:hover {
+      background: var(--pink-light);
+      color: var(--pink);
+      border-color: var(--pink);
+    }
+
+    /* Detail Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg);
+      width: 420px;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 2rem;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .detail-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .detail-value {
+      font-size: 14px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .detail-value.phone {
+      color: var(--pink);
+      font-weight: 500;
+    }
+
+    .detail-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px;
+      background: var(--bg-soft);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      opacity: 0.3;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 1200px) {
+      .sidebar { width: 250px; }
+      .main-content { margin-left: 250px; }
+      .modal-content { width: 100%; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; height: auto; position: relative; padding: 1rem 0; }
+      .main-content { margin-left: 0; padding: 1rem; }
+      .dashboard-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .booking-table { font-size: 12px; }
+      .booking-table th, .booking-table td { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">🌸</div>
+    <div class="sidebar-brand">
+      <h2>Happy MUA</h2>
+      <p>Booking Management</p>
+    </div>
+  </div>
+  
+  <ul class="sidebar-menu">
+    <li><a href="#dashboard" class="active" onclick="setActive(this)"><i class="ti ti-layout-dashboard"></i> Dashboard</a></li>
+    <li><a href="#bookings" onclick="setActive(this)"><i class="ti ti-calendar"></i> Booking</a></li>
+    <li><a href="#clients" onclick="setActive(this)"><i class="ti ti-users"></i> Klien</a></li>
+    <li><a href="#reports" onclick="setActive(this)"><i class="ti ti-chart-bar"></i> Laporan</a></li>
+    <li><a href="#settings" onclick="setActive(this)"><i class="ti ti-settings"></i> Pengaturan</a></li>
+  </ul>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+  
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>Dashboard Booking</h1>
+    <div class="header-actions">
+      <button class="btn" onclick="exportData()"><i class="ti ti-download"></i> Export</button>
+      <button class="btn btn-primary" onclick="openNewBooking()"><i class="ti ti-plus"></i> Booking Baru</button>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Total Booking</span>
+      <span class="stat-value" id="totalBooking">0</span>
+      <span class="stat-desc" id="totalBookingDesc">Bulan ini</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Pending</span>
+      <span class="stat-value" style="color: var(--warning);" id="pendingBooking">0</span>
+      <span class="stat-desc">Menunggu konfirmasi</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Pendapatan</span>
+      <span class="stat-value" id="revenue">Rp 0</span>
+      <span class="stat-desc" id="revenueDesc">Bulan ini</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Total Klien</span>
+      <span class="stat-value" style="color: var(--success);" id="totalClients">0</span>
+      <span class="stat-desc">Unik klien</span>
+    </div>
+  </div>
+
+  <!-- Booking Section -->
+  <div class="booking-section">
+    <div class="booking-section-header">
+      <h2>Booking Terbaru</h2>
+      <input type="search" id="searchInput" placeholder="Cari nama atau nomor..." style="padding: 8px 12px; border: 0.5px solid var(--border); border-radius: 6px; font-size: 13px; width: 250px;">
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterBookings('all')">Semua</button>
+      <button class="filter-tab" onclick="filterBookings('pending')">Pending</button>
+      <button class="filter-tab" onclick="filterBookings('confirmed')">Confirmed</button>
+      <button class="filter-tab" onclick="filterBookings('done')">Selesai</button>
+    </div>
+
+    <div class="booking-list">
+      <table class="booking-table">
+        <thead>
+          <tr>
+            <th>Klien</th>
+            <th>Tanggal</th>
+            <th>Paket</th>
+            <th>Total</th>
+            <th>DP</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="bookingBody">
+          <tr><td colspan="7" class="loading"><i class="ti ti-loader"></i> Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- Detail Modal -->
+<div class="modal" id="detailModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detail Booking</h2>
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script>
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+  let allBookings = [];
+  let filteredBookings = [];
+  let currentFilter = 'all';
+
+  // Format Rupiah
+  function fmtRp(n) {
+    if (n === 0 || n === '0') return 'Rp 0';
+    if (typeof n === 'string') n = parseInt(n.replace(/[^0-9]/g, '')) || 0;
+    return 'Rp ' + n.toLocaleString('id-ID');
+  }
+
+  // Set Active Menu
+  function setActive(el) {
+    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Load Bookings
+  async function loadBookings() {
+    try {
+      const response = await fetch(APPS_SCRIPT_URL + '?action=getBookings');
+      const data = await response.json();
+      
+      allBookings = data.map(row => ({
+        id: row[0] || Math.random(),
+        tanggal_submit: new Date(row[1]),
+        nama: row[2] || '-',
+        wa: row[3] || '-',
+        email: row[4] || '-',
+        lokasi: row[5] || '-',
+        tanggal: row[6] || '-',
+        jam_selesai: row[7] || '-',
+        paket: row[8] || '-',
+        jumlah_orang: row[9] || 1,
+        addon: row[10] || '-',
+        transport_biaya: row[11] || 0,
+        dp: row[12] || 0,
+        subtotal: row[13] || 0,
+        sisa_bayar: row[14] || 0,
+        status: row[15] || 'Pending'
+      }));
+
+      updateStats();
+      renderBookings();
+    } catch (e) {
+      console.error('Error loading bookings:', e);
+    }
+  }
+
+  // Update Stats
+  function updateStats() {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    
+    const thisMonth = allBookings.filter(b => {
+      const d = new Date(b.tanggal_submit);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+
+    const pending = allBookings.filter(b => b.status === 'Pending').length;
+    const totalSubtotal = allBookings.reduce((sum, b) => sum + (parseInt(b.subtotal) || 0), 0);
+
+    document.getElementById('totalBooking').textContent = thisMonth.length;
+    document.getElementById('totalBookingDesc').textContent = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    document.getElementById('pendingBooking').textContent = pending;
+    document.getElementById('revenue').textContent = fmtRp(totalSubtotal);
+    document.getElementById('totalClients').textContent = new Set(allBookings.map(b => b.wa)).size;
+  }
+
+  // Filter Bookings
+  function filterBookings(filter) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+    event.target.classList.add('active');
+    renderBookings();
+  }
+
+  // Render Bookings Table
+  function renderBookings() {
+    let toDisplay = allBookings;
+
+    if (currentFilter !== 'all') {
+      toDisplay = allBookings.filter(b => b.status.toLowerCase() === currentFilter);
+    }
+
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    if (search) {
+      toDisplay = toDisplay.filter(b => 
+        b.nama.toLowerCase().includes(search) || 
+        b.wa.includes(search)
+      );
+    }
+
+    filteredBookings = toDisplay;
+
+    if (toDisplay.length === 0) {
+      document.getElementById('bookingBody').innerHTML = 
+        '<tr><td colspan="7" class="empty-state"><i class="ti ti-inbox"></i> Tidak ada booking</td></tr>';
+      return;
+    }
+
+    document.getElementById('bookingBody').innerHTML = toDisplay.map(b => `
+      <tr>
+        <td>
+          <div class="booking-client">
+            <span class="booking-client-name">${b.nama}</span>
+            <span class="booking-client-info">${b.wa}</span>
+          </div>
+        </td>
+        <td>
+          <div class="booking-date">${b.tanggal}</div>
+          <div class="booking-date-info">${b.jam_selesai !== '-' ? 'Selesai ' + b.jam_selesai : ''}</div>
+        </td>
+        <td>${b.paket.split(' x')[0]}</td>
+        <td class="price-cell">${fmtRp(b.subtotal)}</td>
+        <td>${fmtRp(b.dp)}</td>
+        <td>
+          <span class="status-badge status-${b.status.toLowerCase()}">
+            <i class="ti ${getStatusIcon(b.status)}"></i>
+            ${b.status}
+          </span>
+        </td>
+        <td class="action-cell">
+          <button class="action-btn" onclick="viewDetail(${allBookings.indexOf(b)})" title="Lihat detail">
+            <i class="ti ti-eye"></i>
+          </button>
+          <button class="action-btn" onclick="editBooking(${allBookings.indexOf(b)})" title="Edit">
+            <i class="ti ti-edit"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function getStatusIcon(status) {
+    const icons = {
+      'pending': 'ti-clock',
+      'confirmed': 'ti-circle-check',
+      'done': 'ti-circle-check'
+    };
+    return icons[status.toLowerCase()] || 'ti-circle';
+  }
+
+  // View Detail
+  function viewDetail(index) {
+    const booking = allBookings[index];
+    const html = `
+      <div class="detail-group">
+        <div class="detail-label">Informasi Klien</div>
+        <div class="detail-items">
+          <div class="detail-item">
+            <span>Nama</span>
+            <strong>${booking.nama}</strong>
+          </div>
+          <div class="detail-item">
+            <span>WhatsApp</span>
+            <strong class="detail-value phone">${booking.wa}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Email</span>
+            <span>${booking.email}</span>
+          </div>
+          <div class="detail-item">
+            <span>Lokasi</span>
+            <span>${booking.lokasi}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-group">
+        <div class="detail-label">Jadwal</div>
+        <div class="detail-items">
+          <div class="detail-item">
+            <span>Tanggal</span>
+            <strong>${booking.tanggal}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Jam Selesai</span>
+            <span>${booking.jam_selesai}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-group">
+        <div class="detail-label">Layanan</div>
+        <div class="detail-value">${booking.paket}</div>
+        <div class="detail-value" style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+          Jumlah Orang: ${booking.jumlah_orang}
+        </div>
+      </div>
+
+      ${booking.addon !== 'Tidak ada' ? `
+      <div class="detail-group">
+        <div class="detail-label">Add On</div>
+        <div class="detail-value">${booking.addon}</div>
+      </div>
+      ` : ''}
+
+      <div class="detail-group">
+        <div class="detail-label">Pembayaran</div>
+        <div class="detail-items">
+          <div class="detail-item">
+            <span>Total</span>
+            <strong>${fmtRp(booking.subtotal)}</strong>
+          </div>
+          <div class="detail-item">
+            <span>DP</span>
+            <strong>${fmtRp(booking.dp)}</strong>
+          </div>
+          <div class="detail-item" style="background: var(--pink-light);">
+            <span style="color: var(--pink); font-weight: 600;">Sisa Bayar</span>
+            <strong style="color: var(--pink);">${fmtRp(booking.sisa_bayar)}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-group">
+        <div class="detail-label">Status</div>
+        <select style="width: 100%; padding: 8px 12px; border: 0.5px solid var(--border); border-radius: 6px; font-size: 13px; color: var(--text-primary);" onchange="updateStatus(${index}, this.value)">
+          <option value="Pending" ${booking.status === 'Pending' ? 'selected' : ''}>Pending</option>
+          <option value="Confirmed" ${booking.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+          <option value="Done" ${booking.status === 'Done' ? 'selected' : ''}>Done</option>
+        </select>
+      </div>
+    `;
+    
+    document.getElementById('detailContent').innerHTML = html;
+    document.getElementById('detailModal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('detailModal').classList.remove('active');
+  }
+
+  function editBooking(index) {
+    alert('Fitur edit akan segera tersedia');
+  }
+
+  function updateStatus(index, newStatus) {
+    allBookings[index].status = newStatus;
+    renderBookings();
+    // TODO: Send update to Apps Script
+  }
+
+  function exportData() {
+    const csv = [['Tanggal', 'Nama', 'WhatsApp', 'Paket', 'Tanggal Acara', 'Total', 'DP', 'Status']];
+    allBookings.forEach(b => {
+      csv.push([
+        new Date(b.tanggal_submit).toLocaleDateString('id-ID'),
+        b.nama,
+        b.wa,
+        b.paket,
+        b.tanggal,
+        b.subtotal,
+        b.dp,
+        b.status
+      ]);
+    });
+
+    let csvContent = csv.map(row => row.map(cell => '"' + cell + '"').join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bookings_' + new Date().toISOString().split('T')[0] + '.csv';
+    a.click();
+  }
+
+  function openNewBooking() {
+    window.location.href = 'booking-mua.v4.html';
+  }
+
+  // Search
+  document.getElementById('searchInput').addEventListener('keyup', () => {
+    renderBookings();
+  });
+
+  // Load on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    loadBookings();
+    setInterval(loadBookings, 30000); // Refresh setiap 30 detik
+  });
+</script>
+
+</body>
+</html>
