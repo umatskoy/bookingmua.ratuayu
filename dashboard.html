@@ -553,6 +553,46 @@
     return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
+  /* ── Normalize Booking Fields ── */
+  // Memetakan semua kemungkinan nama kolom dari Google Sheets ke key standar yang dipakai di JS
+  function normalizeBooking(raw) {
+    // Buat lookup case-insensitive dari semua key yang ada
+    const lookup = {};
+    Object.keys(raw).forEach(k => {
+      lookup[k.toLowerCase().replace(/\s+/g, '_')] = raw[k];
+      // juga simpan key aslinya
+      lookup[k.toLowerCase()] = raw[k];
+    });
+
+    const pick = (...candidates) => {
+      for (const c of candidates) {
+        const v = lookup[c.toLowerCase().replace(/\s+/g, '_')] ?? lookup[c.toLowerCase()];
+        if (v !== undefined && v !== null && v !== '') return v;
+      }
+      return '';
+    };
+
+    return {
+      timestamp:       pick('timestamp'),
+      nama:            pick('nama', 'name', 'Nama'),
+      wa:              pick('wa', 'whatsapp', 'no_wa', 'nomor_wa', 'phone', 'WA'),
+      email:           pick('email', 'Email'),
+      lokasi:          pick('lokasi', 'location', 'Lokasi'),
+      tanggal:         pick('tanggal', 'date', 'Tanggal', 'tgl'),
+      jam_selesai:     pick('jam_selesai', 'jam selesai', 'Jam Selesai', 'jam'),
+      paket:           pick('paket', 'package', 'Paket', 'pak'),
+      addon:           pick('addon', 'add_on', 'add on', 'Add On', 'tambahan'),
+      jumlah_orang:    pick('jumlah_orang', 'jumlah orang', 'Jumlah Orang', 'orang', 'pax'),
+      subtotal:        pick('subtotal', 'total', 'Total', 'harga', 'Subtotal'),
+      dp:              pick('dp', 'down_payment', 'DP', 'uang_muka'),
+      transport_biaya: pick('transport_biaya', 'transport biaya', 'Transport Biaya', 'transport', 'biaya_transport'),
+      bukti:           pick('bukti', 'bukti_transfer', 'Bukti Transfer', 'bukti transfer'),
+      status:          pick('status', 'Status') || 'pending',
+      // simpan semua field asli juga, untuk jaga-jaga
+      _raw: raw,
+    };
+  }
+
   /* ── Load Bookings ── */
   async function loadBookings() {
     const btn = document.getElementById('refreshBtn');
@@ -568,7 +608,9 @@
       const data = await response.json();
 
       if (data.success && data.bookings) {
-        allBookings = data.bookings;
+        allBookings = data.bookings.map(normalizeBooking);
+        console.log('[Dashboard] Raw sample:', data.bookings[0]);
+        console.log('[Dashboard] Normalized sample:', allBookings[0]);
         populateMonthFilter();
         filterBookings();
       } else {
