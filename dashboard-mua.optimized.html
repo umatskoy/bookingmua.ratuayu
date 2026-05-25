@@ -12,7 +12,7 @@
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--pink:#D4537E;--pink-light:rgba(212,83,126,0.1);--pink-focus:rgba(212,83,126,0.18);--sidebar-w:220px;--bg:#F7F5F3;--card:#fff;--text:#1a1a1a;--muted:#888;--border:#EBEBEB;--green:#3b7a2c;--yellow:#b87800;--red:#c0392b;--radius:14px;--shadow:0 1px 12px rgba(0,0,0,0.06);}
+:root{--pink:#D4537E;--pink-light:rgba(212,83,126,0.1);--pink-focus:rgba(212,83,126,0.18);--sidebar-w:220px;--bg:#F7F5F3;--card:#fff;--text:#1a1a1a;--muted:#888;--border:#EBEBEB;--green:#3b7a2c;--yellow:#b87800;--red:#c0392b;--radius:12px;--shadow:0 2px 12px rgba(0,0,0,0.05)}
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
 .sidebar{width:var(--sidebar-w);flex-shrink:0;background:#fff;border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
@@ -30,7 +30,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .topbar{background:#fff;border-bottom:0.5px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
 .topbar-title{font-size:16px;font-weight:600}
 .topbar-right{display:flex;align-items:center;gap:14px}
-.topbar-icon{width:36px;height:36px;border:0.5px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all 0.15s;position:relative}
+.topbar-icon{width:36px;height:36px;border:0.5px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all 0.15s}
 .topbar-icon:hover{border-color:var(--pink);color:var(--pink)}
 .notif-dot{width:7px;height:7px;background:var(--pink);border-radius:50%;position:absolute;top:7px;right:7px;animation:pulse 2s infinite}
 .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--pink),#e88fab);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600}
@@ -93,13 +93,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .chart-bar-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
 .chart-bar{width:100%;border-radius:5px 5px 0 0;background:rgba(212,83,126,0.1);transition:all 0.3s;cursor:pointer;position:relative;min-height:4px}
 .chart-bar:hover{background:var(--pink);transform:scaleY(1.05)}
-.chart-bar-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:10.5px;padding:4px 8px;border-radius:5px;white-space:nowrap;z-index:10;font-weight:500}
+.chart-bar-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:10.5px;padding:4px 8px;border-radius:5px;white-space:nowrap;z-index:10}
 .chart-bar:hover .chart-bar-tip{display:block}
 .chart-label{font-size:10.5px;color:var(--muted);font-weight:500;margin-top:8px}
 
 .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.2);z-index:200;display:none;opacity:0;transition:opacity 0.3s}
 .drawer-overlay.open{display:block;opacity:1}
-.drawer{position:fixed;top:0;right:0;height:100vh;width:400px;background:#fff;z-index:201;overflow-y:auto;box-shadow:-4px 0 30px rgba(0,0,0,0.1);transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:400px;background:#fff;z-index:201;overflow-y:auto;box-shadow:-4px 0 30px rgba(0,0,0,0.1);transform:translateX(100%);transition:transform 0.3s}
 .drawer.open{transform:translateX(0)}
 .drawer-header{padding:18px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:5}
 .drawer-back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;font-weight:500;transition:color 0.15s;user-select:none}
@@ -120,7 +120,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .detail-val.link{color:var(--pink);text-decoration:none;display:flex;align-items:center;gap:4px;cursor:pointer;transition:color 0.15s}
 .detail-val.link:hover{color:#bf4570;text-decoration:underline}
 
-.status-select{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text);background:#fff;outline:none;cursor:pointer;transition:all 0.15s}
+.status-select{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text);background:#fff;outline:none;transition:all 0.15s}
 .status-select:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(212,83,126,0.18)}
 .btn-update-status{width:100%;padding:11px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;margin-top:10px;transition:all 0.15s}
 .btn-update-status:hover:not(:disabled){background:#bf4570;transform:translateY(-1px);box-shadow:0 4px 12px rgba(212,83,126,0.3)}
@@ -154,7 +154,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .cal-popup{position:fixed;z-index:300;background:#fff;border:0.5px solid var(--border);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.12);padding:0;width:280px;overflow:hidden}
 .cal-popup-header{padding:12px 16px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .cal-popup-title{font-size:13px;font-weight:600}
-.cal-popup-close{width:24px;height:24px;border-radius:6px;border:none;background:#f5f5f5;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);transition:all 0.15s}
+.cal-popup-close{width:24px;height:24px;border-radius:6px;border:none;background:#f5f5f5;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);transition:all 0.1s}
 .cal-popup-close:hover{background:#e8e8e8}
 .cal-popup-list{max-height:280px;overflow-y:auto}
 .cal-popup-item{padding:10px 16px;border-bottom:0.5px solid #f5f5f5;cursor:pointer;transition:background 0.1s}
@@ -167,13 +167,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 @keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
 
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:all 0.3s}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.success{background:#2d6a10;box-shadow:0 4px 12px rgba(45,106,16,0.3)}
 .toast.error{background:#c0392b;box-shadow:0 4px 12px rgba(192,57,43,0.3)}
 
 @media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
-@media(max-width:700px){.sidebar{width:60px}.sidebar .logo-text,.sidebar .nav-item span,.sidebar-section{display:none}.main{margin-left:60px}.content{padding:16px}.stats-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.drawer{width:100%}.search-box input{width:120px}}
+@media(max-width:700px){.sidebar{width:60px}.sidebar .logo-text,.sidebar .nav-item span,.sidebar-section{display:none}.main{margin-left:60px}.content{padding:16px}.stats-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.drawer{width:100%}.search-box{width:100%;margin-left:0}.filter-bar{flex-direction:column;align-items:stretch}.filter-btn{width:100%}}
 </style>
 </head>
 <body>
@@ -208,8 +208,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
         <div class="stat-card"><div class="stat-label">Total Klien</div><div class="stat-value" id="s-klien">—</div><div class="stat-sub" id="s-klien-sub">Memuat...</div></div>
       </div>
       <div class="two-col">
-        <div class="section-card"><div class="card-header"><span class="card-title">Cashflow</span><span class="card-action" id="cashflow-label">6 Bulan Terakhir</span></div><div class="chart-wrap"><div class="chart-bars" id="chart-bars"><div style="color:var(--muted);font-size:13px;text-align:center;width:100%;">Memuat grafik...</div></div></div></div>
-        <div class="section-card"><div class="card-header"><span class="card-title">Booking Terbaru</span><button class="btn-booking-baru" onclick="App.showPage('booking')"><i class="ti ti-plus"></i> Lihat Semua</button></div><div class="recent-list" id="recent-list"><div style="padding:30px;text-align:center;color:var(--muted);">Memuat...</div></div></div>
+        <div class="section-card"><div class="card-header"><span class="card-title">Cashflow</span><span class="card-action" id="cashflow-label">6 Bulan Terakhir</span></div><div class="chart-wrap"><div class="chart-bars" id="chart-bars"></div></div></div>
+        <div class="section-card"><div class="card-header"><span class="card-title">Booking Terbaru</span><button class="btn-booking-baru" onclick="App.showPage('booking')"><i class="ti ti-plus"></i>Lihat Semua</button></div><div class="recent-list" id="recent-list"></div></div>
       </div>
     </div>
 
@@ -269,8 +269,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
   </div>
   <div class="drawer-body">
     <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">URL Google Apps Script</p>
-    <input type="text" id="api-url-input" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;"/>
-    <button onclick="App.saveSettings()" style="width:100%;padding:11px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;">Simpan</button>
+    <input type="text" id="api-url-input" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:all 0.15s;" onload="this.focus()"/>
+    <button onclick="App.saveSettings()" style="width:100%;padding:11px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;margin-top:12px;">Simpan</button>
     <p style="font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.6;">URL ini disimpan di browser. Isi dengan URL Web App dari Google Apps Script yang sudah di-deploy.</p>
   </div>
 </div>
@@ -497,7 +497,7 @@ const App = {
     }
     const sorted = [...App.state.allBookings].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0,6);
     requestAnimationFrame(() => {
-      list.innerHTML = sorted.map(b => `<div class="recent-item" onclick="App.openDrawer(${b._row})"><div class="recent-avatar">${App.inisial(b.nama)}</div><div class="recent-info"><div class="recent-nama">${b.nama||'—'}</div><div class="recent-sub">${(b.paket||'').split('|')[0].trim()}</div></div>${App.badgeHTML(b.status)}</div>`).join('');
+      list.innerHTML = sorted.map(b => `<div class="recent-item" onclick="App.openDrawer(${b._row})"><div class="recent-avatar">${App.inisial(b.nama)}</div><div class="recent-info"><div class="recent-nama">${b.nama||'—'}</div><div class="recent-sub">${App.fmtTgl(b.tanggal)}</div></div></div>`).join('');
     });
   },
 
@@ -542,7 +542,7 @@ const App = {
       return;
     }
     requestAnimationFrame(() => {
-      tbody.innerHTML = App.state.filteredBookings.map(b => `<tr onclick="App.openDrawer(${b._row})"><td><div class="klien-cell"><span class="klien-nama">${b.nama||'—'}</span><span class="klien-paket">${b.wa||''}</span></div></td><td><div class="tgl-cell">${App.fmtTgl(b.tanggal)}</div><div class="tgl-sub">${b.jam_selesai !== '-' ? '⏱ '+b.jam_selesai : ''}</div></td><td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${(b.paket||'—').split('|')[0].trim()}</td><td style="font-weight:500;">${b.subtotal||'—'}</td><td>${App.badgeHTML(b.status)}</td></tr>`).join('');
+      tbody.innerHTML = App.state.filteredBookings.map(b => `<tr onclick="App.openDrawer(${b._row})"><td><div class="klien-cell"><span class="klien-nama">${b.nama||'—'}</span><span class="klien-paket">${b.wa||'—'}</span></div></td><td><div class="tgl-cell">${App.fmtTgl(b.tanggal)}</div><div class="tgl-sub">${b.jam_selesai||'—'}</div></td><td>${(b.paket||'—').split('x')[0]}</td><td>${App.fmtRp(b.subtotal)}</td><td>${App.badgeHTML(b.status)}</td></tr>`).join('');
     });
   },
 
@@ -582,7 +582,7 @@ const App = {
       : 'Tidak ada';
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.lokasi || '')}`;
 
-    App.el('drawer-body').innerHTML = `<div class="drawer-nama">${b.nama||'—'}</div><div class="drawer-wa">${b.wa||''}</div><div class="drawer-badges">${App.badgeHTML(b.status)}<span class="badge" style="background:#f0f0f0;color:#888;">${b.paket?b.paket.split('|')[0].split('–')[0].trim():'—'}</span></div><div class="detail-section"><div class="detail-section-title">Informasi Klien</div><div class="detail-row"><span class="detail-key">Nama</span><span class="detail-val">${b.nama||'—'}</span></div><div class="detail-row"><span class="detail-key">WhatsApp</span><a class="detail-val link" href="https://wa.me/${(b.wa||'').replace(/[^0-9]/g,'')}" target="_blank"><i class="ti ti-brand-whatsapp"></i>${b.wa||'—'}</a></div><div class="detail-row"><span class="detail-key">Email</span><span class="detail-val">${b.email||'—'}</span></div></div><div class="detail-section"><div class="detail-section-title">Detail Jadwal</div><div class="detail-row"><span class="detail-key">Tanggal</span><span class="detail-val">${App.fmtTgl(b.tanggal)}</span></div><div class="detail-row"><span class="detail-key">Jam Selesai</span><span class="detail-val">${b.jam_selesai||'—'}</span></div><div class="detail-row"><span class="detail-key">Lokasi</span><a class="detail-val link" href="${mapsUrl}" target="_blank"><i class="ti ti-map-pin"></i>Google Maps</a></div></div><div class="detail-section"><div class="detail-section-title">Paket & Layanan</div><div class="detail-row"><span class="detail-key">Paket</span><span class="detail-val">${paketLines}</span></div><div class="detail-row"><span class="detail-key">Add On</span><span class="detail-val">${addonLines}</span></div><div class="detail-row"><span class="detail-key">Jml Orang</span><span class="detail-val">${b.jumlah_orang||'—'}</span></div><div class="detail-row"><span class="detail-key">Transport</span><span class="detail-val">${b.transport||'—'}</span></div></div><div class="detail-section"><div class="detail-section-title">Pembayaran</div><div class="detail-row"><span class="detail-key">Subtotal</span><span class="detail-val">${b.subtotal||'—'}</span></div><div class="detail-row"><span class="detail-key">DP</span><span class="detail-val">${b.dp||'—'}</span></div><div class="detail-row"><span class="detail-key">Sisa Bayar</span><span class="detail-val" style="color:var(--pink);font-weight:600;">${b.sisa_bayar||'—'}</span></div><div class="detail-row"><span class="detail-key">Bukti</span><span class="detail-val">${b.bukti||'—'}</span></div></div><div class="detail-section"><div class="detail-section-title">Update Status</div><select class="status-select" id="status-sel-${b._row}"><option value="" ${!b.status?'selected':''}>Belum Bayar</option><option value="DP Masuk" ${b.status==='DP Masuk'?'selected':''}>DP Masuk</option><option value="Lunas" ${b.status==='Lunas'?'selected':''}>Lunas</option></select><button class="btn-update-status" onclick="App.updateStatus(${b._row})">Simpan Status</button></div>`;
+    App.el('drawer-body').innerHTML = `<div class="drawer-nama">${b.nama||'—'}</div><div class="drawer-wa">${b.wa||''}</div><div class="drawer-badges">${App.badgeHTML(b.status)}<span class="badge" style="background:#f5f5f5;color:#aaa;"><i class="ti ti-calendar"></i>${App.fmtTgl(b.tanggal)}</span></div><div class="detail-section"><div class="detail-section-title">Info Klien</div><div class="detail-row"><div class="detail-key">Email</div><div class="detail-val">${b.email||'—'}</div></div><div class="detail-row"><div class="detail-key">Lokasi</div><div class="detail-val"><a href="${mapsUrl}" target="_blank" class="detail-val link"><i class="ti ti-map-pin"></i>${b.lokasi||'—'}</a></div></div></div><div class="detail-section"><div class="detail-section-title">Detail Layanan</div><div class="detail-row"><div class="detail-key">Paket</div><div class="detail-val">${paketLines}</div></div><div class="detail-row"><div class="detail-key">Jumlah Orang</div><div class="detail-val">${b.jumlah_orang||'—'}</div></div><div class="detail-row"><div class="detail-key">Add On</div><div class="detail-val">${addonLines}</div></div></div><div class="detail-section"><div class="detail-section-title">Pembayaran</div><div class="detail-row"><div class="detail-key">Subtotal</div><div class="detail-val">${App.fmtRp(b.subtotal)}</div></div><div class="detail-row"><div class="detail-key">DP</div><div class="detail-val">${App.fmtRp(b.dp)}</div></div><div class="detail-row"><div class="detail-key">Sisa Bayar</div><div class="detail-val" style="color:var(--pink);font-weight:600;">${App.fmtRp(b.sisa_bayar)}</div></div></div><div class="detail-section"><div class="detail-section-title">Status Pembayaran</div><select class="status-select" id="status-sel-${b._row}"><option value="">Belum Bayar</option><option value="dp masuk" ${b.status === 'dp masuk' ? 'selected' : ''}>DP Masuk</option><option value="lunas" ${b.status === 'lunas' ? 'selected' : ''}>Lunas</option></select><button class="btn-update-status" onclick="App.updateStatus(${b._row})">Simpan Status</button></div></div>`;
   },
 
   closeDrawer: () => {
@@ -730,13 +730,13 @@ const App = {
     }
 
     requestAnimationFrame(() => {
-      tbody.innerHTML = data.map(b => `<tr onclick="App.openDrawer(${b._row})"><td><div class="tgl-cell">${App.fmtTgl(b.tanggal)}</div></td><td><div class="klien-cell"><span class="klien-nama">${b.nama||'—'}</span><span class="klien-paket">${b.wa||''}</span></div></td><td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${(b.paket||'—').split('|')[0].trim()}</td><td style="color:var(--muted);">${b.jam_selesai && b.jam_selesai!=='-' ? '⏱ '+b.jam_selesai : '—'}</td><td>${App.badgeHTML(b.status)}</td></tr>`).join('');
+      tbody.innerHTML = data.map(b => `<tr onclick="App.openDrawer(${b._row})"><td><div class="tgl-cell">${App.fmtTgl(b.tanggal)}</div></td><td><div class="klien-cell"><span class="klien-nama">${b.nama||'—'}</span></div></td><td>${(b.paket||'—').split('x')[0]}</td><td>${b.jam_selesai||'—'}</td><td>${App.badgeHTML(b.status)}</td></tr>`).join('');
     });
   },
 
   showCalPopup: (bookings, dateStr, event) => {
     const popup = App.el('cal-popup');
-    const items = bookings.map(b => `<div class="cal-popup-item" onclick="App.closeCalPopup();App.openDrawer(${b._row})"><div class="cal-popup-nama">${b.nama||'—'}</div><div class="cal-popup-sub">${(b.paket||'').split('|')[0].trim()} · ${App.badgeHTML(b.status)}</div></div>`).join('');
+    const items = bookings.map(b => `<div class="cal-popup-item" onclick="App.closeCalPopup();App.openDrawer(${b._row})"><div class="cal-popup-nama">${b.nama||'—'}</div><div class="cal-popup-sub">${b.paket||'—'}</div></div>`).join('');
 
     popup.innerHTML = `<div class="cal-popup-header"><span class="cal-popup-title">${App.fmtTgl(dateStr)} · ${bookings.length}</span><button class="cal-popup-close" onclick="App.closeCalPopup()">×</button></div><div class="cal-popup-list">${items}</div>`;
 
