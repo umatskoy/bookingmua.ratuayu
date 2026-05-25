@@ -674,12 +674,13 @@
     });
 
     const pending = allBookings.filter(b => b.status === 'Pending').length;
-    const totalSubtotal = allBookings.reduce((sum, b) => sum + (parseInt(b.subtotal) || 0), 0);
+    const monthlyRevenue = thisMonth.reduce((sum, b) => sum + (parseInt(b.subtotal) || 0), 0);
 
     document.getElementById('totalBooking').textContent = thisMonth.length;
     document.getElementById('totalBookingDesc').textContent = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     document.getElementById('pendingBooking').textContent = pending;
-    document.getElementById('revenue').textContent = fmtRp(totalSubtotal);
+    document.getElementById('revenue').textContent = fmtRp(monthlyRevenue);
+    document.getElementById('revenueDesc').textContent = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     document.getElementById('totalClients').textContent = new Set(allBookings.map(b => b.wa)).size;
   }
 
