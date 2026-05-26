@@ -572,6 +572,34 @@
     return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
+  function fmtTime(val) {
+    if (val === null || val === undefined || val === '') return '-';
+    // Angka serial Sheets: fraksi hari (misal 0.583333 = 14:00)
+    if (typeof val === 'number') {
+      // Jika angka besar (>= 1), mungkin serial date+time — ambil bagian fraksinya
+      const frac = val % 1;
+      const totalMinutes = Math.round(frac * 24 * 60);
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      // Konversi ke WIB (GMT+7) — Sheets menyimpan waktu di UTC
+      const wibH = (h + 7) % 24;
+      return String(wibH).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    }
+    const s = String(val).trim();
+    // Sudah format HH:MM atau HH:MM:SS — langsung tampilkan
+    if (/^\d{1,2}:\d{2}/.test(s)) return s.slice(0, 5);
+    // ISO string dengan T (misal dari Date.toISOString)
+    if (s.includes('T')) {
+      const timePart = s.split('T')[1] || '';
+      if (timePart) {
+        const [hh, mm] = timePart.split(':');
+        const wibH = (parseInt(hh, 10) + 7) % 24;
+        return String(wibH).padStart(2, '0') + ':' + mm.slice(0, 2);
+      }
+    }
+    return s;
+  }
+
   /* ── Normalize Booking Fields ── */
   // Memetakan semua kemungkinan nama kolom dari Google Sheets ke key standar yang dipakai di JS
   function normalizeBooking(raw) {
@@ -831,7 +859,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Jam Selesai</span>
-          <span class="detail-value">${booking.jam_selesai || '-'}</span>
+          <span class="detail-value">${fmtTime(booking.jam_selesai)}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Total Orang</span>
