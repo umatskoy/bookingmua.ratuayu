@@ -1283,7 +1283,7 @@
     document.getElementById('editModalOverlay').classList.remove('show');
   }
 
-  /* ── Save Edit → Apps Script ── */
+  /* ── Save Edit → Apps Script via GET (kompatibel CORS) ── */
   async function saveEdit() {
     if (!currentBooking) return;
 
@@ -1294,35 +1294,34 @@
 
     // Kumpulkan data dari form
     const updated = {
-      // identifier: pakai timestamp asli untuk menemukan baris di Sheets
-      timestamp: currentBooking.timestamp,
-      nama:           document.getElementById('ef_nama').value.trim(),
-      wa:             document.getElementById('ef_wa').value.trim(),
-      email:          document.getElementById('ef_email').value.trim(),
-      lokasi:         document.getElementById('ef_lokasi').value.trim(),
-      tanggal:        document.getElementById('ef_tanggal').value,
-      jam_selesai:    document.getElementById('ef_jam_selesai').value,
-      jumlah_orang:   document.getElementById('ef_jumlah_orang').value,
-      paket:          document.getElementById('ef_paket').value.trim(),
-      addon:          document.getElementById('ef_addon').value.trim(),
+      timestamp:       currentBooking.timestamp,
+      nama:            document.getElementById('ef_nama').value.trim(),
+      wa:              document.getElementById('ef_wa').value.trim(),
+      email:           document.getElementById('ef_email').value.trim(),
+      lokasi:          document.getElementById('ef_lokasi').value.trim(),
+      tanggal:         document.getElementById('ef_tanggal').value,
+      jam_selesai:     document.getElementById('ef_jam_selesai').value,
+      jumlah_orang:    document.getElementById('ef_jumlah_orang').value,
+      paket:           document.getElementById('ef_paket').value.trim(),
+      addon:           document.getElementById('ef_addon').value.trim(),
       transport_biaya: document.getElementById('ef_transport').value.trim(),
-      subtotal:       document.getElementById('ef_subtotal').value,
-      dp:             document.getElementById('ef_dp').value,
-      status:         document.getElementById('ef_status').value,
+      subtotal:        document.getElementById('ef_subtotal').value,
+      dp:              document.getElementById('ef_dp').value,
+      status:          document.getElementById('ef_status').value,
     };
 
-    try {
-      const response = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'updateBooking', data: updated }),
-      });
+    // Kirim via GET dengan semua field sebagai query params
+    // (sama seperti getBookings yang sudah jalan — Apps Script tangkap via e.parameter)
+    const params = new URLSearchParams({ action: 'updateBooking' });
+    Object.entries(updated).forEach(([k, v]) => params.append(k, v ?? ''));
 
+    try {
+      const response = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
       const result = await response.json();
 
       if (result.success) {
-        // Update data lokal
-        const idx = allBookings.findIndex(b => b.timestamp === currentBooking.timestamp);
+        // Update data lokal agar tampilan langsung berubah tanpa reload
+        const idx = allBookings.findIndex(b => String(b.timestamp) === String(currentBooking.timestamp));
         if (idx !== -1) {
           allBookings[idx] = { ...allBookings[idx], ...updated };
           currentBooking = allBookings[idx];
@@ -1330,15 +1329,14 @@
 
         closeEditModal();
         filterBookings();
-        // Re-buka modal detail dengan data terbaru
         openModal(encodeURIComponent(JSON.stringify(currentBooking)));
-        showToast('Data berhasil disimpan!', 'success');
+        showToast('✓ Data berhasil disimpan!', 'success');
       } else {
-        showToast('Gagal menyimpan: ' + (result.message || 'Error tidak diketahui'), 'error');
+        showToast('Gagal: ' + (result.message || 'Cek nama sheet di Apps Script'), 'error');
       }
     } catch (err) {
       console.error('Save error:', err);
-      showToast('Koneksi gagal. Coba lagi.', 'error');
+      showToast('Koneksi gagal. Pastikan Apps Script sudah di-deploy ulang.', 'error');
     } finally {
       btn.disabled = false;
       btnText.textContent = 'Simpan';
