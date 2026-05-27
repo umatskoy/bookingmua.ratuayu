@@ -205,6 +205,49 @@
       opacity: 0.3;
     }
 
+    /* Revenue breakdown di dalam stat card */
+    .stat-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .stat-breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .stat-breakdown-label {
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stat-breakdown-label::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .stat-breakdown-label.dp::before   { background: var(--pink); }
+    .stat-breakdown-label.lunas::before { background: #2d5a0a; }
+
+    .stat-breakdown-value {
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .stat-breakdown-value.dp    { color: var(--pink); }
+    .stat-breakdown-value.lunas { color: #2d5a0a; }
+
     /* ── TABLE ── */
     .bookings-section {
       background: var(--bg);
@@ -665,13 +708,28 @@
       </div>
       <i class="ti ti-calendar stat-card-icon"></i>
     </div>
-    <div class="stat-card">
-      <div class="stat-card-content">
-        <h3>Total Revenue</h3>
-        <div class="stat-card-value" id="totalRevenue" style="font-size:16px;">Rp 0</div>
+
+    <!-- Total Pemasukan dengan breakdown -->
+    <div class="stat-card" style="flex-direction:column; align-items:stretch; gap:0;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div class="stat-card-content">
+          <h3>Total Pemasukan</h3>
+          <div class="stat-card-value" id="totalRevenue" style="font-size:16px;">Rp 0</div>
+        </div>
+        <i class="ti ti-cash stat-card-icon"></i>
       </div>
-      <i class="ti ti-cash stat-card-icon"></i>
+      <div class="stat-breakdown">
+        <div class="stat-breakdown-row">
+          <span class="stat-breakdown-label dp">DP Diterima</span>
+          <span class="stat-breakdown-value dp" id="totalDpDiterima">Rp 0</span>
+        </div>
+        <div class="stat-breakdown-row">
+          <span class="stat-breakdown-label lunas">Pelunasan (Lunas)</span>
+          <span class="stat-breakdown-value lunas" id="totalPelunasan">Rp 0</span>
+        </div>
+      </div>
     </div>
+
     <div class="stat-card">
       <div class="stat-card-content">
         <h3>Total Orang</h3>
@@ -681,10 +739,10 @@
     </div>
     <div class="stat-card">
       <div class="stat-card-content">
-        <h3>Pending DP</h3>
+        <h3>Menunggu Pelunasan</h3>
         <div class="stat-card-value" id="pendingDP" style="font-size:16px;">Rp 0</div>
       </div>
-      <i class="ti ti-alert-circle stat-card-icon"></i>
+      <i class="ti ti-clock stat-card-icon"></i>
     </div>
   </div>
 
@@ -855,7 +913,7 @@
       tanggal:         pick('tanggal', 'date', 'Tanggal', 'tgl'),
       jam_selesai:     pick('jam_selesai', 'jam selesai', 'Jam Selesai', 'jam'),
       paket:           pick('paket', 'package', 'Paket', 'pak'),
-      addon:           pick('addon', 'add_on', 'add on', 'Add On', 'tambahan'),
+      addon:           pick('addon', 'add_on', 'add on', 'Add On', 'tambahan', 'pilihan add on & jumlah', 'add on & jumlah'),
       jumlah_orang:    pick('jumlah_orang', 'jumlah orang', 'Jumlah Orang', 'orang', 'pax'),
       subtotal:        pick('subtotal', 'total', 'Total', 'harga', 'Subtotal'),
       dp:              pick('dp', 'down_payment', 'DP', 'uang_muka'),
@@ -1053,28 +1111,73 @@
 
   /* ── Update Stats ── */
   function updateStats() {
-    let totalBookings = filteredBookings.length;
-    let totalRevenue = 0;
-    let totalOrang = 0;
-    let totalDp = 0;
-    let pendingDp = 0;
+    const totalBookings = filteredBookings.length;
+    let totalOrang      = 0;
+    let totalDpDiterima = 0;  // semua DP — sudah pasti diterima saat booking masuk
+    let totalPelunasan  = 0;  // sisa bayar — hanya dihitung jika status = confirmed/lunas
+    let menungguPelunasan = 0; // sisa yang belum lunas
 
     filteredBookings.forEach(b => {
-      const total = parseRp(b.subtotal);
-      const dp = parseRp(b.dp);
-      totalRevenue += total;
-      totalDp += dp;
-      totalOrang += parseInt(b.jumlah_orang) || 0;
+      const subtotal = parseRp(b.subtotal);
+      const dp       = parseRp(b.dp);
+      const sisa     = Math.max(0, subtotal - dp);
+      const status   = (b.status || '').toLowerCase().trim();
+      const sudahLunas = status === 'confirmed' || status === 'lunas';
 
-      if (dp < total) {
-        pendingDp += (total - dp);
-      }
+      totalOrang        += parseInt(b.jumlah_orang) || 0;
+      totalDpDiterima   += dp;                          // DP selalu diterima
+      totalPelunasan    += sudahLunas ? sisa : 0;       // sisa baru masuk kalau lunas
+      menungguPelunasan += sudahLunas ? 0 : sisa;       // sisa yang masih outstanding
     });
 
-    document.getElementById('totalBookings').textContent = totalBookings;
-    document.getElementById('totalRevenue').textContent = fmtRp(totalRevenue);
-    document.getElementById('totalOrang').textContent = totalOrang;
-    document.getElementById('pendingDP').textContent = fmtRp(pendingDp);
+    const totalRevenue = totalDpDiterima + totalPelunasan;
+
+    document.getElementById('totalBookings').textContent     = totalBookings;
+    document.getElementById('totalRevenue').textContent      = fmtRp(totalRevenue);
+    document.getElementById('totalDpDiterima').textContent   = fmtRp(totalDpDiterima);
+    document.getElementById('totalPelunasan').textContent    = fmtRp(totalPelunasan);
+    document.getElementById('totalOrang').textContent        = totalOrang;
+    document.getElementById('pendingDP').textContent         = fmtRp(menungguPelunasan);
+  }
+
+  /* ── Render Layanan / Add On list dari string Google Sheets ──
+     Format yang mungkin masuk dari Sheets:
+     1. "Hairdo – Rp 150.000 x1 | Softlens – Rp 50.000 x2"   (dengan harga & pemisah |)
+     2. "Hairdo x1, Softlens x1"                               (tanpa harga, pemisah ,)
+     3. "Wisuda Hijab – Rp 600.000 x1 orang | Pendamping – Rp 350.000 x2 orang"
+  ── */
+  function renderLayananList(raw, isAddon = false) {
+    if (!raw || raw.toString().trim() === '') return isAddon ? 'Tidak ada' : '-';
+
+    const str = raw.toString().trim();
+
+    // Pisahkan per item — coba pemisah | dulu, lalu ,
+    let items;
+    if (str.includes('|')) {
+      items = str.split('|').map(s => s.trim()).filter(Boolean);
+    } else {
+      items = str.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    if (items.length === 0) return isAddon ? 'Tidak ada' : str;
+    if (items.length === 1) return formatSatuItem(items[0]);
+
+    // Lebih dari 1 item → tampilkan sebagai list
+    const listItems = items.map(item => `<li style="margin-bottom:2px;">${formatSatuItem(item)}</li>`).join('');
+    return `<ul style="margin:0;padding-left:16px;list-style:disc;">${listItems}</ul>`;
+  }
+
+  function formatSatuItem(item) {
+    // Cek apakah sudah ada harga (mengandung "Rp")
+    if (item.includes('Rp') || item.includes('rp')) {
+      // Sudah ada harga — tampilkan apa adanya tapi pastikan format Rp rapi
+      return item.replace(/Rp\s*([\d.,]+)/g, (_, angka) => {
+        const num = parseInt(angka.replace(/[.,]/g, ''));
+        return 'Rp ' + num.toLocaleString('id-ID');
+      });
+    }
+    // Tidak ada harga — tandai dengan label abu-abu
+    return item + ' <span style="font-size:11px;color:var(--text-secondary);font-style:italic;">(harga tidak tercatat)</span>';
   }
 
   /* ── Modal ── */
@@ -1138,15 +1241,15 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Paket</span>
-          <span class="detail-value">${booking.paket || '-'}</span>
+          <span class="detail-value">${renderLayananList(booking.paket)}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Add On</span>
-          <span class="detail-value">${booking.addon || 'Tidak ada'}</span>
+          <span class="detail-value">${renderLayananList(booking.addon, true)}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Transport</span>
-          <span class="detail-value">${booking.transport_biaya || '-'}</span>
+          <span class="detail-value">${booking.transport_biaya ? fmtRp(parseRp(booking.transport_biaya)) || booking.transport_biaya : '-'}</span>
         </div>
       </div>
 
