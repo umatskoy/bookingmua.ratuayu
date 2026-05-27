@@ -686,17 +686,24 @@
     btn.disabled = true; spinner.style.display = 'block'; btnText.textContent = 'Mengirim...';
 
     try {
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      successMsg.style.display = 'block';
-      btn.style.display = 'none';
-      form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-      successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
-    } catch {
-      errorMsg.innerHTML = '⚠ Gagal terhubung ke server. Cek koneksi internet Anda dan coba lagi.';
+      // Kirim via GET + query params — satu-satunya cara yang reliable dengan Apps Script
+      // (POST dengan no-cors tidak bisa kirim JSON body ke doGet/doPost)
+      const params = new URLSearchParams({ action: 'submitBooking' });
+      Object.entries(payload).forEach(([k, v]) => params.append(k, v ?? ''));
+
+      const res = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
+      const result = await res.json();
+
+      if (result.success) {
+        successMsg.style.display = 'block';
+        btn.style.display = 'none';
+        form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
+        successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+      } else {
+        throw new Error(result.message || 'Respons gagal dari server');
+      }
+    } catch (err) {
+      errorMsg.innerHTML = '⚠ Gagal terhubung ke server. Cek koneksi internet Anda dan coba lagi.<br><small style="color:#999;">' + err.message + '</small>';
       errorMsg.style.display = 'block';
       btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
     }
