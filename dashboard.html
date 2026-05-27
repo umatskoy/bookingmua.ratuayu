@@ -1536,6 +1536,7 @@
       transport_biaya: pick('transport_biaya', 'transport biaya', 'Transport Biaya', 'transport', 'biaya_transport'),
       bukti:           pick('bukti', 'bukti_transfer', 'Bukti Transfer', 'bukti transfer'),
       status:          pick('status', 'Status') || 'pending',
+      mua_bertugas:    pick('mua_bertugas', 'mua bertugas', 'MUA Bertugas', 'mua', 'MUA', 'tim_mua', 'tim mua'),
       // simpan semua field asli juga, untuk jaga-jaga
       _raw: raw,
     };
@@ -1690,6 +1691,7 @@
           <th>Nama</th>
           <th>Tanggal</th>
           <th>Paket</th>
+          <th>MUA</th>
           <th>Total</th>
           <th>DP</th>
           <th>Sisa</th>
@@ -1709,10 +1711,15 @@
       const dp = parseRp(booking.dp);
       const sisa = total - dp;
 
+      const muaLabel = booking.mua_bertugas
+        ? `<span style="background:var(--pink-light);color:var(--pink);border:0.5px solid rgba(212,83,126,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap;">${booking.mua_bertugas}</span>`
+        : `<span style="color:var(--border);font-size:11px;">—</span>`;
+
       html += `<tr onclick="openModal('${encodeURIComponent(JSON.stringify(booking))}')">
         <td class="name-col">${booking.nama || '-'}</td>
         <td class="date-col">${fmtDate(booking.tanggal)}</td>
         <td class="paket-col">${booking.paket ? booking.paket.split('|')[0].trim() : '-'}</td>
+        <td>${muaLabel}</td>
         <td class="price-col">${fmtRp(total)}</td>
         <td>${fmtRp(dp)}</td>
         <td class="price-col">${fmtRp(sisa)}</td>
@@ -1851,6 +1858,13 @@
           <span class="detail-label">Total Orang</span>
           <span class="detail-value">${booking.jumlah_orang || '-'} orang</span>
         </div>
+        <div class="detail-row">
+          <span class="detail-label">MUA Bertugas</span>
+          <span class="detail-value">${booking.mua_bertugas
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;background:var(--pink-light);color:var(--pink);border:0.5px solid rgba(212,83,126,0.25);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;">${booking.mua_bertugas}</span>`
+            : '<span style="color:var(--text-secondary);font-style:italic;font-size:12px;">Belum ditentukan</span>'
+          }</span>
+        </div>
       </div>
 
       <div class="detail-section">
@@ -1963,9 +1977,20 @@
           <input type="time" id="ef_jam_selesai" value="${fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) : ''}">
         </div>
       </div>
-      <div class="edit-field">
-        <label>Jumlah Orang</label>
-        <input type="number" id="ef_jumlah_orang" value="${b.jumlah_orang || ''}" min="1" placeholder="1">
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>Jumlah Orang</label>
+          <input type="number" id="ef_jumlah_orang" value="${b.jumlah_orang || ''}" min="1" placeholder="1">
+        </div>
+        <div class="edit-field">
+          <label>MUA Bertugas</label>
+          <select id="ef_mua_bertugas">
+            <option value="">— Pilih MUA —</option>
+            <option value="Ratu"   ${b.mua_bertugas === 'Ratu'   ? 'selected' : ''}>Ratu</option>
+            <option value="Noven"  ${b.mua_bertugas === 'Noven'  ? 'selected' : ''}>Noven</option>
+            <option value="Darnia" ${b.mua_bertugas === 'Darnia' ? 'selected' : ''}>Darnia</option>
+          </select>
+        </div>
       </div>
 
       <div class="edit-section-title"><i class="ti ti-shopping-cart"></i> Layanan</div>
@@ -2036,6 +2061,7 @@
       subtotal:        document.getElementById('ef_subtotal').value,
       dp:              document.getElementById('ef_dp').value,
       status:          document.getElementById('ef_status').value,
+      mua_bertugas:    document.getElementById('ef_mua_bertugas').value,
     };
 
     console.log('[Edit] Sending update:', updated);
@@ -2262,9 +2288,13 @@
         const sisa    = Math.max(0, total - dp);
         const status  = b.status || 'pending';
         const encoded = encodeURIComponent(JSON.stringify(b));
+        const muaLabel = b.mua_bertugas
+          ? `<span style="background:var(--pink-light);color:var(--pink);border:0.5px solid rgba(212,83,126,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;">${b.mua_bertugas}</span>`
+          : `<span style="color:var(--border);font-size:11px;">—</span>`;
         return `<tr onclick="openModal('${encoded}')">
           <td class="name-col">${b.nama || '-'}</td>
           <td class="paket-col">${b.paket || '-'}</td>
+          <td>${muaLabel}</td>
           <td>${fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) + ' WIB' : '-'}</td>
           <td class="price-col">${fmtRp(total)}</td>
           <td>${fmtRp(dp)}</td>
@@ -2275,7 +2305,7 @@
 
       body.innerHTML = `<div style="overflow-x:auto;"><table>
         <thead><tr>
-          <th>Nama</th><th>Paket</th><th>Jam Selesai</th><th>Total</th><th>DP</th><th>Sisa</th><th>Status</th>
+          <th>Nama</th><th>Paket</th><th>MUA</th><th>Jam Selesai</th><th>Total</th><th>DP</th><th>Sisa</th><th>Status</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`;
