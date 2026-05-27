@@ -32,7 +32,204 @@
       min-height: 100vh;
     }
 
-    /* ── HEADER ── */
+    /* ── APP LAYOUT ── */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--bg);
+      border-right: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 200;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-brand {
+      padding: 1.5rem 1.25rem 1.25rem;
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sidebar-brand h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .sidebar-badge {
+      display: inline-block;
+      background: var(--pink);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      align-self: flex-start;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 0.5rem 8px;
+      margin-top: 4px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: all 0.18s;
+    }
+
+    .sidebar-item i { font-size: 17px; flex-shrink: 0; }
+
+    .sidebar-item:hover {
+      background: var(--pink-light);
+      color: var(--pink);
+    }
+
+    .sidebar-item.active {
+      background: var(--pink-light);
+      color: var(--pink);
+      font-weight: 600;
+    }
+
+    .sidebar-item.active i { color: var(--pink); }
+
+    .sidebar-toggle-mobile {
+      display: none;
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    /* ── MAIN AREA ── */
+    .main-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 1rem 2rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── PAGE PANELS ── */
+    .page-panel { width: 100%; }
+
+    /* ── SIDEBAR OVERLAY (mobile) ── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 150;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        z-index: 200;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-toggle-mobile { display: block; }
+      .topbar-menu-btn { display: block; }
+      .topbar { padding: 1rem 1.25rem; }
+      .topbar-right { width: 100%; }
+      .filter-group select { width: auto; }
+    }
+
+    /* ── DASHBOARD HEADER (old — removed) ── */
     .dashboard-header {
       background: var(--bg);
       border-bottom: 0.5px solid var(--border);
@@ -930,36 +1127,68 @@
 </head>
 <body>
 
-<div class="dashboard-header">
-  <div class="header-content">
-    <div class="header-title">
-      <h1>Dashboard Booking</h1>
-      <span>MUA</span>
-    </div>
-    <div class="header-controls">
-      <div class="filter-group">
-        <label for="filterMonth">Bulan:</label>
-        <select id="filterMonth" onchange="filterBookings()">
-          <option value="">Semua Bulan</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="filterStatus">Status:</label>
-        <select id="filterStatus" onchange="filterBookings()">
-          <option value="">Semua Status</option>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-        </select>
-      </div>
-      <button class="btn-refresh" id="refreshBtn" onclick="loadBookings()">
-        <i class="ti ti-refresh" style="font-size:14px;"></i>
-        <span>Refresh</span>
-      </button>
-    </div>
-  </div>
-</div>
+<div class="app-layout">
 
-<div class="dashboard-main">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1>Dashboard Booking</h1>
+      <span class="sidebar-badge">MUA</span>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="sidebar-section-label">Menu</p>
+      <button class="sidebar-item active" id="nav-dashboard" onclick="switchPage('dashboard')">
+        <i class="ti ti-layout-dashboard"></i>
+        <span>Dashboard</span>
+      </button>
+      <button class="sidebar-item" id="nav-daftar" onclick="switchPage('daftar')">
+        <i class="ti ti-list"></i>
+        <span>Daftar Booking</span>
+      </button>
+      <button class="sidebar-item" id="nav-kalender" onclick="switchPage('kalender')">
+        <i class="ti ti-calendar-event"></i>
+        <span>Kalender Ketersediaan</span>
+      </button>
+    </nav>
+    <button class="sidebar-toggle-mobile" id="sidebarClose" onclick="toggleSidebar()">
+      <i class="ti ti-x"></i>
+    </button>
+  </aside>
+
+  <!-- Main area -->
+  <div class="main-area">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <i class="ti ti-menu-2"></i>
+        </button>
+        <span class="topbar-title" id="topbarTitle">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <div class="filter-group" id="filterGroupMonth">
+          <label for="filterMonth">Bulan:</label>
+          <select id="filterMonth" onchange="filterBookings()">
+            <option value="">Semua Bulan</option>
+          </select>
+        </div>
+        <div class="filter-group" id="filterGroupStatus">
+          <label for="filterStatus">Status:</label>
+          <select id="filterStatus" onchange="filterBookings()">
+            <option value="">Semua Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+          </select>
+        </div>
+        <button class="btn-refresh" id="refreshBtn" onclick="loadBookings()">
+          <i class="ti ti-refresh" style="font-size:14px;"></i>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="dashboard-main">
 
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card">
@@ -1008,37 +1237,27 @@
   </div>
 
   <!-- Kalender Ketersediaan -->
-  <div class="calendar-section">
-    <div class="calendar-header-bar">
-      <h2><i class="ti ti-calendar-event" style="color:var(--pink);font-size:16px;"></i> Kalender Ketersediaan</h2>
-      <div class="calendar-nav">
-        <button class="calendar-nav-btn" id="calPrev" onclick="calChangeMonth(-1)">
-          <i class="ti ti-chevron-left"></i>
-        </button>
-        <span class="calendar-month-label" id="calMonthLabel"></span>
-        <button class="calendar-nav-btn" id="calNext" onclick="calChangeMonth(1)">
-          <i class="ti ti-chevron-right"></i>
-        </button>
+  <div class="page-panel" id="page-kalender" style="display:none;">
+    <div class="calendar-section" style="margin-bottom:0;">
+      <div class="calendar-header-bar">
+        <h2><i class="ti ti-calendar-event" style="color:var(--pink);font-size:16px;"></i> Kalender Ketersediaan</h2>
+        <div class="calendar-nav">
+          <button class="calendar-nav-btn" id="calPrev" onclick="calChangeMonth(-1)">
+            <i class="ti ti-chevron-left"></i>
+          </button>
+          <span class="calendar-month-label" id="calMonthLabel"></span>
+          <button class="calendar-nav-btn" id="calNext" onclick="calChangeMonth(1)">
+            <i class="ti ti-chevron-right"></i>
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="calendar-body">
-      <div class="calendar-grid" id="calGrid"></div>
-      <div class="calendar-legend">
-        <div class="legend-item">
-          <span class="legend-dot" style="background:var(--pink);"></span>
-          Hari ini
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background:#f59e0b;"></span>
-          Pending
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background:#2d5a0a;"></span>
-          Confirmed
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background:rgba(212,83,126,0.15); border:1px solid rgba(212,83,126,0.3); border-radius:50%;"></span>
-          Ada Booking
+      <div class="calendar-body">
+        <div class="calendar-grid" id="calGrid"></div>
+        <div class="calendar-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--pink);"></span>Hari ini</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>Pending</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#2d5a0a;"></span>Confirmed</div>
+          <div class="legend-item"><span class="legend-dot" style="background:rgba(212,83,126,0.15); border:1px solid rgba(212,83,126,0.3); border-radius:50%;"></span>Ada Booking</div>
         </div>
       </div>
     </div>
@@ -1047,6 +1266,7 @@
   <!-- Popover kalender -->
   <div class="cal-popover" id="calPopover"></div>
 
+  <div class="page-panel" id="page-daftar" style="display:none;">
   <div class="bookings-section">
     <div class="bookings-header">
       <h2>Daftar Booking</h2>
@@ -1062,8 +1282,14 @@
       </div>
     </div>
   </div>
+  </div>
 
-</div>
+</div><!-- /.dashboard-main -->
+  </div><!-- /.main-area -->
+</div><!-- /.app-layout -->
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <!-- Modal Detail -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
@@ -1357,6 +1583,7 @@
 
     renderTable();
     updateStats();
+    renderCalendar();
   }
 
   /* ── Render Table ── */
@@ -1920,15 +2147,15 @@
   }
 
   function calDayClick(event, dateKey, encodedBookings) {
-    // Filter table to this date
+    // Switch to daftar page and filter to this date
+    switchPage('daftar');
+
     const [yr, mo] = dateKey.split('-');
     const monthVal = yr + '-' + mo;
 
-    // Set filter bulan
     const filterMonth = document.getElementById('filterMonth');
     filterMonth.value = monthVal;
 
-    // Filter bookings for this specific date
     const allCopy = allBookings.filter(b => {
       const d = parseDate(b.tanggal);
       if (!d) return false;
@@ -1938,9 +2165,6 @@
 
     filteredBookings = allCopy;
     renderTable();
-
-    // Scroll to table
-    document.querySelector('.bookings-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     calHidePopover();
   }
 
@@ -1948,8 +2172,63 @@
     // No action for empty days
   }
 
+  /* ══════════════════════════════════════════════
+     SIDEBAR NAVIGATION
+  ══════════════════════════════════════════════ */
+  const PAGE_TITLES = {
+    dashboard: 'Dashboard',
+    daftar: 'Daftar Booking',
+    kalender: 'Kalender Ketersediaan'
+  };
+
+  let currentPage = 'dashboard';
+
+  function switchPage(page) {
+    currentPage = page;
+
+    // Update nav active state
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    const navEl = document.getElementById('nav-' + page);
+    if (navEl) navEl.classList.add('active');
+
+    // Update topbar title
+    document.getElementById('topbarTitle').textContent = PAGE_TITLES[page] || '';
+
+    // Show/hide stats grid
+    const statsGrid = document.getElementById('statsGrid');
+    statsGrid.style.display = page === 'dashboard' ? '' : 'none';
+
+    // Show/hide filter bar items
+    const fg1 = document.getElementById('filterGroupMonth');
+    const fg2 = document.getElementById('filterGroupStatus');
+    const showFilters = page === 'daftar';
+    fg1.style.display = showFilters ? '' : 'none';
+    fg2.style.display = showFilters ? '' : 'none';
+
+    // Show/hide panels
+    const pageDaftar   = document.getElementById('page-daftar');
+    const pageKalender = document.getElementById('page-kalender');
+
+    pageDaftar.style.display   = page === 'daftar'   ? 'block' : 'none';
+    pageKalender.style.display = page === 'kalender' ? 'block' : 'none';
+
+    if (page === 'kalender') renderCalendar();
+
+    // Close sidebar on mobile
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar.classList.contains('open')) toggleSidebar();
+  }
+
+  function toggleSidebar() {
+    const sidebar  = document.getElementById('sidebar');
+    const overlay  = document.getElementById('sidebarOverlay');
+    const isOpen   = sidebar.classList.toggle('open');
+    overlay.classList.toggle('show', isOpen);
+  }
+
   /* ── Init ── */
   window.addEventListener('DOMContentLoaded', () => {
+    switchPage('dashboard');
     renderCalendar();
     loadBookings();
   });
