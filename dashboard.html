@@ -457,6 +457,24 @@
       gap: 8px;
     }
 
+    .btn-invoice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: transparent;
+      color: var(--pink);
+      border: 0.5px solid var(--pink);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-invoice:hover { background: var(--pink-light); }
+
     .btn-edit {
       display: inline-flex;
       align-items: center;
@@ -666,6 +684,7 @@
       table { font-size: 12px; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -777,6 +796,9 @@
       <!-- Dynamic content -->
     </div>
     <div class="modal-footer">
+      <button class="btn-invoice" id="btnExportInvoice" onclick="exportInvoicePDF()">
+        <i class="ti ti-file-invoice" style="font-size:13px;"></i> Export Invoice
+      </button>
       <button class="btn-edit" id="btnOpenEdit" onclick="openEditModal()">
         <i class="ti ti-pencil" style="font-size:13px;"></i> Edit Data
       </button>
@@ -1476,6 +1498,205 @@
   window.addEventListener('DOMContentLoaded', () => {
     loadBookings();
   });
+
+  /* ══════════════════════════════════════════════
+     EXPORT INVOICE PDF
+  ══════════════════════════════════════════════ */
+  function exportInvoicePDF() {
+    if (!currentBooking) return;
+    const b = currentBooking;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    const W = 210, MARGIN = 20, CONTENT_W = 210 - 20 * 2;
+    const PINK  = [212, 83, 126];
+    const DARK  = [26, 26, 26];
+    const GRAY  = [107, 107, 107];
+    const LGRAY = [245, 245, 245];
+    const WHITE = [255, 255, 255];
+    const GREEN = [45, 90, 10];
+
+    let y = 0;
+
+    const rp = (n) => {
+      const num = parseRp(n);
+      if (!num) return 'Rp 0';
+      return 'Rp ' + num.toLocaleString('id-ID');
+    };
+
+    const txt = (text, x, yPos, opts = {}) => {
+      if (opts.color) doc.setTextColor(...opts.color);
+      else doc.setTextColor(...DARK);
+      doc.setFontSize(opts.size || 9);
+      doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+      const align = opts.align || 'left';
+      doc.text(String(text), x, yPos, { align });
+    };
+
+    const hline = (y1, color = [224,224,224], lw = 0.3) => {
+      doc.setDrawColor(...color);
+      doc.setLineWidth(lw);
+      doc.line(MARGIN, y1, W - MARGIN, y1);
+    };
+
+    const fillRect = (x, ry, w, h, fill) => {
+      doc.setFillColor(...fill);
+      doc.setDrawColor(...fill);
+      doc.rect(x, ry, w, h, 'F');
+    };
+
+    // ── HEADER ──
+    y = 18;
+    fillRect(0, 0, 6, 32, PINK);
+    txt('INVOICE', MARGIN, y, { bold: true, size: 22, color: PINK });
+    y += 7;
+    txt('Booking Make Up Artist', MARGIN, y, { size: 9, color: GRAY });
+
+    const invoiceNo = 'INV-' + String(b.timestamp || Date.now()).replace(/\D/g,'').slice(-8);
+    const today = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    txt('No. Invoice', W - MARGIN, y - 7, { align: 'right', size: 8, color: GRAY });
+    txt(invoiceNo, W - MARGIN, y - 2, { align: 'right', size: 9, bold: true });
+    txt('Tanggal cetak: ' + today, W - MARGIN, y + 4, { align: 'right', size: 8, color: GRAY });
+
+    y = 35;
+    hline(y, PINK, 0.6);
+
+    // ── INFORMASI KLIEN ──
+    y += 8;
+    txt('INFORMASI KLIEN', MARGIN, y, { bold: true, size: 8, color: PINK });
+    y += 5;
+
+    const colL = MARGIN, colR = MARGIN + 38;
+    const infoRows = [
+      ['Nama',      b.nama    || '-'],
+      ['WhatsApp',  b.wa      || '-'],
+      ['Email',     b.email   || '-'],
+      ['Lokasi',    b.lokasi  || '-'],
+    ];
+
+    infoRows.forEach(([label, val]) => {
+      txt(label, colL, y, { size: 8, color: GRAY });
+      const lines = doc.splitTextToSize(String(val), CONTENT_W - 40);
+      txt(lines[0], colR, y, { size: 8 });
+      if (lines.length > 1) { y += 4; txt(lines[1], colR, y, { size: 8 }); }
+      y += 5;
+    });
+
+    // ── JADWAL ──
+    y += 2; hline(y); y += 6;
+    txt('DETAIL JADWAL', MARGIN, y, { bold: true, size: 8, color: PINK });
+    y += 5;
+
+    [
+      ['Tanggal Make Up', fmtDateTime(b.tanggal)],
+      ['Jam Selesai',     fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) + ' WIB' : '-'],
+      ['Total Orang',     (b.jumlah_orang || '-') + ' orang'],
+    ].forEach(([label, val]) => {
+      txt(label, colL, y, { size: 8, color: GRAY });
+      txt(String(val), colR, y, { size: 8 });
+      y += 5;
+    });
+
+    // ── RINCIAN LAYANAN ──
+    y += 2; hline(y); y += 6;
+    txt('RINCIAN LAYANAN', MARGIN, y, { bold: true, size: 8, color: PINK });
+    y += 5;
+
+    // Header tabel
+    fillRect(MARGIN, y - 4.5, CONTENT_W, 7, PINK);
+    txt('Kategori',    MARGIN + 3,         y, { bold: true, size: 8, color: WHITE });
+    txt('Item',        MARGIN + 35,        y, { bold: true, size: 8, color: WHITE });
+    txt('Harga',       W - MARGIN - 3,     y, { bold: true, size: 8, color: WHITE, align: 'right' });
+    y += 5;
+
+    const parseItems = (raw) => {
+      if (!raw || !raw.toString().trim()) return [];
+      const s = raw.toString().trim();
+      return (s.includes('|') ? s.split('|') : s.split(',')).map(x => x.trim()).filter(Boolean);
+    };
+
+    let rowAlt = false;
+
+    const drawRow = (kategori, items, isAddon) => {
+      items.forEach((item, i) => {
+        if (rowAlt) fillRect(MARGIN, y - 4, CONTENT_W, 6.5, LGRAY);
+        txt(i === 0 ? kategori : '', MARGIN + 3, y, { size: 7.5, color: GRAY, bold: i === 0 });
+
+        const clean = item.replace(/Rp\s*([\d.,]+)/g, (_, n) =>
+          'Rp ' + parseInt(n.replace(/[.,]/g,'')).toLocaleString('id-ID'));
+
+        const m = clean.match(/^(.+?)\s*[–\-]\s*(Rp[\s\d.,]+)\s*(x\d+.*)$/i);
+        if (m) {
+          txt(m[1].trim() + '  ' + m[3].trim(), MARGIN + 35, y, { size: 7.5 });
+          txt(m[2].trim(), W - MARGIN - 3, y, { size: 7.5, align: 'right', color: isAddon ? GRAY : DARK });
+        } else {
+          const wl = doc.splitTextToSize(clean, CONTENT_W - 55);
+          txt(wl[0], MARGIN + 35, y, { size: 7.5 });
+          txt('—', W - MARGIN - 3, y, { size: 7.5, align: 'right', color: GRAY });
+          if (wl.length > 1) { y += 4.5; txt(wl[1], MARGIN + 35, y, { size: 7.5 }); }
+        }
+        y += 6;
+        rowAlt = !rowAlt;
+      });
+    };
+
+    drawRow('Paket',  parseItems(b.paket), false);
+    drawRow('Add On', parseItems(b.addon), true);
+
+    const transport = parseRp(b.transport_biaya);
+    if (transport > 0) {
+      if (rowAlt) fillRect(MARGIN, y - 4, CONTENT_W, 6.5, LGRAY);
+      txt('Transport', MARGIN + 3,  y, { size: 7.5, color: GRAY });
+      txt('Biaya Transport', MARGIN + 35, y, { size: 7.5 });
+      txt(rp(transport), W - MARGIN - 3, y, { size: 7.5, align: 'right' });
+      y += 6;
+    }
+
+    // ── PEMBAYARAN ──
+    y += 3; hline(y); y += 6;
+    txt('RINGKASAN PEMBAYARAN', MARGIN, y, { bold: true, size: 8, color: PINK });
+    y += 6;
+
+    const subtotal   = parseRp(b.subtotal);
+    const dp         = parseRp(b.dp);
+    const sisa       = Math.max(0, subtotal - dp);
+    const sudahLunas = (b.status || '').toLowerCase() === 'confirmed';
+
+    const payX = W - MARGIN - 65;
+    [
+      { label: 'Subtotal',   val: rp(subtotal), bold: false, color: DARK  },
+      { label: 'DP Dibayar', val: rp(dp),       bold: false, color: DARK  },
+      { label: 'Sisa Bayar', val: rp(sisa),     bold: true,  color: sudahLunas ? GREEN : PINK },
+    ].forEach(row => {
+      txt(row.label, payX,           y, { size: 8, color: GRAY });
+      txt(row.val,   W - MARGIN, y, { size: 8, align: 'right', bold: row.bold, color: row.color });
+      y += 5.5;
+    });
+
+    y += 1; hline(y, PINK, 0.5); y += 5;
+
+    // Badge status
+    const statusText  = sudahLunas ? 'LUNAS' : 'BELUM LUNAS';
+    const statusColor = sudahLunas ? GREEN : PINK;
+    const statusBg    = sudahLunas ? [230, 245, 218] : [252, 232, 240];
+    const bW = 34, bH = 8, bX = W - MARGIN - bW;
+    fillRect(bX, y - 5.5, bW, bH, statusBg);
+    doc.setDrawColor(...statusColor);
+    doc.setLineWidth(0.4);
+    doc.rect(bX, y - 5.5, bW, bH, 'S');
+    txt(statusText, bX + bW / 2, y - 0.5, { size: 7.5, bold: true, color: statusColor, align: 'center' });
+
+    // ── FOOTER ──
+    hline(284, [200,200,200], 0.3);
+    txt('Terima kasih atas kepercayaan Anda!', W / 2, 288, { size: 7.5, color: GRAY, align: 'center' });
+    txt('Invoice dicetak otomatis dari sistem booking MUA.', W / 2, 292, { size: 7, color: GRAY, align: 'center' });
+    fillRect(0, 295, W, 2, PINK);
+
+    // ── Simpan ──
+    const safeName = (b.nama || 'client').replace(/[^a-zA-Z0-9]/g, '_');
+    const tglMU    = fmtDate(b.tanggal).replace(/\s/g, '-');
+    doc.save('Invoice_' + safeName + '_' + tglMU + '.pdf');
+  }
 </script>
 
 </body>
