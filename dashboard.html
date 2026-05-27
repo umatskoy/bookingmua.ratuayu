@@ -664,6 +664,248 @@
       .edit-fields-row { grid-template-columns: 1fr; }
     }
 
+    /* ── CALENDAR ── */
+    .calendar-section {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      margin-bottom: 2rem;
+    }
+
+    .calendar-header-bar {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .calendar-header-bar h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .calendar-nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 0.5px solid var(--border);
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .calendar-nav-btn:hover {
+      border-color: var(--pink);
+      color: var(--pink);
+      background: var(--pink-light);
+    }
+
+    .calendar-month-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-primary);
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .calendar-body {
+      padding: 1.5rem;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-day-name {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 6px 0 10px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s;
+      border: 0.5px solid transparent;
+      padding: 4px 2px;
+      min-height: 44px;
+    }
+
+    .cal-day:hover:not(.cal-empty) {
+      background: var(--pink-light);
+      border-color: rgba(212, 83, 126, 0.2);
+    }
+
+    .cal-day.cal-empty {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .cal-day.cal-today .cal-num {
+      background: var(--pink);
+      color: #fff;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .cal-day.has-booking {
+      background: rgba(212, 83, 126, 0.06);
+      border-color: rgba(212, 83, 126, 0.15);
+    }
+
+    .cal-day.has-booking:hover {
+      background: var(--pink-light);
+    }
+
+    .cal-num {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .cal-day.cal-other-month .cal-num {
+      color: var(--border);
+    }
+
+    .cal-dots {
+      display: flex;
+      gap: 2px;
+      margin-top: 3px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 100%;
+    }
+
+    .cal-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .cal-dot.pending { background: #f59e0b; }
+    .cal-dot.confirmed { background: #2d5a0a; }
+
+    .cal-count {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--pink);
+      margin-top: 1px;
+      line-height: 1;
+    }
+
+    /* Calendar legend */
+    .calendar-legend {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 0.5px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Calendar popover */
+    .cal-popover {
+      display: none;
+      position: fixed;
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 500;
+      min-width: 220px;
+      max-width: 280px;
+      pointer-events: none;
+    }
+
+    .cal-popover.show { display: block; }
+
+    .cal-popover-date {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--pink);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .cal-popover-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 12px;
+    }
+
+    .cal-popover-item:last-child { border-bottom: none; }
+
+    .cal-popover-name { font-weight: 500; color: var(--text-primary); }
+    .cal-popover-status { }
+
+    @media (max-width: 600px) {
+      .cal-day { min-height: 36px; }
+      .cal-num { font-size: 11px; }
+      .cal-dot { width: 4px; height: 4px; }
+      .calendar-month-label { font-size: 16px; min-width: 140px; }
+    }
+
     .loading-spinner {
       display: none;
       text-align: center;
@@ -764,6 +1006,46 @@
       <i class="ti ti-clock stat-card-icon"></i>
     </div>
   </div>
+
+  <!-- Kalender Ketersediaan -->
+  <div class="calendar-section">
+    <div class="calendar-header-bar">
+      <h2><i class="ti ti-calendar-event" style="color:var(--pink);font-size:16px;"></i> Kalender Ketersediaan</h2>
+      <div class="calendar-nav">
+        <button class="calendar-nav-btn" id="calPrev" onclick="calChangeMonth(-1)">
+          <i class="ti ti-chevron-left"></i>
+        </button>
+        <span class="calendar-month-label" id="calMonthLabel"></span>
+        <button class="calendar-nav-btn" id="calNext" onclick="calChangeMonth(1)">
+          <i class="ti ti-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+    <div class="calendar-body">
+      <div class="calendar-grid" id="calGrid"></div>
+      <div class="calendar-legend">
+        <div class="legend-item">
+          <span class="legend-dot" style="background:var(--pink);"></span>
+          Hari ini
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#f59e0b;"></span>
+          Pending
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#2d5a0a;"></span>
+          Confirmed
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:rgba(212,83,126,0.15); border:1px solid rgba(212,83,126,0.3); border-radius:50%;"></span>
+          Ada Booking
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popover kalender -->
+  <div class="cal-popover" id="calPopover"></div>
 
   <div class="bookings-section">
     <div class="bookings-header">
@@ -972,6 +1254,7 @@
         console.log('[Dashboard] Normalized sample:', allBookings[0]);
         populateMonthFilter();
         filterBookings();
+        renderCalendar();
       } else {
         container.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><p>Gagal memuat data</p></div>';
       }
@@ -1494,8 +1777,180 @@
     if (e.key === 'Escape') closeModal();
   });
 
+  /* ══════════════════════════════════════════════
+     CALENDAR
+  ══════════════════════════════════════════════ */
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth(); // 0-indexed
+
+  const CAL_DAYS_ID = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+  function calChangeMonth(delta) {
+    calMonth += delta;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    const label = document.getElementById('calMonthLabel');
+    const grid  = document.getElementById('calGrid');
+    if (!label || !grid) return;
+
+    label.textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Build booking map: key = "YYYY-MM-DD" → array of bookings
+    const bookingMap = {};
+    allBookings.forEach(b => {
+      const d = parseDate(b.tanggal);
+      if (!d) return;
+      const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      if (!bookingMap[key]) bookingMap[key] = [];
+      bookingMap[key].push(b);
+    });
+
+    const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+    let html = '';
+
+    // Day headers
+    CAL_DAYS_ID.forEach(d => {
+      html += `<div class="cal-day-name">${d}</div>`;
+    });
+
+    // Prev month padding
+    for (let i = 0; i < firstDay; i++) {
+      const dayNum = daysInPrev - firstDay + 1 + i;
+      html += `<div class="cal-day cal-empty cal-other-month"><span class="cal-num">${dayNum}</span></div>`;
+    }
+
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateKey = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+      const dayDate = new Date(calYear, calMonth, day);
+      dayDate.setHours(0,0,0,0);
+      const isToday = dayDate.getTime() === today.getTime();
+      const bookings = bookingMap[dateKey] || [];
+      const hasBooking = bookings.length > 0;
+
+      const pendingCount   = bookings.filter(b => (b.status||'pending') === 'pending').length;
+      const confirmedCount = bookings.filter(b => (b.status||'pending') === 'confirmed').length;
+
+      let dotsHtml = '';
+      if (pendingCount > 0)   dotsHtml += `<span class="cal-dot pending"></span>`.repeat(Math.min(pendingCount, 3));
+      if (confirmedCount > 0) dotsHtml += `<span class="cal-dot confirmed"></span>`.repeat(Math.min(confirmedCount, 3));
+
+      const classes = [
+        'cal-day',
+        isToday ? 'cal-today' : '',
+        hasBooking ? 'has-booking' : '',
+      ].filter(Boolean).join(' ');
+
+      const encodedBookings = hasBooking ? encodeURIComponent(JSON.stringify(bookings.map(b => ({nama: b.nama, status: b.status||'pending'})))) : '';
+      const onclickAttr = hasBooking
+        ? `onclick="calDayClick(event, '${dateKey}', '${encodedBookings}')"`
+        : `onclick="calDayClickEmpty(event, '${dateKey}')"`;
+
+      html += `
+        <div class="${classes}" ${onclickAttr} 
+             onmouseenter="calShowPopover(event, '${dateKey}', '${encodedBookings}')"
+             onmouseleave="calHidePopover()">
+          <span class="cal-num">${day}</span>
+          ${hasBooking ? `<div class="cal-dots">${dotsHtml}</div>` : ''}
+          ${bookings.length > 3 ? `<span class="cal-count">+${bookings.length}</span>` : ''}
+        </div>`;
+    }
+
+    // Next month padding to complete grid
+    const totalCells = firstDay + daysInMonth;
+    const remainder = totalCells % 7;
+    if (remainder !== 0) {
+      const nextPad = 7 - remainder;
+      for (let i = 1; i <= nextPad; i++) {
+        html += `<div class="cal-day cal-empty cal-other-month"><span class="cal-num">${i}</span></div>`;
+      }
+    }
+
+    grid.innerHTML = html;
+  }
+
+  function calShowPopover(e, dateKey, encodedBookings) {
+    if (!encodedBookings) return;
+    const popover = document.getElementById('calPopover');
+    let bookings = [];
+    try { bookings = JSON.parse(decodeURIComponent(encodedBookings)); } catch(err) { return; }
+
+    const [yr, mo, dy] = dateKey.split('-');
+    const d = new Date(yr, parseInt(mo)-1, parseInt(dy));
+    const dateLabel = d.toLocaleDateString('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+
+    let itemsHtml = bookings.map(b => `
+      <div class="cal-popover-item">
+        <span class="cal-popover-name">${b.nama || 'Tanpa Nama'}</span>
+        <span class="cal-popover-status">
+          <span class="status-badge status-${b.status}">${b.status === 'confirmed' ? 'Confirmed' : 'Pending'}</span>
+        </span>
+      </div>`).join('');
+
+    popover.innerHTML = `<div class="cal-popover-date">${dateLabel}</div>${itemsHtml}`;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pw = 240;
+    let left = rect.left + rect.width / 2 - pw / 2;
+    let top  = rect.bottom + 8;
+
+    if (left + pw > window.innerWidth - 16) left = window.innerWidth - pw - 16;
+    if (left < 8) left = 8;
+    if (top + 120 > window.innerHeight) top = rect.top - 120;
+
+    popover.style.left = left + 'px';
+    popover.style.top  = top + 'px';
+    popover.classList.add('show');
+  }
+
+  function calHidePopover() {
+    const p = document.getElementById('calPopover');
+    if (p) p.classList.remove('show');
+  }
+
+  function calDayClick(event, dateKey, encodedBookings) {
+    // Filter table to this date
+    const [yr, mo] = dateKey.split('-');
+    const monthVal = yr + '-' + mo;
+
+    // Set filter bulan
+    const filterMonth = document.getElementById('filterMonth');
+    filterMonth.value = monthVal;
+
+    // Filter bookings for this specific date
+    const allCopy = allBookings.filter(b => {
+      const d = parseDate(b.tanggal);
+      if (!d) return false;
+      const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      return key === dateKey;
+    });
+
+    filteredBookings = allCopy;
+    renderTable();
+
+    // Scroll to table
+    document.querySelector('.bookings-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    calHidePopover();
+  }
+
+  function calDayClickEmpty(event, dateKey) {
+    // No action for empty days
+  }
+
   /* ── Init ── */
   window.addEventListener('DOMContentLoaded', () => {
+    renderCalendar();
     loadBookings();
   });
 
