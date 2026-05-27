@@ -882,7 +882,12 @@
       const data = await response.json();
 
       if (data.success && data.bookings) {
-        allBookings = data.bookings.map(normalizeBooking);
+        // Simpan rowIndex (nomor baris di sheet, mulai dari 2) sebagai identifier paling reliable
+        allBookings = data.bookings.map((b, i) => {
+          const norm = normalizeBooking(b);
+          norm._rowIndex = (data.startRow || 2) + i; // Apps Script kirim startRow, default baris ke-2
+          return norm;
+        });
         console.log('[Dashboard] Raw sample:', data.bookings[0]);
         console.log('[Dashboard] Normalized sample:', allBookings[0]);
         populateMonthFilter();
@@ -1292,9 +1297,11 @@
     btn.disabled = true;
     btnText.textContent = 'Menyimpan...';
 
-    // Kumpulkan data dari form
     const updated = {
-      timestamp:       currentBooking.timestamp,
+      // rowIndex = nomor baris di sheet (paling reliable, tidak tergantung format Timestamp)
+      rowIndex:        currentBooking._rowIndex || '',
+      // timestamp sebagai fallback jika rowIndex tidak tersedia
+      timestamp:       currentBooking.timestamp || '',
       nama:            document.getElementById('ef_nama').value.trim(),
       wa:              document.getElementById('ef_wa').value.trim(),
       email:           document.getElementById('ef_email').value.trim(),
@@ -1310,18 +1317,19 @@
       status:          document.getElementById('ef_status').value,
     };
 
-    // Kirim via GET dengan semua field sebagai query params
-    // (sama seperti getBookings yang sudah jalan — Apps Script tangkap via e.parameter)
+    console.log('[Edit] Sending update:', updated);
+
     const params = new URLSearchParams({ action: 'updateBooking' });
     Object.entries(updated).forEach(([k, v]) => params.append(k, v ?? ''));
 
     try {
       const response = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
       const result = await response.json();
+      console.log('[Edit] Apps Script response:', result);
 
       if (result.success) {
         // Update data lokal agar tampilan langsung berubah tanpa reload
-        const idx = allBookings.findIndex(b => String(b.timestamp) === String(currentBooking.timestamp));
+        const idx = allBookings.findIndex(b => b._rowIndex === currentBooking._rowIndex);
         if (idx !== -1) {
           allBookings[idx] = { ...allBookings[idx], ...updated };
           currentBooking = allBookings[idx];
@@ -1332,7 +1340,7 @@
         openModal(encodeURIComponent(JSON.stringify(currentBooking)));
         showToast('✓ Data berhasil disimpan!', 'success');
       } else {
-        showToast('Gagal: ' + (result.message || 'Cek nama sheet di Apps Script'), 'error');
+        showToast('Gagal: ' + (result.message || 'Error tidak diketahui'), 'error');
       }
     } catch (err) {
       console.error('Save error:', err);
