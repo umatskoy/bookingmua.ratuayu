@@ -405,6 +405,204 @@
 
     .empty-state i { font-size: 48px; color: var(--border); margin-bottom: 1rem; display: block; opacity: 0.5; }
 
+    /* ── MODAL FOOTER ── */
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 0.5px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .btn-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-edit:hover { background: #bf4570; }
+
+    /* ── EDIT MODAL ── */
+    .edit-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1100;
+      animation: fadeIn 0.2s;
+    }
+
+    .edit-modal-overlay.show { display: flex; align-items: center; justify-content: center; }
+
+    .edit-modal-content {
+      background: var(--bg);
+      border-radius: 12px;
+      max-width: 560px;
+      width: 94%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s;
+    }
+
+    .edit-modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 1;
+    }
+
+    .edit-modal-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edit-modal-body { padding: 1.5rem; }
+
+    .edit-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--pink);
+      margin: 1.25rem 0 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .edit-section-title:first-child { margin-top: 0; }
+
+    .edit-field { margin-bottom: 12px; }
+
+    .edit-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 5px;
+    }
+
+    .edit-field input,
+    .edit-field select,
+    .edit-field textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .edit-field input:focus,
+    .edit-field select:focus,
+    .edit-field textarea:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 2px var(--pink-focus);
+    }
+
+    .edit-field textarea { resize: vertical; min-height: 60px; }
+
+    .edit-fields-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .edit-modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 0.5px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      position: sticky;
+      bottom: 0;
+      background: var(--bg);
+    }
+
+    .btn-cancel-edit {
+      padding: 8px 16px;
+      border: 0.5px solid var(--border);
+      background: transparent;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel-edit:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+    .btn-save-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-save-edit:hover { background: #bf4570; }
+    .btn-save-edit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Toast notif */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 2000;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: #2d5a0a; }
+    .toast.error { background: #b91c1c; }
+
+    @media (max-width: 768px) {
+      .edit-fields-row { grid-template-columns: 1fr; }
+    }
+
     .loading-spinner {
       display: none;
       text-align: center;
@@ -520,14 +718,43 @@
     <div class="modal-body" id="modalBody">
       <!-- Dynamic content -->
     </div>
+    <div class="modal-footer">
+      <button class="btn-edit" id="btnOpenEdit" onclick="openEditModal()">
+        <i class="ti ti-pencil" style="font-size:13px;"></i> Edit Data
+      </button>
+    </div>
   </div>
 </div>
+
+<!-- Modal Edit -->
+<div class="edit-modal-overlay" id="editModalOverlay">
+  <div class="edit-modal-content" onclick="event.stopPropagation()">
+    <div class="edit-modal-header">
+      <h3><i class="ti ti-pencil" style="color:var(--pink);font-size:16px;"></i> Edit Booking</h3>
+      <button class="btn-close" onclick="closeEditModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="edit-modal-body" id="editModalBody">
+      <!-- Form dinamis -->
+    </div>
+    <div class="edit-modal-footer">
+      <button class="btn-cancel-edit" onclick="closeEditModal()">Batal</button>
+      <button class="btn-save-edit" id="btnSaveEdit" onclick="saveEdit()">
+        <i class="ti ti-device-floppy" style="font-size:13px;"></i>
+        <span id="btnSaveText">Simpan</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script>
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzW4Rs9Uc7psMTYJgKSRXnE_lWb8rKtJ1IxV4z_-D9R5tiZ4OoAYDAsIRxyd1hOc7NSAQ/exec";
 
   let allBookings = [];
   let filteredBookings = [];
+  let currentBooking = null; // booking yang sedang dibuka di modal
 
   /* ── Format Helpers ── */
   function fmtRp(n) {
@@ -848,6 +1075,7 @@
   /* ── Modal ── */
   function openModal(encodedBooking) {
     const booking = JSON.parse(decodeURIComponent(encodedBooking));
+    currentBooking = booking; // simpan untuk tombol edit
     const modalBody = document.getElementById('modalBody');
 
     const total = parseRp(booking.subtotal);
@@ -961,6 +1189,174 @@
   function closeModal() {
     document.getElementById('modalOverlay').classList.remove('show');
   }
+
+  /* ── Edit Modal ── */
+  function dateToInputValue(val) {
+    const d = parseDate(val);
+    if (!d) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function openEditModal() {
+    if (!currentBooking) return;
+    const b = currentBooking;
+
+    const editBody = document.getElementById('editModalBody');
+    editBody.innerHTML = `
+      <div class="edit-section-title"><i class="ti ti-user"></i> Informasi Klien</div>
+      <div class="edit-field">
+        <label>Nama</label>
+        <input type="text" id="ef_nama" value="${b.nama || ''}" placeholder="Nama klien">
+      </div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>WhatsApp</label>
+          <input type="text" id="ef_wa" value="${b.wa || ''}" placeholder="628xxxxxxx">
+        </div>
+        <div class="edit-field">
+          <label>Email</label>
+          <input type="email" id="ef_email" value="${b.email || ''}" placeholder="email@example.com">
+        </div>
+      </div>
+      <div class="edit-field">
+        <label>Lokasi</label>
+        <input type="text" id="ef_lokasi" value="${b.lokasi || ''}" placeholder="Alamat / lokasi make up">
+      </div>
+
+      <div class="edit-section-title"><i class="ti ti-calendar"></i> Jadwal</div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>Tanggal Make Up</label>
+          <input type="date" id="ef_tanggal" value="${dateToInputValue(b.tanggal)}">
+        </div>
+        <div class="edit-field">
+          <label>Jam Selesai</label>
+          <input type="time" id="ef_jam_selesai" value="${fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) : ''}">
+        </div>
+      </div>
+      <div class="edit-field">
+        <label>Jumlah Orang</label>
+        <input type="number" id="ef_jumlah_orang" value="${b.jumlah_orang || ''}" min="1" placeholder="1">
+      </div>
+
+      <div class="edit-section-title"><i class="ti ti-shopping-cart"></i> Layanan</div>
+      <div class="edit-field">
+        <label>Paket</label>
+        <input type="text" id="ef_paket" value="${b.paket || ''}" placeholder="Nama paket">
+      </div>
+      <div class="edit-field">
+        <label>Add On</label>
+        <input type="text" id="ef_addon" value="${b.addon || ''}" placeholder="Tambahan layanan">
+      </div>
+      <div class="edit-field">
+        <label>Transport / Biaya Transport</label>
+        <input type="text" id="ef_transport" value="${b.transport_biaya || ''}" placeholder="Misal: Rp 50.000">
+      </div>
+
+      <div class="edit-section-title"><i class="ti ti-cash"></i> Pembayaran</div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>Subtotal (Rp)</label>
+          <input type="number" id="ef_subtotal" value="${parseRp(b.subtotal) || ''}" placeholder="0">
+        </div>
+        <div class="edit-field">
+          <label>DP (Rp)</label>
+          <input type="number" id="ef_dp" value="${parseRp(b.dp) || ''}" placeholder="0">
+        </div>
+      </div>
+      <div class="edit-field">
+        <label>Status</label>
+        <select id="ef_status">
+          <option value="pending" ${(b.status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
+          <option value="confirmed" ${b.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+        </select>
+      </div>
+    `;
+
+    document.getElementById('editModalOverlay').classList.add('show');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModalOverlay').classList.remove('show');
+  }
+
+  /* ── Save Edit → Apps Script ── */
+  async function saveEdit() {
+    if (!currentBooking) return;
+
+    const btn = document.getElementById('btnSaveEdit');
+    const btnText = document.getElementById('btnSaveText');
+    btn.disabled = true;
+    btnText.textContent = 'Menyimpan...';
+
+    // Kumpulkan data dari form
+    const updated = {
+      // identifier: pakai timestamp asli untuk menemukan baris di Sheets
+      timestamp: currentBooking.timestamp,
+      nama:           document.getElementById('ef_nama').value.trim(),
+      wa:             document.getElementById('ef_wa').value.trim(),
+      email:          document.getElementById('ef_email').value.trim(),
+      lokasi:         document.getElementById('ef_lokasi').value.trim(),
+      tanggal:        document.getElementById('ef_tanggal').value,
+      jam_selesai:    document.getElementById('ef_jam_selesai').value,
+      jumlah_orang:   document.getElementById('ef_jumlah_orang').value,
+      paket:          document.getElementById('ef_paket').value.trim(),
+      addon:          document.getElementById('ef_addon').value.trim(),
+      transport_biaya: document.getElementById('ef_transport').value.trim(),
+      subtotal:       document.getElementById('ef_subtotal').value,
+      dp:             document.getElementById('ef_dp').value,
+      status:         document.getElementById('ef_status').value,
+    };
+
+    try {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateBooking', data: updated }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update data lokal
+        const idx = allBookings.findIndex(b => b.timestamp === currentBooking.timestamp);
+        if (idx !== -1) {
+          allBookings[idx] = { ...allBookings[idx], ...updated };
+          currentBooking = allBookings[idx];
+        }
+
+        closeEditModal();
+        filterBookings();
+        // Re-buka modal detail dengan data terbaru
+        openModal(encodeURIComponent(JSON.stringify(currentBooking)));
+        showToast('Data berhasil disimpan!', 'success');
+      } else {
+        showToast('Gagal menyimpan: ' + (result.message || 'Error tidak diketahui'), 'error');
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      showToast('Koneksi gagal. Coba lagi.', 'error');
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = 'Simpan';
+    }
+  }
+
+  /* ── Toast ── */
+  function showToast(msg, type = '') {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast' + (type ? ' ' + type : '');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  document.getElementById('editModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+  });
 
   document.getElementById('modalOverlay').addEventListener('click', closeModal);
   document.addEventListener('keydown', (e) => {
