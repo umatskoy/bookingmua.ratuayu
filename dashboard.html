@@ -934,7 +934,7 @@
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
+      gap: 3px;
     }
 
     .cal-day-name {
@@ -948,18 +948,16 @@
     }
 
     .cal-day {
-      aspect-ratio: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       border-radius: 8px;
       cursor: pointer;
       position: relative;
       transition: all 0.15s;
       border: 0.5px solid transparent;
-      padding: 4px 2px;
-      min-height: 44px;
+      padding: 6px 4px 5px;
+      min-height: 64px;
     }
 
     .cal-day:hover:not(.cal-empty) {
@@ -1022,6 +1020,44 @@
 
     .cal-dot.pending { background: #f59e0b; }
     .cal-dot.confirmed { background: #2d5a0a; }
+
+    /* Booking entries inside calendar cells */
+    .cal-entries {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      width: 100%;
+      margin-top: 3px;
+    }
+
+    .cal-entry {
+      font-size: 9.5px;
+      font-weight: 500;
+      line-height: 1.2;
+      padding: 2px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: left;
+      max-width: 100%;
+    }
+
+    .cal-entry.pending   { background: rgba(245,158,11,0.12); color: #b45309; }
+    .cal-entry.confirmed { background: rgba(45,90,10,0.1);    color: #2d5a0a; }
+
+    .cal-entry-more {
+      font-size: 9px;
+      color: var(--pink);
+      font-weight: 600;
+      text-align: center;
+      margin-top: 1px;
+    }
+
+    @media (max-width: 600px) {
+      .cal-day { min-height: 52px; padding: 4px 2px; }
+      .cal-entry { font-size: 8px; padding: 1px 3px; }
+    }
 
     .cal-count {
       font-size: 9px;
@@ -2197,13 +2233,29 @@
         ? `onclick="calDayClick(event, '${dateKey}', '${encodedBookings}')"`
         : `onclick="calDayClickEmpty(event, '${dateKey}')"`;
 
+      // Build entry chips: "jam - MUA" per booking (max 2 tampil, sisanya "+N")
+      let entriesHtml = '';
+      if (hasBooking) {
+        const maxShow = 2;
+        const shown = bookings.slice(0, maxShow);
+        const extra = bookings.length - maxShow;
+        const chips = shown.map(b => {
+          const jam = fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) : '';
+          const mua = b.mua_bertugas || '';
+          const label = [jam, mua].filter(Boolean).join(' · ') || (b.nama || 'Booking');
+          const st = (b.status || 'pending') === 'confirmed' ? 'confirmed' : 'pending';
+          return `<span class="cal-entry ${st}">${label}</span>`;
+        }).join('');
+        const moreBadge = extra > 0 ? `<span class="cal-entry-more">+${extra} lainnya</span>` : '';
+        entriesHtml = `<div class="cal-entries">${chips}${moreBadge}</div>`;
+      }
+
       html += `
         <div class="${classes}" ${onclickAttr} 
              onmouseenter="calShowPopover(event, '${dateKey}', '${encodedBookings}')"
              onmouseleave="calHidePopover()">
           <span class="cal-num">${day}</span>
-          ${hasBooking ? `<div class="cal-dots">${dotsHtml}</div>` : ''}
-          ${bookings.length > 3 ? `<span class="cal-count">+${bookings.length}</span>` : ''}
+          ${entriesHtml}
         </div>`;
     }
 
