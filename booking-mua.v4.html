@@ -600,8 +600,10 @@
     if (addonRows.length === 0) return 'Tidak ada';
     return addonRows.map(r => {
       const opt = ADDON_OPTIONS.find(o => o.value === r.value) || ADDON_OPTIONS[0];
-      return `${opt.value} x${r.jumlah}`;
-    }).join(', ');
+      // Format konsisten dengan getPaketString: "Nama – Rp Harga xJumlah"
+      const hargaLabel = opt.harga === 0 ? 'Gratis' : 'Rp ' + opt.harga.toLocaleString('id-ID');
+      return `${opt.value} – ${hargaLabel} x${r.jumlah}`;
+    }).join(' | ');
   }
 
   function getTotalOrang() { return paketRows.reduce((s,r) => s + r.jumlah, 0); }
