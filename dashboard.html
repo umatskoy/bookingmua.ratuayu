@@ -1103,6 +1103,78 @@
       .calendar-month-label { font-size: 16px; min-width: 140px; }
     }
 
+    .cal-day.selected {
+      background: var(--pink-focus) !important;
+      border-color: var(--pink) !important;
+    }
+    .cal-day.selected .cal-num {
+      font-weight: 700;
+    }
+
+    /* Calendar inline day bookings panel */
+    .cal-day-bookings {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      margin-top: 1rem;
+      animation: slideUp 0.25s ease;
+    }
+
+    .cal-day-bookings-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-soft);
+    }
+
+    #calDayBookingsTitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .cal-day-bookings-close {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .cal-day-bookings-close:hover { color: var(--text-primary); }
+
+    .cal-day-bookings table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .cal-day-bookings th {
+      padding: 10px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--bg-soft);
+      border-bottom: 0.5px solid var(--border);
+    }
+    .cal-day-bookings td {
+      padding: 12px 16px;
+      border-bottom: 0.5px solid var(--border);
+      color: var(--text-primary);
+    }
+    .cal-day-bookings tbody tr:last-child td { border-bottom: none; }
+    .cal-day-bookings tbody tr:hover { background: var(--pink-light); cursor: pointer; }
+
     .loading-spinner {
       display: none;
       text-align: center;
@@ -1260,6 +1332,20 @@
           <div class="legend-item"><span class="legend-dot" style="background:rgba(212,83,126,0.15); border:1px solid rgba(212,83,126,0.3); border-radius:50%;"></span>Ada Booking</div>
         </div>
       </div>
+    </div>
+
+    <!-- Daftar booking untuk tanggal yang dipilih -->
+    <div class="cal-day-bookings" id="calDayBookings" style="display:none;">
+      <div class="cal-day-bookings-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i class="ti ti-calendar-check" style="color:var(--pink); font-size:15px;"></i>
+          <span id="calDayBookingsTitle">Booking</span>
+        </div>
+        <button class="cal-day-bookings-close" onclick="calCloseDayBookings()">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+      <div id="calDayBookingsBody"></div>
     </div>
   </div>
 
@@ -2017,6 +2103,7 @@
     calMonth += delta;
     if (calMonth > 11) { calMonth = 0; calYear++; }
     if (calMonth < 0)  { calMonth = 11; calYear--; }
+    calCloseDayBookings();
     renderCalendar();
   }
 
@@ -2147,29 +2234,69 @@
   }
 
   function calDayClick(event, dateKey, encodedBookings) {
-    // Switch to daftar page and filter to this date
-    switchPage('daftar');
+    calHidePopover();
 
-    const [yr, mo] = dateKey.split('-');
-    const monthVal = yr + '-' + mo;
-
-    const filterMonth = document.getElementById('filterMonth');
-    filterMonth.value = monthVal;
-
-    const allCopy = allBookings.filter(b => {
+    const bookingsOnDate = allBookings.filter(b => {
       const d = parseDate(b.tanggal);
       if (!d) return false;
       const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
       return key === dateKey;
     });
 
-    filteredBookings = allCopy;
-    renderTable();
-    calHidePopover();
+    const panel = document.getElementById('calDayBookings');
+    const title = document.getElementById('calDayBookingsTitle');
+    const body  = document.getElementById('calDayBookingsBody');
+
+    const [yr, mo, dy] = dateKey.split('-');
+    const d = new Date(yr, parseInt(mo)-1, parseInt(dy));
+    const dateLabel = d.toLocaleDateString('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+
+    title.textContent = bookingsOnDate.length + ' Booking — ' + dateLabel;
+
+    if (bookingsOnDate.length === 0) {
+      body.innerHTML = '<div class="empty-state" style="padding:2rem;"><i class="ti ti-calendar-off" style="font-size:36px;color:var(--border);display:block;margin-bottom:8px;"></i><p>Tidak ada booking di tanggal ini</p></div>';
+    } else {
+      let rows = bookingsOnDate.map(b => {
+        const total   = parseRp(b.subtotal);
+        const dp      = parseRp(b.dp);
+        const sisa    = Math.max(0, total - dp);
+        const status  = b.status || 'pending';
+        const encoded = encodeURIComponent(JSON.stringify(b));
+        return `<tr onclick="openModal('${encoded}')">
+          <td class="name-col">${b.nama || '-'}</td>
+          <td class="paket-col">${b.paket || '-'}</td>
+          <td>${fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) + ' WIB' : '-'}</td>
+          <td class="price-col">${fmtRp(total)}</td>
+          <td>${fmtRp(dp)}</td>
+          <td>${sisa > 0 ? '<span style="color:var(--pink);font-weight:600;">'+fmtRp(sisa)+'</span>' : '<span style="color:#2d5a0a;font-weight:600;">Lunas</span>'}</td>
+          <td><span class="status-badge status-${status}">${status === 'confirmed' ? 'Confirmed' : 'Pending'}</span></td>
+        </tr>`;
+      }).join('');
+
+      body.innerHTML = `<div style="overflow-x:auto;"><table>
+        <thead><tr>
+          <th>Nama</th><th>Paket</th><th>Jam Selesai</th><th>Total</th><th>DP</th><th>Sisa</th><th>Status</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+    }
+
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Highlight selected day
+    document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+  }
+
+  function calCloseDayBookings() {
+    const panel = document.getElementById('calDayBookings');
+    panel.style.display = 'none';
+    document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
   }
 
   function calDayClickEmpty(event, dateKey) {
-    // No action for empty days
+    calCloseDayBookings();
   }
 
   /* ══════════════════════════════════════════════
