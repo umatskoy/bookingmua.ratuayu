@@ -424,104 +424,6 @@
       .btn-detail { padding: 5px 8px; font-size: 10px; }
       table { font-size: 12px; }
     }
-
-    /* ── REVENUE SPLIT CARDS ── */
-    .stats-grid-revenue {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .revenue-sub {
-      background: var(--bg-soft);
-      border: 0.5px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-    }
-    .revenue-sub-label {
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-secondary);
-      margin-bottom: 4px;
-    }
-    .revenue-sub-value {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--pink);
-    }
-    .revenue-sub.lunas .revenue-sub-value { color: #2d5a0a; }
-
-    /* ── STATUS CHANGE & EDIT BUTTONS ── */
-    .btn-status {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 5px 10px; border-radius: 4px; font-size: 11px;
-      font-weight: 600; cursor: pointer; border: none;
-      font-family: 'DM Sans', sans-serif; transition: all 0.2s;
-    }
-    .btn-status.to-confirmed { background: rgba(59,109,17,0.1); color: #2d5a0a; border: 0.5px solid rgba(59,109,17,0.3); }
-    .btn-status.to-confirmed:hover { background: rgba(59,109,17,0.2); }
-    .btn-status.to-pending { background: rgba(255,193,7,0.1); color: #f57f17; border: 0.5px solid rgba(255,193,7,0.3); }
-    .btn-status.to-pending:hover { background: rgba(255,193,7,0.2); }
-    .btn-status.lunas { background: rgba(59,109,17,0.1); color: #2d5a0a; border: 0.5px solid rgba(59,109,17,0.3); }
-    .btn-status.lunas:hover { background: rgba(59,109,17,0.2); }
-    .btn-status.belum-lunas { background: rgba(212,83,126,0.08); color: var(--pink); border: 0.5px solid rgba(212,83,126,0.3); }
-    .btn-status.belum-lunas:hover { background: rgba(212,83,126,0.15); }
-
-    .modal-footer {
-      padding: 1rem 1.5rem;
-      border-top: 0.5px solid var(--border);
-      display: flex; flex-wrap: wrap; gap: 8px;
-    }
-
-    /* ── EDIT MODAL ── */
-    .edit-overlay {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5); z-index: 2000;
-      align-items: center; justify-content: center;
-    }
-    .edit-overlay.show { display: flex; }
-    .edit-modal {
-      background: var(--bg); border-radius: 12px;
-      max-width: 520px; width: 92%; max-height: 90vh;
-      overflow-y: auto; animation: slideUp 0.25s;
-    }
-    .edit-modal .modal-header { padding: 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .edit-modal .modal-header h3 { font-size: 17px; font-weight: 600; }
-    .edit-form { padding: 1.5rem; display: flex; flex-direction: column; gap: 14px; }
-    .edit-field { display: flex; flex-direction: column; gap: 5px; }
-    .edit-field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); }
-    .edit-field input, .edit-field select {
-      padding: 9px 12px; border: 0.5px solid var(--border); border-radius: 6px;
-      font-family: 'DM Sans', sans-serif; font-size: 13px;
-      color: var(--text-primary); background: var(--bg); outline: none;
-    }
-    .edit-field input:focus, .edit-field select:focus { border-color: var(--pink); box-shadow: 0 0 0 2px var(--pink-focus); }
-    .edit-form-footer { padding: 1rem 1.5rem; border-top: 0.5px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
-    .btn-save {
-      padding: 9px 20px; background: var(--pink); color: #fff;
-      border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-    }
-    .btn-save:hover { background: #bf4570; }
-    .btn-cancel-edit {
-      padding: 9px 16px; background: transparent; color: var(--text-secondary);
-      border: 0.5px solid var(--border); border-radius: 6px;
-      font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer;
-    }
-    .btn-cancel-edit:hover { border-color: var(--text-secondary); }
-    .save-status { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
-    .save-status.ok { color: #2d5a0a; }
-    .save-status.err { color: var(--pink); }
-
-    /* ── PELUNASAN BADGE ── */
-    .lunas-badge {
-      display: inline-block; padding: 3px 8px; border-radius: 4px;
-      font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .lunas-badge.lunas { background: rgba(59,109,17,0.1); color: #2d5a0a; border: 0.5px solid rgba(59,109,17,0.3); }
-    .lunas-badge.belum { background: rgba(212,83,126,0.08); color: var(--pink); border: 0.5px solid rgba(212,83,126,0.25); }
   </style>
 </head>
 <body>
@@ -565,24 +467,12 @@
       </div>
       <i class="ti ti-calendar stat-card-icon"></i>
     </div>
-    <div class="stat-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
-      <div style="display:flex; justify-content:space-between; width:100%; align-items:flex-start;">
-        <div class="stat-card-content">
-          <h3>Total Revenue</h3>
-          <div class="stat-card-value" id="totalRevenue" style="font-size:16px;">Rp 0</div>
-        </div>
-        <i class="ti ti-cash stat-card-icon"></i>
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <h3>Total Revenue</h3>
+        <div class="stat-card-value" id="totalRevenue" style="font-size:16px;">Rp 0</div>
       </div>
-      <div class="stats-grid-revenue">
-        <div class="revenue-sub">
-          <div class="revenue-sub-label">DP Masuk</div>
-          <div class="revenue-sub-value" id="totalDpMasuk">Rp 0</div>
-        </div>
-        <div class="revenue-sub lunas">
-          <div class="revenue-sub-label">Pelunasan</div>
-          <div class="revenue-sub-value" id="totalPelunasan">Rp 0</div>
-        </div>
-      </div>
+      <i class="ti ti-cash stat-card-icon"></i>
     </div>
     <div class="stat-card">
       <div class="stat-card-content">
@@ -593,7 +483,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-card-content">
-        <h3>Sisa Pelunasan</h3>
+        <h3>Pending DP</h3>
         <div class="stat-card-value" id="pendingDP" style="font-size:16px;">Rp 0</div>
       </div>
       <i class="ti ti-alert-circle stat-card-icon"></i>
@@ -745,8 +635,6 @@
       transport_biaya: pick('transport_biaya', 'transport biaya', 'Transport Biaya', 'transport', 'biaya_transport'),
       bukti:           pick('bukti', 'bukti_transfer', 'Bukti Transfer', 'bukti transfer'),
       status:          pick('status', 'Status') || 'pending',
-      pelunasan:       pick('pelunasan', 'Pelunasan', 'lunas', 'status_lunas') || 'belum',
-      row_index:       raw._rowIndex || raw.rowIndex || null,
       // simpan semua field asli juga, untuk jaga-jaga
       _raw: raw,
     };
@@ -840,19 +728,37 @@
       return match;
     });
 
-    // Sort: tanggal terdekat dari sekarang di atas, lalu tanggal mendatang, lalu masa lalu
+    // Urutkan berdasarkan tanggal terdekat dari sekarang:
+    // booking mendatang (>= hari ini) diurutkan ascending (paling dekat dulu),
+    // lalu booking yang sudah lewat diurutkan descending (paling baru dulu).
     const now = new Date();
-    now.setHours(0,0,0,0);
-    filteredBookings.sort((a, b) => {
-      const da = parseDate(a.tanggal);
-      const db = parseDate(b.tanggal);
-      if (!da && !db) return 0;
-      if (!da) return 1;
-      if (!db) return -1;
-      const diffA = Math.abs(da - now);
-      const diffB = Math.abs(db - now);
-      return diffA - diffB;
+    now.setHours(0, 0, 0, 0);
+
+    const upcoming = [];
+    const past = [];
+
+    filteredBookings.forEach(b => {
+      const d = parseDate(b.tanggal);
+      if (d && d >= now) {
+        upcoming.push(b);
+      } else {
+        past.push(b);
+      }
     });
+
+    upcoming.sort((a, b) => {
+      const da = parseDate(a.tanggal) || new Date(0);
+      const db = parseDate(b.tanggal) || new Date(0);
+      return da - db;
+    });
+
+    past.sort((a, b) => {
+      const da = parseDate(a.tanggal) || new Date(0);
+      const db = parseDate(b.tanggal) || new Date(0);
+      return db - da;
+    });
+
+    filteredBookings = [...upcoming, ...past];
 
     renderTable();
     updateStats();
@@ -886,29 +792,24 @@
       <tbody>
     `;
 
-    filteredBookings.forEach((booking, idx) => {
+    filteredBookings.forEach(booking => {
       const status = booking.status || 'pending';
       const statusClass = status === 'confirmed' ? 'status-confirmed' : 'status-pending';
       const statusText = status === 'confirmed' ? 'Confirmed' : 'Pending';
-      const isLunas = booking.pelunasan === 'lunas';
 
       const total = parseRp(booking.subtotal);
       const dp = parseRp(booking.dp);
       const sisa = total - dp;
 
-      const enc = encodeURIComponent(JSON.stringify(booking));
-      html += `<tr onclick="openModal('${enc}')">
+      html += `<tr onclick="openModal('${encodeURIComponent(JSON.stringify(booking))}')">
         <td class="name-col">${booking.nama || '-'}</td>
         <td class="date-col">${fmtDate(booking.tanggal)}</td>
         <td class="paket-col">${booking.paket ? booking.paket.split('|')[0].trim() : '-'}</td>
         <td class="price-col">${fmtRp(total)}</td>
         <td>${fmtRp(dp)}</td>
-        <td class="price-col ${isLunas ? '' : 'price-col'}" style="${isLunas ? 'color:#2d5a0a' : ''}">${fmtRp(sisa)}</td>
-        <td>
-          <span class="status-badge ${statusClass}">${statusText}</span>
-          <span class="lunas-badge ${isLunas ? 'lunas' : 'belum'}" style="margin-left:4px;">${isLunas ? 'Lunas' : 'Belum Lunas'}</span>
-        </td>
-        <td><button class="btn-detail" onclick="event.stopPropagation(); openModal('${enc}')">
+        <td class="price-col">${fmtRp(sisa)}</td>
+        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+        <td><button class="btn-detail" onclick="event.stopPropagation(); openModal('${encodeURIComponent(JSON.stringify(booking))}')">
           <i class="ti ti-eye" style="font-size:12px;"></i> Detail
         </button></td>
       </tr>`;
@@ -923,32 +824,25 @@
     let totalBookings = filteredBookings.length;
     let totalRevenue = 0;
     let totalOrang = 0;
-    let totalDpMasuk = 0;
-    let totalPelunasan = 0;
-    let sisaPelunasan = 0;
+    let totalDp = 0;
+    let pendingDp = 0;
 
     filteredBookings.forEach(b => {
       const total = parseRp(b.subtotal);
       const dp = parseRp(b.dp);
-      const sisa = total - dp;
-      totalRevenue += dp; // Revenue = DP yang sudah masuk + pelunasan
-      totalDpMasuk += dp;
+      totalRevenue += total;
+      totalDp += dp;
       totalOrang += parseInt(b.jumlah_orang) || 0;
 
-      if (b.pelunasan === 'lunas') {
-        totalPelunasan += sisa;
-        totalRevenue += sisa;
-      } else {
-        sisaPelunasan += sisa;
+      if (dp < total) {
+        pendingDp += (total - dp);
       }
     });
 
     document.getElementById('totalBookings').textContent = totalBookings;
     document.getElementById('totalRevenue').textContent = fmtRp(totalRevenue);
-    document.getElementById('totalDpMasuk').textContent = fmtRp(totalDpMasuk);
-    document.getElementById('totalPelunasan').textContent = fmtRp(totalPelunasan);
     document.getElementById('totalOrang').textContent = totalOrang;
-    document.getElementById('pendingDP').textContent = fmtRp(sisaPelunasan);
+    document.getElementById('pendingDP').textContent = fmtRp(pendingDp);
   }
 
   /* ── Modal ── */
@@ -1060,195 +954,18 @@
       `;
     }
 
-    const isLunas = booking.pelunasan === 'lunas';
-    const status = booking.status || 'pending';
-
     modalBody.innerHTML = html;
-
-    // Footer aksi
-    let footer = document.getElementById('modalFooter');
-    if (!footer) {
-      footer = document.createElement('div');
-      footer.className = 'modal-footer';
-      footer.id = 'modalFooter';
-      document.querySelector('.modal-content').appendChild(footer);
-    }
-
-    const bookingJson = encodeURIComponent(JSON.stringify(booking));
-    footer.innerHTML = `
-      <button class="btn-status ${status === 'confirmed' ? 'to-pending' : 'to-confirmed'}"
-        onclick="toggleStatus('${bookingJson}')">
-        <i class="ti ti-${status === 'confirmed' ? 'arrow-back-up' : 'check'}"></i>
-        ${status === 'confirmed' ? 'Set Pending' : 'Konfirmasi'}
-      </button>
-      <button class="btn-status ${isLunas ? 'belum-lunas' : 'lunas'}"
-        onclick="togglePelunasan('${bookingJson}')">
-        <i class="ti ti-${isLunas ? 'x' : 'cash'}"></i>
-        ${isLunas ? 'Batalkan Lunas' : 'Tandai Lunas'}
-      </button>
-      <button class="btn-status" style="background:var(--pink-light);color:var(--pink);border:0.5px solid rgba(212,83,126,0.3);"
-        onclick="openEditModal('${bookingJson}')">
-        <i class="ti ti-edit"></i> Edit Data
-      </button>
-    `;
-
     document.getElementById('modalOverlay').classList.add('show');
-    currentBooking = booking;
   }
 
   function closeModal() {
     document.getElementById('modalOverlay').classList.remove('show');
   }
 
-  /* ── Current Booking State ── */
-  let currentBooking = null;
-
-  /* ── Toggle Status ── */
-  function toggleStatus(encodedBooking) {
-    const booking = JSON.parse(decodeURIComponent(encodedBooking));
-    const newStatus = (booking.status || 'pending') === 'confirmed' ? 'pending' : 'confirmed';
-    const idx = allBookings.findIndex(b => b.timestamp === booking.timestamp && b.nama === booking.nama);
-    if (idx !== -1) {
-      allBookings[idx].status = newStatus;
-      currentBooking = allBookings[idx];
-    }
-    filterBookings();
-    updateStats();
-    closeModal();
-    // Push ke Sheets
-    pushUpdate({ timestamp: booking.timestamp, nama: booking.nama, field: 'status', value: newStatus });
-  }
-
-  /* ── Toggle Pelunasan ── */
-  function togglePelunasan(encodedBooking) {
-    const booking = JSON.parse(decodeURIComponent(encodedBooking));
-    const newLunas = booking.pelunasan === 'lunas' ? 'belum' : 'lunas';
-    const idx = allBookings.findIndex(b => b.timestamp === booking.timestamp && b.nama === booking.nama);
-    if (idx !== -1) {
-      allBookings[idx].pelunasan = newLunas;
-      currentBooking = allBookings[idx];
-    }
-    filterBookings();
-    updateStats();
-    closeModal();
-    // Push ke Sheets
-    pushUpdate({ timestamp: booking.timestamp, nama: booking.nama, field: 'pelunasan', value: newLunas });
-  }
-
-  /* ── Open Edit Modal ── */
-  function openEditModal(encodedBooking) {
-    const booking = JSON.parse(decodeURIComponent(encodedBooking));
-    currentBooking = booking;
-
-    document.getElementById('editNama').value = booking.nama || '';
-    document.getElementById('editWa').value = booking.wa || '';
-    document.getElementById('editEmail').value = booking.email || '';
-    document.getElementById('editLokasi').value = booking.lokasi || '';
-    document.getElementById('editStatus').value = booking.status || 'pending';
-    document.getElementById('editPelunasan').value = booking.pelunasan || 'belum';
-
-    // Tanggal
-    const td = parseDate(booking.tanggal);
-    if (td) {
-      const y = td.getFullYear();
-      const m = String(td.getMonth()+1).padStart(2,'0');
-      const d = String(td.getDate()).padStart(2,'0');
-      document.getElementById('editTanggal').value = y+'-'+m+'-'+d;
-    } else {
-      document.getElementById('editTanggal').value = '';
-    }
-
-    // Jam
-    const jamStr = fmtTime(booking.jam_selesai);
-    document.getElementById('editJam').value = jamStr !== '-' ? jamStr : '';
-
-    document.getElementById('editSaveStatus').textContent = '';
-    document.getElementById('editOverlay').classList.add('show');
-  }
-
-  function closeEditModal() {
-    document.getElementById('editOverlay').classList.remove('show');
-  }
-
-  /* ── Save Edit ── */
-  async function saveEdit() {
-    if (!currentBooking) return;
-    const statusEl = document.getElementById('editSaveStatus');
-    statusEl.textContent = 'Menyimpan...';
-    statusEl.className = 'save-status';
-
-    const updated = {
-      ...currentBooking,
-      nama:      document.getElementById('editNama').value.trim(),
-      wa:        document.getElementById('editWa').value.trim(),
-      email:     document.getElementById('editEmail').value.trim(),
-      lokasi:    document.getElementById('editLokasi').value.trim(),
-      tanggal:   document.getElementById('editTanggal').value,
-      jam_selesai: document.getElementById('editJam').value,
-      status:    document.getElementById('editStatus').value,
-      pelunasan: document.getElementById('editPelunasan').value,
-    };
-
-    // Update di memori lokal
-    const idx = allBookings.findIndex(b => b.timestamp === currentBooking.timestamp && b._raw && JSON.stringify(b._raw) === JSON.stringify(currentBooking._raw));
-    if (idx !== -1) allBookings[idx] = updated;
-    currentBooking = updated;
-
-    filterBookings();
-    updateStats();
-
-    // Push semua field yang berubah ke Sheets
-    try {
-      const res = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'updateBooking',
-          timestamp: updated.timestamp,
-          namaAsli: currentBooking.nama,
-          fields: {
-            nama: updated.nama,
-            wa: updated.wa,
-            email: updated.email,
-            lokasi: updated.lokasi,
-            tanggal: updated.tanggal,
-            jam_selesai: updated.jam_selesai,
-            status: updated.status,
-            pelunasan: updated.pelunasan,
-          }
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        statusEl.textContent = '✓ Tersimpan';
-        statusEl.className = 'save-status ok';
-        setTimeout(closeEditModal, 1200);
-      } else {
-        statusEl.textContent = '✗ ' + (data.error || 'Gagal simpan');
-        statusEl.className = 'save-status err';
-      }
-    } catch (e) {
-      statusEl.textContent = '✗ Koneksi gagal';
-      statusEl.className = 'save-status err';
-    }
-  }
-
-  /* ── Push Update ke Sheets (untuk toggle status/pelunasan) ── */
-  async function pushUpdate(payload) {
-    try {
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'updateField', ...payload })
-      });
-    } catch(e) {
-      console.warn('pushUpdate failed:', e);
-    }
-  }
-
-  /* ── Close modal stops event propagation ── */
   document.getElementById('modalOverlay').addEventListener('click', closeModal);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeEditModal(); } });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
 
   /* ── Init ── */
   window.addEventListener('DOMContentLoaded', () => {
@@ -1256,61 +973,5 @@
   });
 </script>
 
-
-<!-- Edit Modal -->
-<div class="edit-overlay" id="editOverlay" onclick="closeEditModal()">
-  <div class="edit-modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="ti ti-edit" style="color:var(--pink);margin-right:6px;"></i>Edit Data Klien</h3>
-      <button class="btn-close" onclick="closeEditModal()"><i class="ti ti-x"></i></button>
-    </div>
-    <div class="edit-form" id="editForm">
-      <div class="edit-field">
-        <label>Nama</label>
-        <input type="text" id="editNama" placeholder="Nama klien" />
-      </div>
-      <div class="edit-field">
-        <label>WhatsApp</label>
-        <input type="text" id="editWa" placeholder="Nomor WA" />
-      </div>
-      <div class="edit-field">
-        <label>Email</label>
-        <input type="email" id="editEmail" placeholder="Email" />
-      </div>
-      <div class="edit-field">
-        <label>Lokasi</label>
-        <input type="text" id="editLokasi" placeholder="Lokasi" />
-      </div>
-      <div class="edit-field">
-        <label>Tanggal Make Up</label>
-        <input type="date" id="editTanggal" />
-      </div>
-      <div class="edit-field">
-        <label>Jam Selesai</label>
-        <input type="time" id="editJam" />
-      </div>
-      <div class="edit-field">
-        <label>Status Booking</label>
-        <select id="editStatus">
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-      </div>
-      <div class="edit-field">
-        <label>Status Pelunasan</label>
-        <select id="editPelunasan">
-          <option value="belum">Belum Lunas</option>
-          <option value="lunas">Sudah Lunas</option>
-        </select>
-      </div>
-    </div>
-    <div class="edit-form-footer">
-      <span class="save-status" id="editSaveStatus"></span>
-      <button class="btn-cancel-edit" onclick="closeEditModal()">Batal</button>
-      <button class="btn-save" onclick="saveEdit()"><i class="ti ti-device-floppy" style="font-size:13px;"></i> Simpan</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
