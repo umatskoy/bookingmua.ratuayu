@@ -2261,16 +2261,18 @@
         ? `onclick="calDayClick(event, '${dateKey}', '${encodedBookings}')"`
         : `onclick="calDayClickEmpty(event, '${dateKey}')"`;
 
-      // Build entry chips: "jam - MUA" per booking (max 2 tampil, sisanya "+N")
+      // Build entry chips: "jam · MUA · Hijab · Hair" per booking (max 2 tampil, sisanya "+N")
       let entriesHtml = '';
       if (hasBooking) {
         const maxShow = 2;
         const shown = bookings.slice(0, maxShow);
         const extra = bookings.length - maxShow;
         const chips = shown.map(b => {
-          const jam = fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) : '';
-          const mua = b.mua_bertugas || '';
-          const label = [jam, mua].filter(Boolean).join(' · ') || (b.nama || 'Booking');
+          const jam   = fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) : '';
+          const mua   = b.mua_bertugas   || '';
+          const hijab = b.hijab_stylist  || '';
+          const hair  = b.hair_stylist   || '';
+          const label = [jam, mua, hijab, hair].filter(Boolean).join(' · ') || (b.nama || 'Booking');
           const st = (b.status || 'pending') === 'confirmed' ? 'confirmed' : 'pending';
           return `<span class="cal-entry ${st}">${label}</span>`;
         }).join('');
