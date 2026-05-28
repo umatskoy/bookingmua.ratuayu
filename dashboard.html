@@ -1211,6 +1211,147 @@
     .cal-day-bookings tbody tr:last-child td { border-bottom: none; }
     .cal-day-bookings tbody tr:hover { background: var(--pink-light); cursor: pointer; }
 
+    /* ── KINERJA TEAM ── */
+    .kinerja-empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .kinerja-section {
+      margin-bottom: 2rem;
+    }
+
+    .kinerja-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
+      padding-bottom: 8px;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .kinerja-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .kinerja-card {
+      background: var(--bg);
+      border: 0.5px solid var(--kinerja-border, var(--border));
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: box-shadow 0.2s;
+    }
+
+    .kinerja-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .kinerja-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .kinerja-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      font-family: 'Cormorant Garamond', serif;
+      flex-shrink: 0;
+    }
+
+    .kinerja-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .kinerja-role-tag {
+      font-size: 11px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .kinerja-stats {
+      display: flex;
+      align-items: center;
+      background: var(--bg-soft);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 0.5px solid var(--border);
+    }
+
+    .kinerja-stat {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .kinerja-stat-divider {
+      width: 0.5px;
+      background: var(--border);
+      align-self: stretch;
+    }
+
+    .kinerja-stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      font-family: 'Cormorant Garamond', serif;
+      line-height: 1;
+    }
+
+    .kinerja-stat-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+
+    .kinerja-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .kinerja-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .kinerja-bar-track {
+      height: 6px;
+      background: var(--kinerja-bg, var(--bg-soft));
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .kinerja-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.6s ease;
+    }
+
     .loading-spinner {
       display: none;
       text-align: center;
@@ -1256,6 +1397,10 @@
       <button class="sidebar-item" id="nav-kalender" onclick="switchPage('kalender')">
         <i class="ti ti-calendar-event"></i>
         <span>Kalender Ketersediaan</span>
+      </button>
+      <button class="sidebar-item" id="nav-kinerja" onclick="switchPage('kinerja')">
+        <i class="ti ti-chart-bar"></i>
+        <span>Kinerja Team</span>
       </button>
     </nav>
     <button class="sidebar-toggle-mobile" id="sidebarClose" onclick="toggleSidebar()">
@@ -1410,6 +1555,9 @@
       </div>
     </div>
   </div>
+  </div>
+  <div class="page-panel" id="page-kinerja" style="display:none;">
+    <div id="kinerjaContent"></div>
   </div>
 
 </div><!-- /.dashboard-main -->
@@ -1613,6 +1761,7 @@
         populateMonthFilter();
         populatePaketFilter();
         filterBookings();
+        if (currentPage === 'kinerja') renderKinerja();
         renderCalendar();
       } else {
         container.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><p>Gagal memuat data</p></div>';
@@ -2499,7 +2648,8 @@
   const PAGE_TITLES = {
     dashboard: 'Dashboard',
     daftar: 'Daftar Booking',
-    kalender: 'Kalender Ketersediaan'
+    kalender: 'Kalender Ketersediaan',
+    kinerja: 'Kinerja Team'
   };
 
   let currentPage = 'dashboard';
@@ -2507,19 +2657,15 @@
   function switchPage(page) {
     currentPage = page;
 
-    // Update nav active state
     document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
     const navEl = document.getElementById('nav-' + page);
     if (navEl) navEl.classList.add('active');
 
-    // Update topbar title
     document.getElementById('topbarTitle').textContent = PAGE_TITLES[page] || '';
 
-    // Show/hide stats grid
     const statsGrid = document.getElementById('statsGrid');
     statsGrid.style.display = page === 'dashboard' ? '' : 'none';
 
-    // Show/hide filter bar items
     const fg1 = document.getElementById('filterGroupMonth');
     const fg2 = document.getElementById('filterGroupStatus');
     const fg3 = document.getElementById('filterGroupPaket');
@@ -2528,16 +2674,17 @@
     fg2.style.display = showFilters ? '' : 'none';
     fg3.style.display = showFilters ? '' : 'none';
 
-    // Show/hide panels
     const pageDaftar   = document.getElementById('page-daftar');
     const pageKalender = document.getElementById('page-kalender');
+    const pageKinerja  = document.getElementById('page-kinerja');
 
     pageDaftar.style.display   = page === 'daftar'   ? 'block' : 'none';
     pageKalender.style.display = page === 'kalender' ? 'block' : 'none';
+    pageKinerja.style.display  = page === 'kinerja'  ? 'block' : 'none';
 
     if (page === 'kalender') renderCalendar();
+    if (page === 'kinerja')  renderKinerja();
 
-    // Close sidebar on mobile
     const sidebar = document.getElementById('sidebar');
     if (sidebar.classList.contains('open')) toggleSidebar();
   }
@@ -2549,7 +2696,116 @@
     overlay.classList.toggle('show', isOpen);
   }
 
-  /* ── Init ── */
+  /* ══════════════════════════════════════════════
+     KINERJA TEAM
+  ══════════════════════════════════════════════ */
+  function renderKinerja() {
+    const container = document.getElementById('kinerjaContent');
+
+    // Kumpulkan data per anggota tim
+    // Struktur: { nama: { paket: 0, orang: 0, role: 'mua'|'hijab'|'hair', bookings: [] } }
+    const teamMap = {};
+
+    const addMember = (nama, role, jumlahOrang) => {
+      if (!nama) return;
+      if (!teamMap[nama]) teamMap[nama] = { paket: 0, orang: 0, role, bookings: [] };
+      teamMap[nama].paket++;
+      teamMap[nama].orang += parseInt(jumlahOrang) || 1;
+    };
+
+    allBookings.forEach(b => {
+      const orang = parseInt(b.jumlah_orang) || 1;
+      if (b.mua_bertugas)   addMember(b.mua_bertugas,   'mua',   orang);
+      if (b.mua_bertugas_2) addMember(b.mua_bertugas_2, 'mua',   orang);
+      if (b.hijab_stylist)  addMember(b.hijab_stylist,  'hijab', orang);
+      if (b.hair_stylist)   addMember(b.hair_stylist,   'hair',  orang);
+    });
+
+    const members = Object.entries(teamMap);
+
+    if (members.length === 0) {
+      container.innerHTML = `
+        <div class="kinerja-empty">
+          <i class="ti ti-users" style="font-size:40px;color:var(--border);display:block;margin-bottom:12px;"></i>
+          <p>Belum ada data kinerja tim.<br>Isi field MUA, Hijab Stylist, dan Hair Stylist di setiap booking terlebih dahulu.</p>
+        </div>`;
+      return;
+    }
+
+    // Kelompokkan per role
+    const roles = {
+      mua:   { label: 'MUA',           icon: 'ti-brush',       color: 'var(--pink)',  bg: 'var(--pink-light)',  border: 'rgba(212,83,126,0.2)'  },
+      hijab: { label: 'Hijab Stylist',  icon: 'ti-sparkles',    color: '#16a34a',      bg: '#f0fdf4',            border: 'rgba(22,163,74,0.2)'   },
+      hair:  { label: 'Hair Stylist',   icon: 'ti-cut',         color: '#2563eb',      bg: '#eff6ff',            border: 'rgba(37,99,235,0.2)'   },
+    };
+
+    // Total semua booking untuk bar proporsi
+    const maxPaket = Math.max(...members.map(([,v]) => v.paket), 1);
+    const maxOrang = Math.max(...members.map(([,v]) => v.orang), 1);
+
+    let html = '';
+
+    // Render per role group
+    for (const [roleKey, roleMeta] of Object.entries(roles)) {
+      const roleMembers = members.filter(([, v]) => v.role === roleKey);
+      if (roleMembers.length === 0) continue;
+
+      // Sort by paket desc
+      roleMembers.sort((a, b) => b[1].paket - a[1].paket);
+
+      html += `
+        <div class="kinerja-section">
+          <div class="kinerja-section-title">
+            <i class="ti ${roleMeta.icon}" style="color:${roleMeta.color};font-size:16px;"></i>
+            ${roleMeta.label}
+          </div>
+          <div class="kinerja-cards">
+      `;
+
+      roleMembers.forEach(([nama, data]) => {
+        const pct = Math.round((data.paket / maxPaket) * 100);
+        html += `
+          <div class="kinerja-card" style="--kinerja-color:${roleMeta.color};--kinerja-bg:${roleMeta.bg};--kinerja-border:${roleMeta.border};">
+            <div class="kinerja-card-header">
+              <div class="kinerja-avatar" style="background:${roleMeta.bg};color:${roleMeta.color};border:1.5px solid ${roleMeta.border};">
+                ${nama.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div class="kinerja-name">${nama}</div>
+                <div class="kinerja-role-tag" style="color:${roleMeta.color};">${roleMeta.label}</div>
+              </div>
+            </div>
+
+            <div class="kinerja-stats">
+              <div class="kinerja-stat">
+                <div class="kinerja-stat-value" style="color:${roleMeta.color};">${data.paket}</div>
+                <div class="kinerja-stat-label">Paket Dikerjakan</div>
+              </div>
+              <div class="kinerja-stat-divider"></div>
+              <div class="kinerja-stat">
+                <div class="kinerja-stat-value" style="color:${roleMeta.color};">${data.orang}</div>
+                <div class="kinerja-stat-label">Total Orang di-MakeUp</div>
+              </div>
+            </div>
+
+            <div class="kinerja-bar-wrap">
+              <div class="kinerja-bar-label">
+                <span>Proporsi paket</span>
+                <span>${pct}%</span>
+              </div>
+              <div class="kinerja-bar-track">
+                <div class="kinerja-bar-fill" style="width:${pct}%;background:${roleMeta.color};"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+    }
+
+    container.innerHTML = html;
+  }
   window.addEventListener('DOMContentLoaded', () => {
     switchPage('dashboard');
     renderCalendar();
