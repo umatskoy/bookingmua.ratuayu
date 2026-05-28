@@ -1281,6 +1281,12 @@
             <option value="">Semua Bulan</option>
           </select>
         </div>
+        <div class="filter-group" id="filterGroupPaket">
+          <label for="filterPaket">Paket:</label>
+          <select id="filterPaket" onchange="filterBookings()">
+            <option value="">Semua Paket</option>
+          </select>
+        </div>
         <div class="filter-group" id="filterGroupStatus">
           <label for="filterStatus">Status:</label>
           <select id="filterStatus" onchange="filterBookings()">
@@ -1605,6 +1611,7 @@
         console.log('[Dashboard] Raw sample:', data.bookings[0]);
         console.log('[Dashboard] Normalized sample:', allBookings[0]);
         populateMonthFilter();
+        populatePaketFilter();
         filterBookings();
         renderCalendar();
       } else {
@@ -1652,10 +1659,35 @@
     });
   }
 
+  function populatePaketFilter() {
+    const filterPaket = document.getElementById('filterPaket');
+    const existing = new Set(
+      Array.from(filterPaket.options).map(o => o.value).filter(Boolean)
+    );
+
+    // Ambil nama paket utama (sebelum " – Rp" atau "|")
+    const paketSet = new Set();
+    allBookings.forEach(b => {
+      if (!b.paket) return;
+      const nama = b.paket.split('–')[0].split('|')[0].trim();
+      if (nama) paketSet.add(nama);
+    });
+
+    Array.from(paketSet).sort().forEach(nama => {
+      if (!existing.has(nama)) {
+        const option = document.createElement('option');
+        option.value = nama;
+        option.textContent = nama;
+        filterPaket.appendChild(option);
+      }
+    });
+  }
+
   /* ── Filter Bookings ── */
   function filterBookings() {
-    const monthFilter = document.getElementById('filterMonth').value;
+    const monthFilter  = document.getElementById('filterMonth').value;
     const statusFilter = document.getElementById('filterStatus').value;
+    const paketFilter  = document.getElementById('filterPaket').value;
 
     filteredBookings = allBookings.filter(b => {
       let match = true;
@@ -1670,6 +1702,11 @@
 
       if (statusFilter) {
         match = match && (b.status || 'pending') === statusFilter;
+      }
+
+      if (paketFilter) {
+        const namaPaket = (b.paket || '').split('–')[0].split('|')[0].trim();
+        match = match && namaPaket === paketFilter;
       }
 
       return match;
@@ -2485,9 +2522,11 @@
     // Show/hide filter bar items
     const fg1 = document.getElementById('filterGroupMonth');
     const fg2 = document.getElementById('filterGroupStatus');
+    const fg3 = document.getElementById('filterGroupPaket');
     const showFilters = page === 'daftar';
     fg1.style.display = showFilters ? '' : 'none';
     fg2.style.display = showFilters ? '' : 'none';
+    fg3.style.display = showFilters ? '' : 'none';
 
     // Show/hide panels
     const pageDaftar   = document.getElementById('page-daftar');
