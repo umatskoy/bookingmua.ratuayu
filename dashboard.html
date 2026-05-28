@@ -1573,6 +1573,8 @@
       bukti:           pick('bukti', 'bukti_transfer', 'Bukti Transfer', 'bukti transfer'),
       status:          pick('status', 'Status') || 'pending',
       mua_bertugas:    pick('mua_bertugas', 'mua bertugas', 'MUA Bertugas', 'mua', 'MUA', 'tim_mua', 'tim mua'),
+      hijab_stylist:   pick('hijab_stylist', 'hijab stylist', 'Hijab Stylist', 'hijab'),
+      hair_stylist:    pick('hair_stylist', 'hair stylist', 'Hair Stylist', 'hair'),
       // simpan semua field asli juga, untuk jaga-jaga
       _raw: raw,
     };
@@ -1901,6 +1903,20 @@
             : '<span style="color:var(--text-secondary);font-style:italic;font-size:12px;">Belum ditentukan</span>'
           }</span>
         </div>
+        <div class="detail-row">
+          <span class="detail-label">Hijab Stylist</span>
+          <span class="detail-value">${booking.hijab_stylist
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;color:#16a34a;border:0.5px solid rgba(22,163,74,0.25);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;">${booking.hijab_stylist}</span>`
+            : '<span style="color:var(--text-secondary);font-style:italic;font-size:12px;">Belum ditentukan</span>'
+          }</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Hair Stylist</span>
+          <span class="detail-value">${booking.hair_stylist
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;background:#eff6ff;color:#2563eb;border:0.5px solid rgba(37,99,235,0.25);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;">${booking.hair_stylist}</span>`
+            : '<span style="color:var(--text-secondary);font-style:italic;font-size:12px;">Belum ditentukan</span>'
+          }</span>
+        </div>
       </div>
 
       <div class="detail-section">
@@ -2042,6 +2058,16 @@
         <label>Transport / Biaya Transport</label>
         <input type="text" id="ef_transport" value="${b.transport_biaya || ''}" placeholder="Misal: Rp 50.000">
       </div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>Hijab Stylist Bertugas</label>
+          <input type="text" id="ef_hijab_stylist" value="${b.hijab_stylist || ''}" placeholder="Nama hijab stylist">
+        </div>
+        <div class="edit-field">
+          <label>Hair Stylist Bertugas</label>
+          <input type="text" id="ef_hair_stylist" value="${b.hair_stylist || ''}" placeholder="Nama hair stylist">
+        </div>
+      </div>
 
       <div class="edit-section-title"><i class="ti ti-cash"></i> Pembayaran</div>
       <div class="edit-fields-row">
@@ -2098,6 +2124,8 @@
       dp:              document.getElementById('ef_dp').value,
       status:          document.getElementById('ef_status').value,
       mua_bertugas:    document.getElementById('ef_mua_bertugas').value,
+      hijab_stylist:   document.getElementById('ef_hijab_stylist').value.trim(),
+      hair_stylist:    document.getElementById('ef_hair_stylist').value.trim(),
     };
 
     console.log('[Edit] Sending update:', updated);
