@@ -1730,6 +1730,8 @@
           <th>Tanggal</th>
           <th>Paket</th>
           <th>MUA</th>
+          <th>Hijab</th>
+          <th>Hair</th>
           <th>Total</th>
           <th>DP</th>
           <th>Sisa</th>
@@ -1753,11 +1755,21 @@
         ? `<span style="background:var(--pink-light);color:var(--pink);border:0.5px solid rgba(212,83,126,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap;">${booking.mua_bertugas}</span>`
         : `<span style="color:var(--border);font-size:11px;">—</span>`;
 
+      const hijabLabel = booking.hijab_stylist
+        ? `<span style="background:#f0fdf4;color:#16a34a;border:0.5px solid rgba(22,163,74,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap;">${booking.hijab_stylist}</span>`
+        : `<span style="color:var(--border);font-size:11px;">—</span>`;
+
+      const hairLabel = booking.hair_stylist
+        ? `<span style="background:#eff6ff;color:#2563eb;border:0.5px solid rgba(37,99,235,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap;">${booking.hair_stylist}</span>`
+        : `<span style="color:var(--border);font-size:11px;">—</span>`;
+
       html += `<tr onclick="openModal('${encodeURIComponent(JSON.stringify(booking))}')">
         <td class="name-col">${booking.nama || '-'}</td>
         <td class="date-col">${fmtDate(booking.tanggal)}</td>
         <td class="paket-col">${booking.paket ? booking.paket.split('|')[0].trim() : '-'}</td>
         <td>${muaLabel}</td>
+        <td>${hijabLabel}</td>
+        <td>${hairLabel}</td>
         <td class="price-col">${fmtRp(total)}</td>
         <td>${fmtRp(dp)}</td>
         <td class="price-col">${fmtRp(sisa)}</td>
@@ -2373,10 +2385,18 @@
         const muaLabel = b.mua_bertugas
           ? `<span style="background:var(--pink-light);color:var(--pink);border:0.5px solid rgba(212,83,126,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;">${b.mua_bertugas}</span>`
           : `<span style="color:var(--border);font-size:11px;">—</span>`;
+        const hijabLabel = b.hijab_stylist
+          ? `<span style="background:#f0fdf4;color:#16a34a;border:0.5px solid rgba(22,163,74,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;">${b.hijab_stylist}</span>`
+          : `<span style="color:var(--border);font-size:11px;">—</span>`;
+        const hairLabel = b.hair_stylist
+          ? `<span style="background:#eff6ff;color:#2563eb;border:0.5px solid rgba(37,99,235,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;">${b.hair_stylist}</span>`
+          : `<span style="color:var(--border);font-size:11px;">—</span>`;
         return `<tr onclick="openModal('${encoded}')">
           <td class="name-col">${b.nama || '-'}</td>
           <td class="paket-col">${b.paket || '-'}</td>
           <td>${muaLabel}</td>
+          <td>${hijabLabel}</td>
+          <td>${hairLabel}</td>
           <td>${fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) + ' WIB' : '-'}</td>
           <td class="price-col">${fmtRp(total)}</td>
           <td>${fmtRp(dp)}</td>
@@ -2387,7 +2407,7 @@
 
       body.innerHTML = `<div style="overflow-x:auto;"><table>
         <thead><tr>
-          <th>Nama</th><th>Paket</th><th>MUA</th><th>Jam Selesai</th><th>Total</th><th>DP</th><th>Sisa</th><th>Status</th>
+          <th>Nama</th><th>Paket</th><th>MUA</th><th>Hijab</th><th>Hair</th><th>Jam Selesai</th><th>Total</th><th>DP</th><th>Sisa</th><th>Status</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`;
