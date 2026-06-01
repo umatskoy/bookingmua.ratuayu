@@ -1,0 +1,2755 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Booking MUA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    /* =========================================
+       MODERNIZED CSS
+       ========================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Custom Scrollbar for a sleeker look */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    :root {
+      /* Refined Color Palette */
+      --pink: #D4537E;
+      --pink-dark: #b83a62;
+      --pink-light: #fdf2f6;
+      --pink-focus: rgba(212, 83, 126, 0.2);
+      
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      
+      --bg: #ffffff;
+      --bg-soft: #f8fafc;
+      --bg-body: #f1f5f9;
+      
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #15803d;
+      
+      --warning-bg: #fffbeb;
+      --warning-text: #b45309;
+
+      /* Modern Shadows & Radii */
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 24px -4px rgba(0,0,0,0.06);
+      --shadow-float: 0 20px 40px -8px rgba(212, 83, 126, 0.15);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── APP LAYOUT ── */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--bg);
+      border-right: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 200;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+    }
+
+    .sidebar-brand {
+      padding: 2rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sidebar-brand h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .sidebar-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      align-self: flex-start;
+      box-shadow: 0 2px 8px rgba(212, 83, 126, 0.3);
+    }
+
+    .sidebar-nav {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .sidebar-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0 0.75rem 8px;
+      margin-top: 8px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-item i { font-size: 20px; flex-shrink: 0; transition: transform 0.2s; }
+
+    .sidebar-item:hover {
+      background: var(--bg-soft);
+      color: var(--text-primary);
+    }
+
+    .sidebar-item.active {
+      background: var(--pink-light);
+      color: var(--pink-dark);
+      font-weight: 600;
+    }
+
+    .sidebar-item.active i { 
+      color: var(--pink); 
+      transform: scale(1.1);
+    }
+
+    .sidebar-toggle-mobile {
+      display: none;
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--bg-soft);
+      border: none;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    /* ── MAIN AREA ── */
+    .main-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+      padding: 1.25rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .topbar-menu-btn {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── PAGE PANELS ── */
+    .page-panel { width: 100%; }
+
+    /* ── SIDEBAR OVERLAY (mobile) ── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 150;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .sidebar-overlay.show { display: block; opacity: 1; }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        z-index: 200;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-toggle-mobile { display: flex; align-items: center; justify-content: center; }
+      .topbar-menu-btn { display: flex; align-items: center; justify-content: center; }
+      .topbar { padding: 1rem 1.25rem; }
+      .topbar-right { width: 100%; }
+      .filter-group select { width: auto; flex: 1; }
+    }
+
+    /* ── FILTERS & CONTROLS ── */
+    .filter-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .filter-group select {
+      padding: 10px 36px 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 12px center;
+      color: var(--text-primary);
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-group select:hover { border-color: #cbd5e1; }
+    .filter-group select:focus { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-focus); }
+
+    .btn-refresh {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border: none;
+      background: var(--text-primary);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-refresh:hover { background: #0f172a; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .btn-refresh:active { transform: translateY(0); }
+    .btn-refresh.loading { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .btn-refresh .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .status-pending { background: var(--warning-bg); color: var(--warning-text); border: 1px solid #fde68a; }
+    .status-confirmed { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
+
+    /* ── MAIN CONTENT ── */
+    .dashboard-main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* ── STATS GRID ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card-content h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .stat-card-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+    }
+
+    .stat-card-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--pink-light);
+      color: var(--pink);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .stat-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .stat-breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-breakdown-label {
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-breakdown-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .stat-breakdown-label.dp::before   { background: var(--pink); }
+    .stat-breakdown-label.lunas::before { background: var(--success-text); }
+
+    .stat-breakdown-value { font-weight: 600; font-size: 13px; }
+    .stat-breakdown-value.dp    { color: var(--pink-dark); }
+    .stat-breakdown-value.lunas { color: var(--success-text); }
+
+    /* ── TABLE / BOOKINGS SECTION ── */
+    .bookings-section {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .bookings-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+    }
+
+    .bookings-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .bookings-count {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--pink-dark);
+      background: var(--pink-light);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .bookings-table { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      background: #f8fafc;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    th {
+      padding: 16px 24px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    tbody tr { transition: background 0.15s ease; }
+    tbody tr:hover { background: #fdf2f6; cursor: pointer; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .name-col { font-weight: 600; color: var(--text-primary); }
+    .date-col { color: var(--text-secondary); font-weight: 500; }
+    .price-col { font-weight: 700; color: var(--text-primary); }
+    .paket-col { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+
+    .btn-detail {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-detail:hover {
+      background: var(--bg-body);
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    /* ── MODALS ── */
+    .modal-overlay, .edit-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.show, .edit-modal-overlay.show { 
+      display: flex; align-items: center; justify-content: center; opacity: 1; 
+    }
+
+    .modal-content, .edit-modal-content {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-float);
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.95) translateY(10px);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.show .modal-content, .edit-modal-overlay.show .edit-modal-content {
+      transform: scale(1) translateY(0);
+    }
+    
+    .modal-content { max-width: 520px; }
+    .edit-modal-content { max-width: 600px; }
+
+    .modal-header, .edit-modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      z-index: 10;
+    }
+
+    .modal-header h3, .edit-modal-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-close {
+      background: var(--bg-soft);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-close:hover { background: #f1f5f9; color: var(--text-primary); transform: rotate(90deg); }
+
+    .modal-body, .edit-modal-body {
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .detail-section {
+      background: var(--bg-soft);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border-light);
+    }
+    .detail-section:last-child { margin-bottom: 0; }
+
+    .detail-section-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--pink-dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .detail-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .detail-row:first-of-type { padding-top: 0; }
+
+    .detail-label {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .detail-value {
+      font-size: 14px;
+      color: var(--text-primary);
+      font-weight: 600;
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
+    }
+
+    .detail-value.highlight { color: var(--pink-dark); font-size: 16px; font-weight: 700; }
+
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
+    .empty-state i { font-size: 56px; color: #cbd5e1; margin-bottom: 1.25rem; display: block; }
+    .empty-state p { font-size: 15px; font-weight: 500; }
+
+    /* ── MODAL FOOTER ── */
+    .modal-footer, .edit-modal-footer {
+      padding: 1.25rem 2rem;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: #fff;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .btn-invoice, .btn-cancel-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #fff;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-invoice:hover, .btn-cancel-edit:hover { background: var(--bg-body); border-color: #cbd5e1; }
+
+    .btn-edit, .btn-save-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(212, 83, 126, 0.3);
+    }
+
+    .btn-edit:hover, .btn-save-edit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(212, 83, 126, 0.4); }
+    .btn-save-edit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── EDIT FORM FIELDS ── */
+    .edit-section-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-primary);
+      margin: 1.75rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .edit-section-title:first-child { margin-top: 0; }
+    .edit-section-title i { color: var(--pink); font-size: 18px; }
+
+    .edit-field { margin-bottom: 16px; }
+
+    .edit-field label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .edit-field input, .edit-field select, .edit-field textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: var(--bg-soft);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .edit-field input:focus, .edit-field select:focus, .edit-field textarea:focus {
+      background: #fff;
+      border-color: var(--pink);
+      box-shadow: 0 0 0 4px var(--pink-focus);
+    }
+
+    .edit-field select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+    }
+
+    .edit-field textarea { resize: vertical; min-height: 80px; }
+
+    .edit-fields-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ── CALENDAR ── */
+    .calendar-section {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2rem;
+    }
+
+    .calendar-header-bar {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: #fff;
+    }
+
+    .calendar-header-bar h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-soft);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .calendar-nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+
+    .calendar-nav-btn:hover { background: #fff; color: var(--pink); box-shadow: var(--shadow-sm); }
+
+    .calendar-month-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      min-width: 150px;
+      text-align: center;
+    }
+
+    .calendar-body { padding: 1.5rem 2rem; }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .cal-day-name {
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 8px 0 16px;
+    }
+
+    .cal-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      padding: 8px 6px;
+      min-height: 80px;
+      background: #fff;
+    }
+
+    .cal-day:hover:not(.cal-empty) {
+      background: var(--bg-soft);
+      border-color: var(--border);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .cal-day.cal-empty { cursor: default; pointer-events: none; }
+
+    .cal-day.cal-today .cal-num {
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: #fff;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(212, 83, 126, 0.4);
+    }
+
+    .cal-day.has-booking { background: #fdf2f6; border-color: rgba(212, 83, 126, 0.1); }
+    .cal-day.has-booking:hover { background: #fcecf1; border-color: rgba(212, 83, 126, 0.3); }
+
+    .cal-num {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .cal-day.cal-other-month .cal-num { color: #cbd5e1; }
+
+    .cal-dots { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; max-width: 100%; }
+    .cal-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .cal-dot.pending { background: #f59e0b; }
+    .cal-dot.confirmed { background: var(--success-text); }
+
+    .cal-entries { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+    
+    .cal-entry {
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.3;
+      padding: 4px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: left;
+    }
+
+    .cal-entry.pending   { background: #fef3c7; color: #b45309; }
+    .cal-entry.confirmed { background: #dcfce7; color: #166534; }
+
+    .cal-entry-more {
+      font-size: 10px;
+      color: var(--pink-dark);
+      font-weight: 700;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .calendar-legend {
+      display: flex;
+      gap: 24px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-light);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    .cal-popover {
+      display: none;
+      position: fixed;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-lg);
+      z-index: 500;
+      min-width: 240px;
+      max-width: 300px;
+      pointer-events: none;
+    }
+    .cal-popover.show { display: block; animation: slideUp 0.2s ease; }
+
+    .cal-popover-date {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .cal-popover-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+
+    .cal-popover-name { font-weight: 600; color: var(--text-primary); }
+
+    .cal-day.selected {
+      background: var(--pink-focus) !important;
+      border-color: var(--pink) !important;
+      box-shadow: 0 0 0 4px rgba(212,83,126,0.1);
+    }
+
+    .cal-day-bookings {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      margin-top: 1.5rem;
+      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cal-day-bookings-header {
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+    }
+
+    #calDayBookingsTitle { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    
+    .cal-day-bookings-close {
+      background: var(--bg-soft);
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 18px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .cal-day-bookings-close:hover { background: #f1f5f9; color: var(--text-primary); transform: rotate(90deg); }
+
+    .cal-day-bookings table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .cal-day-bookings th { padding: 16px 24px; text-align: left; font-weight: 700; color: var(--text-secondary); font-size: 11.5px; text-transform: uppercase; background: #f8fafc; border-bottom: 2px solid var(--border-light); }
+    .cal-day-bookings td { padding: 16px 24px; border-bottom: 1px solid var(--border-light); color: var(--text-primary); }
+    .cal-day-bookings tbody tr:last-child td { border-bottom: none; }
+    .cal-day-bookings tbody tr:hover { background: #fdf2f6; cursor: pointer; }
+
+    /* ── KINERJA TEAM ── */
+    .kinerja-empty { text-align: center; padding: 5rem 2rem; color: var(--text-secondary); font-size: 15px; line-height: 1.6; }
+    .kinerja-section { margin-bottom: 2.5rem; }
+    .kinerja-section-title {
+      display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: var(--text-primary);
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem;
+    }
+
+    .kinerja-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+
+    .kinerja-card {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kinerja-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--kinerja-color);
+    }
+
+    .kinerja-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    .kinerja-card-header { display: flex; align-items: center; gap: 14px; }
+    
+    .kinerja-avatar {
+      width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 700; font-family: 'DM Sans', sans-serif; flex-shrink: 0;
+    }
+
+    .kinerja-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    .kinerja-role-tag { font-size: 12px; font-weight: 600; margin-top: 4px; }
+
+    .kinerja-stats {
+      display: flex; align-items: center; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-light); overflow: hidden;
+    }
+
+    .kinerja-stat { flex: 1; padding: 14px; text-align: center; }
+    .kinerja-stat-divider { width: 1px; background: var(--border-light); align-self: stretch; }
+    
+    .kinerja-stat-value { font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+    .kinerja-stat-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-top: 6px; text-transform: uppercase; }
+
+    .kinerja-bar-wrap { display: flex; flex-direction: column; gap: 8px; }
+    .kinerja-bar-label { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); }
+    
+    .kinerja-bar-track { height: 8px; background: var(--bg-body); border-radius: 99px; overflow: hidden; }
+    .kinerja-bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    /* ── UTILITIES ── */
+    .loading-spinner { display: none; text-align: center; padding: 4rem 2rem; }
+    .loading-spinner i { font-size: 40px; color: var(--pink); animation: spin 1s linear infinite; }
+
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px);
+      color: #fff; padding: 12px 24px; border-radius: 100px;
+      font-size: 14px; font-weight: 600; opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 2000; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: rgba(21, 128, 61, 0.95); }
+    .toast.error { background: rgba(185, 28, 28, 0.95); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .topbar { padding: 1rem 1.5rem; }
+      .dashboard-main { padding: 1.5rem; }
+      .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
+      th, td { padding: 12px 16px; font-size: 13px; }
+      .btn-detail { padding: 6px 10px; font-size: 11px; }
+      .edit-fields-row { grid-template-columns: 1fr; gap: 0; }
+      .cal-day { min-height: 60px; padding: 6px 4px; }
+      .cal-num { font-size: 12px; }
+      .calendar-body { padding: 1rem; }
+      .calendar-header-bar { padding: 1rem; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1>Dashboard Booking</h1>
+      <span class="sidebar-badge">MUA</span>
+    </div>
+    <nav class="sidebar-nav">
+      <p class="sidebar-section-label">Menu</p>
+      <button class="sidebar-item active" id="nav-dashboard" onclick="switchPage('dashboard')">
+        <i class="ti ti-layout-dashboard"></i>
+        <span>Dashboard</span>
+      </button>
+      <button class="sidebar-item" id="nav-daftar" onclick="switchPage('daftar')">
+        <i class="ti ti-list"></i>
+        <span>Daftar Booking</span>
+      </button>
+      <button class="sidebar-item" id="nav-kalender" onclick="switchPage('kalender')">
+        <i class="ti ti-calendar-event"></i>
+        <span>Kalender Ketersediaan</span>
+      </button>
+      <button class="sidebar-item" id="nav-kinerja" onclick="switchPage('kinerja')">
+        <i class="ti ti-chart-bar"></i>
+        <span>Kinerja Team</span>
+      </button>
+    </nav>
+    <button class="sidebar-toggle-mobile" id="sidebarClose" onclick="toggleSidebar()">
+      <i class="ti ti-x"></i>
+    </button>
+  </aside>
+
+  <div class="main-area">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <i class="ti ti-menu-2"></i>
+        </button>
+        <span class="topbar-title" id="topbarTitle">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <div class="filter-group" id="filterGroupMonth">
+          <label for="filterMonth">Bulan:</label>
+          <select id="filterMonth" onchange="filterBookings()">
+            <option value="">Semua Bulan</option>
+          </select>
+        </div>
+        <div class="filter-group" id="filterGroupPaket">
+          <label for="filterPaket">Paket:</label>
+          <select id="filterPaket" onchange="filterBookings()">
+            <option value="">Semua Paket</option>
+          </select>
+        </div>
+        <div class="filter-group" id="filterGroupStatus">
+          <label for="filterStatus">Status:</label>
+          <select id="filterStatus" onchange="filterBookings()">
+            <option value="">Semua Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+          </select>
+        </div>
+        <button class="btn-refresh" id="refreshBtn" onclick="loadBookings()">
+          <i class="ti ti-refresh" style="font-size:16px;"></i>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="dashboard-main">
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <h3>Total Booking</h3>
+        <div class="stat-card-value" id="totalBookings">0</div>
+      </div>
+      <i class="ti ti-calendar stat-card-icon"></i>
+    </div>
+
+    <div class="stat-card" style="flex-direction:column; align-items:stretch; gap:0;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div class="stat-card-content">
+          <h3>Total Pemasukan</h3>
+          <div class="stat-card-value" id="totalRevenue" style="font-size:24px;">Rp 0</div>
+        </div>
+        <i class="ti ti-cash stat-card-icon"></i>
+      </div>
+      <div class="stat-breakdown">
+        <div class="stat-breakdown-row">
+          <span class="stat-breakdown-label dp">DP Diterima</span>
+          <span class="stat-breakdown-value dp" id="totalDpDiterima">Rp 0</span>
+        </div>
+        <div class="stat-breakdown-row">
+          <span class="stat-breakdown-label lunas">Pelunasan (Lunas)</span>
+          <span class="stat-breakdown-value lunas" id="totalPelunasan">Rp 0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <h3>Total Orang</h3>
+        <div class="stat-card-value" id="totalOrang">0</div>
+      </div>
+      <i class="ti ti-users stat-card-icon"></i>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <h3>Menunggu Pelunasan</h3>
+        <div class="stat-card-value" id="pendingDP" style="font-size:24px;">Rp 0</div>
+      </div>
+      <i class="ti ti-clock stat-card-icon"></i>
+    </div>
+  </div>
+
+  <div class="page-panel" id="page-kalender" style="display:none;">
+    <div class="calendar-section" style="margin-bottom:0;">
+      <div class="calendar-header-bar">
+        <h2><i class="ti ti-calendar-event" style="color:var(--pink);font-size:20px;"></i> Kalender Ketersediaan</h2>
+        <div class="calendar-nav">
+          <button class="calendar-nav-btn" id="calPrev" onclick="calChangeMonth(-1)">
+            <i class="ti ti-chevron-left"></i>
+          </button>
+          <span class="calendar-month-label" id="calMonthLabel"></span>
+          <button class="calendar-nav-btn" id="calNext" onclick="calChangeMonth(1)">
+            <i class="ti ti-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+      <div class="calendar-body">
+        <div class="calendar-grid" id="calGrid"></div>
+        <div class="calendar-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--pink);"></span>Hari ini</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>Pending</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#15803d;"></span>Confirmed</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--pink-light); border:1px solid rgba(212,83,126,0.3); border-radius:50%;"></span>Ada Booking</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cal-day-bookings" id="calDayBookings" style="display:none;">
+      <div class="cal-day-bookings-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <i class="ti ti-calendar-check" style="color:var(--pink); font-size:20px;"></i>
+          <span id="calDayBookingsTitle">Booking</span>
+        </div>
+        <button class="cal-day-bookings-close" onclick="calCloseDayBookings()">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+      <div id="calDayBookingsBody"></div>
+    </div>
+  </div>
+
+  <div class="cal-popover" id="calPopover"></div>
+
+  <div class="page-panel" id="page-daftar" style="display:none;">
+  <div class="bookings-section">
+    <div class="bookings-header">
+      <h2>Daftar Booking</h2>
+      <span class="bookings-count" id="bookingsCount">0 booking</span>
+    </div>
+    <div class="loading-spinner" id="loadingSpinner">
+      <i class="ti ti-loader-2"></i>
+    </div>
+    <div class="bookings-table" id="bookingsContainer">
+      <div class="empty-state">
+        <i class="ti ti-inbox"></i>
+        <p>Belum ada data booking</p>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="page-panel" id="page-kinerja" style="display:none;">
+    <div id="kinerjaContent"></div>
+  </div>
+
+</div></div></div><div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Detail Booking</h3>
+      <button class="btn-close" onclick="closeModal()">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      </div>
+    <div class="modal-footer">
+      <button class="btn-invoice" id="btnExportInvoice" onclick="exportInvoicePDF()">
+        <i class="ti ti-file-invoice" style="font-size:16px;"></i> Export Invoice
+      </button>
+      <button class="btn-edit" id="btnOpenEdit" onclick="openEditModal()">
+        <i class="ti ti-pencil" style="font-size:16px;"></i> Edit Data
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="edit-modal-overlay" id="editModalOverlay">
+  <div class="edit-modal-content" onclick="event.stopPropagation()">
+    <div class="edit-modal-header">
+      <h3><i class="ti ti-pencil" style="color:var(--pink);font-size:20px;"></i> Edit Booking</h3>
+      <button class="btn-close" onclick="closeEditModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="edit-modal-body" id="editModalBody">
+      </div>
+    <div class="edit-modal-footer">
+      <button class="btn-cancel-edit" onclick="closeEditModal()">Batal</button>
+      <button class="btn-save-edit" id="btnSaveEdit" onclick="saveEdit()">
+        <i class="ti ti-device-floppy" style="font-size:16px;"></i>
+        <span id="btnSaveText">Simpan</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzW4Rs9Uc7psMTYJgKSRXnE_lWb8rKtJ1IxV4z_-D9R5tiZ4OoAYDAsIRxyd1hOc7NSAQ/exec";
+
+  let allBookings = [];
+  let filteredBookings = [];
+  let currentBooking = null; // booking yang sedang dibuka di modal
+
+  /* ── Format Helpers ── */
+  function fmtRp(n) {
+    if (n === 0 || !n) return 'Rp 0';
+    return 'Rp ' + parseInt(n).toLocaleString('id-ID');
+  }
+
+  function parseRp(str) {
+    if (str === null || str === undefined || str === '') return 0;
+    if (typeof str === 'number') return Math.round(str);
+    const cleaned = String(str).replace(/[^0-9]/g, '');
+    return parseInt(cleaned, 10) || 0;
+  }
+
+  function parseDate(val) {
+    if (val === null || val === undefined || val === '') return null;
+    if (typeof val === 'number') {
+      const ms = (val - 25569) * 86400 * 1000;
+      const d = new Date(ms);
+      return isNaN(d) ? null : d;
+    }
+    const s = String(val).trim();
+    if (!s) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + 'T00:00:00');
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+      const parts = s.split('/');
+      return new Date(parts[2] + '-' + parts[1] + '-' + parts[0] + 'T00:00:00');
+    }
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
+  }
+
+  function fmtDate(dateStr) {
+    const date = parseDate(dateStr);
+    if (!date) return '-';
+    return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function fmtDateTime(dateStr) {
+    const date = parseDate(dateStr);
+    if (!date) return '-';
+    return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  function fmtTime(val) {
+    if (val === null || val === undefined || val === '') return '-';
+    // Angka serial Sheets: fraksi hari (misal 0.583333 = 14:00)
+    if (typeof val === 'number') {
+      // Jika angka besar (>= 1), mungkin serial date+time — ambil bagian fraksinya
+      const frac = val % 1;
+      const totalMinutes = Math.round(frac * 24 * 60);
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      // Konversi ke WIB (GMT+7) — Sheets menyimpan waktu di UTC
+      const wibH = (h + 7) % 24;
+      return String(wibH).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    }
+    const s = String(val).trim();
+    // Sudah format HH:MM atau HH:MM:SS — langsung tampilkan
+    if (/^\d{1,2}:\d{2}/.test(s)) return s.slice(0, 5);
+    // ISO string dengan T (misal dari Date.toISOString)
+    if (s.includes('T')) {
+      const timePart = s.split('T')[1] || '';
+      if (timePart) {
+        const [hh, mm] = timePart.split(':');
+        const wibH = (parseInt(hh, 10) + 7) % 24;
+        return String(wibH).padStart(2, '0') + ':' + mm.slice(0, 2);
+      }
+    }
+    return s;
+  }
+
+  /* ── Normalize Booking Fields ── */
+  // Memetakan semua kemungkinan nama kolom dari Google Sheets ke key standar yang dipakai di JS
+  function normalizeBooking(raw) {
+    // Buat lookup case-insensitive dari semua key yang ada
+    const lookup = {};
+    Object.keys(raw).forEach(k => {
+      lookup[k.toLowerCase().replace(/\s+/g, '_')] = raw[k];
+      // juga simpan key aslinya
+      lookup[k.toLowerCase()] = raw[k];
+    });
+
+    const pick = (...candidates) => {
+      for (const c of candidates) {
+        const v = lookup[c.toLowerCase().replace(/\s+/g, '_')] ?? lookup[c.toLowerCase()];
+        if (v !== undefined && v !== null && v !== '') return v;
+      }
+      return '';
+    };
+
+    return {
+      timestamp:       pick('timestamp'),
+      nama:            pick('nama', 'name', 'Nama'),
+      wa:              pick('wa', 'whatsapp', 'no_wa', 'nomor_wa', 'phone', 'WA'),
+      email:           pick('email', 'Email'),
+      lokasi:          pick('lokasi', 'location', 'Lokasi'),
+      tanggal:         pick('tanggal', 'date', 'Tanggal', 'tgl'),
+      jam_selesai:     pick('jam_selesai', 'jam selesai', 'Jam Selesai', 'jam'),
+      paket:           pick('paket', 'package', 'Paket', 'pak'),
+      addon:           pick('addon', 'add_on', 'add on', 'Add On', 'tambahan', 'pilihan add on & jumlah', 'add on & jumlah'),
+      jumlah_orang:    pick('jumlah_orang', 'jumlah orang', 'Jumlah Orang', 'orang', 'pax'),
+      subtotal:        pick('subtotal', 'total', 'Total', 'harga', 'Subtotal'),
+      dp:              pick('dp', 'down_payment', 'DP', 'uang_muka'),
+      transport_biaya: pick('transport_biaya', 'transport biaya', 'Transport Biaya', 'transport', 'biaya_transport'),
+      bukti:           pick('bukti', 'bukti_transfer', 'Bukti Transfer', 'bukti transfer'),
+      status:          pick('status', 'Status') || 'pending',
+      mua_bertugas:    pick('mua_bertugas', 'mua bertugas', 'MUA Bertugas', 'mua', 'MUA', 'tim_mua', 'tim mua'),
+      mua_bertugas_2:  pick('mua_bertugas_2', 'mua bertugas 2', 'MUA Bertugas 2', 'mua2', 'MUA 2'),
+      hijab_stylist:   pick('hijab_stylist', 'hijab stylist', 'Hijab Stylist', 'hijab'),
+      hair_stylist:    pick('hair_stylist', 'hair stylist', 'Hair Stylist', 'hair'),
+      // simpan semua field asli juga, untuk jaga-jaga
+      _raw: raw,
+    };
+  }
+
+  /* ── Load Bookings ── */
+  async function loadBookings() {
+    const btn = document.getElementById('refreshBtn');
+    const spinner = document.getElementById('loadingSpinner');
+    const container = document.getElementById('bookingsContainer');
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+    spinner.style.display = 'block';
+
+    try {
+      const response = await fetch(APPS_SCRIPT_URL + '?action=getBookings');
+      const data = await response.json();
+
+      if (data.success && data.bookings) {
+        // Simpan rowIndex (nomor baris di sheet, mulai dari 2) sebagai identifier paling reliable
+        allBookings = data.bookings.map((b, i) => {
+          const norm = normalizeBooking(b);
+          norm._rowIndex = (data.startRow || 2) + i; // Apps Script kirim startRow, default baris ke-2
+          return norm;
+        });
+        console.log('[Dashboard] Raw sample:', data.bookings[0]);
+        console.log('[Dashboard] Normalized sample:', allBookings[0]);
+        populateMonthFilter();
+        populatePaketFilter();
+        filterBookings();
+        if (currentPage === 'kinerja') renderKinerja();
+        renderCalendar();
+      } else {
+        container.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><p>Gagal memuat data</p></div>';
+      }
+    } catch (err) {
+      console.error('Error loading bookings:', err);
+      container.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><p>Error: ' + err.message + '</p></div>';
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      spinner.style.display = 'none';
+    }
+  }
+
+  /* ── Populate Month Filter ── */
+  function populateMonthFilter() {
+    const filterMonth = document.getElementById('filterMonth');
+    const months = new Set();
+
+    allBookings.forEach(b => {
+      if (b.tanggal || b.tanggal === 0) {
+        const d = parseDate(b.tanggal);
+        if (d) {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          months.add(year + '-' + month);
+        }
+      }
+    });
+
+    const sortedMonths = Array.from(months).sort().reverse();
+    const currentOptions = filterMonth.innerHTML;
+
+    sortedMonths.forEach(monthStr => {
+      if (!currentOptions.includes(monthStr)) {
+        const [year, month] = monthStr.split('-');
+        const date = new Date(year, parseInt(month) - 1);
+        const label = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        const option = document.createElement('option');
+        option.value = monthStr;
+        option.textContent = label;
+        filterMonth.appendChild(option);
+      }
+    });
+  }
+
+  function populatePaketFilter() {
+    const filterPaket = document.getElementById('filterPaket');
+    const existing = new Set(
+      Array.from(filterPaket.options).map(o => o.value).filter(Boolean)
+    );
+
+    // Ambil nama paket utama (sebelum " – Rp" atau "|")
+    const paketSet = new Set();
+    allBookings.forEach(b => {
+      if (!b.paket) return;
+      const nama = b.paket.split('–')[0].split('|')[0].trim();
+      if (nama) paketSet.add(nama);
+    });
+
+    Array.from(paketSet).sort().forEach(nama => {
+      if (!existing.has(nama)) {
+        const option = document.createElement('option');
+        option.value = nama;
+        option.textContent = nama;
+        filterPaket.appendChild(option);
+      }
+    });
+  }
+
+  /* ── Filter Bookings ── */
+  function filterBookings() {
+    const monthFilter  = document.getElementById('filterMonth').value;
+    const statusFilter = document.getElementById('filterStatus').value;
+    const paketFilter  = document.getElementById('filterPaket').value;
+
+    filteredBookings = allBookings.filter(b => {
+      let match = true;
+
+      if (monthFilter) {
+        const [year, month] = monthFilter.split('-');
+        const bd = parseDate(b.tanggal);
+        const bYear = bd ? String(bd.getFullYear()) : '';
+        const bMonth = bd ? String(bd.getMonth() + 1).padStart(2, '0') : '';
+        match = match && bd && (bYear + '-' + bMonth) === (year + '-' + month);
+      }
+
+      if (statusFilter) {
+        match = match && (b.status || 'pending') === statusFilter;
+      }
+
+      if (paketFilter) {
+        const namaPaket = (b.paket || '').split('–')[0].split('|')[0].trim();
+        match = match && namaPaket === paketFilter;
+      }
+
+      return match;
+    });
+
+    // Urutkan berdasarkan tanggal terdekat dari sekarang:
+    // booking mendatang (>= hari ini) diurutkan ascending (paling dekat dulu),
+    // lalu booking yang sudah lewat diurutkan descending (paling baru dulu).
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    const upcoming = [];
+    const past = [];
+
+    filteredBookings.forEach(b => {
+      const d = parseDate(b.tanggal);
+      if (d && d >= now) {
+        upcoming.push(b);
+      } else {
+        past.push(b);
+      }
+    });
+
+    upcoming.sort((a, b) => {
+      const da = parseDate(a.tanggal) || new Date(0);
+      const db = parseDate(b.tanggal) || new Date(0);
+      return da - db;
+    });
+
+    past.sort((a, b) => {
+      const da = parseDate(a.tanggal) || new Date(0);
+      const db = parseDate(b.tanggal) || new Date(0);
+      return db - da;
+    });
+
+    filteredBookings = [...upcoming, ...past];
+
+    renderTable();
+    updateStats();
+    renderCalendar();
+  }
+
+  /* ── Render Table ── */
+  function renderTable() {
+    const container = document.getElementById('bookingsContainer');
+    const count = document.getElementById('bookingsCount');
+
+    count.textContent = filteredBookings.length + ' booking';
+
+    if (filteredBookings.length === 0) {
+      container.innerHTML = '<div class="empty-state"><i class="ti ti-inbox"></i><p>Tidak ada booking sesuai filter</p></div>';
+      return;
+    }
+
+    let html = `<table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Tanggal</th>
+          <th>Paket</th>
+          <th>MUA</th>
+          <th>Hijab</th>
+          <th>Hair</th>
+          <th>Total</th>
+          <th>DP</th>
+          <th>Sisa</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+
+    filteredBookings.forEach(booking => {
+      const status = booking.status || 'pending';
+      const statusClass = status === 'confirmed' ? 'status-confirmed' : 'status-pending';
+      const statusText = status === 'confirmed' ? 'Confirmed' : 'Pending';
+
+      const total = parseRp(booking.subtotal);
+      const dp = parseRp(booking.dp);
+      const sisa = total - dp;
+
+      const muaBadge = (name) =>
+        `<span style="background:var(--pink-light);color:var(--pink-dark);border:1px solid rgba(212,83,126,0.2);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;">${name}</span>`;
+
+      const muaLabel = [booking.mua_bertugas, booking.mua_bertugas_2].filter(Boolean).length
+        ? [booking.mua_bertugas, booking.mua_bertugas_2].filter(Boolean).map(muaBadge).join(' ')
+        : `<span style="color:var(--text-secondary);font-size:11px;">—</span>`;
+
+      const hijabLabel = booking.hijab_stylist
+        ? `<span style="background:#f0fdf4;color:#15803d;border:1px solid rgba(22,163,74,0.2);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;">${booking.hijab_stylist}</span>`
+        : `<span style="color:var(--text-secondary);font-size:11px;">—</span>`;
+
+      const hairLabel = booking.hair_stylist
+        ? `<span style="background:#eff6ff;color:#1d4ed8;border:1px solid rgba(37,99,235,0.2);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;">${booking.hair_stylist}</span>`
+        : `<span style="color:var(--text-secondary);font-size:11px;">—</span>`;
+
+      html += `<tr onclick="openModal('${encodeURIComponent(JSON.stringify(booking))}')">
+        <td class="name-col">${booking.nama || '-'}</td>
+        <td class="date-col">${fmtDate(booking.tanggal)}</td>
+        <td class="paket-col">${booking.paket ? booking.paket.split('|')[0].trim() : '-'}</td>
+        <td>${muaLabel}</td>
+        <td>${hijabLabel}</td>
+        <td>${hairLabel}</td>
+        <td class="price-col">${fmtRp(total)}</td>
+        <td>${fmtRp(dp)}</td>
+        <td class="price-col">${fmtRp(sisa)}</td>
+        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+        <td><button class="btn-detail" onclick="event.stopPropagation(); openModal('${encodeURIComponent(JSON.stringify(booking))}')">
+          <i class="ti ti-eye" style="font-size:16px;"></i> Detail
+        </button></td>
+      </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+  }
+
+  /* ── Update Stats ── */
+  function updateStats() {
+    const totalBookings = filteredBookings.length;
+    let totalOrang      = 0;
+    let totalDpDiterima = 0;  // semua DP — sudah pasti diterima saat booking masuk
+    let totalPelunasan  = 0;  // sisa bayar — hanya dihitung jika status = confirmed/lunas
+    let menungguPelunasan = 0; // sisa yang belum lunas
+
+    filteredBookings.forEach(b => {
+      const subtotal = parseRp(b.subtotal);
+      const dp       = parseRp(b.dp);
+      const sisa     = Math.max(0, subtotal - dp);
+      const status   = (b.status || '').toLowerCase().trim();
+      const sudahLunas = status === 'confirmed' || status === 'lunas';
+
+      totalOrang        += parseInt(b.jumlah_orang) || 0;
+      totalDpDiterima   += dp;                          // DP selalu diterima
+      totalPelunasan    += sudahLunas ? sisa : 0;       // sisa baru masuk kalau lunas
+      menungguPelunasan += sudahLunas ? 0 : sisa;       // sisa yang masih outstanding
+    });
+
+    const totalRevenue = totalDpDiterima + totalPelunasan;
+
+    document.getElementById('totalBookings').textContent     = totalBookings;
+    document.getElementById('totalRevenue').textContent      = fmtRp(totalRevenue);
+    document.getElementById('totalDpDiterima').textContent   = fmtRp(totalDpDiterima);
+    document.getElementById('totalPelunasan').textContent    = fmtRp(totalPelunasan);
+    document.getElementById('totalOrang').textContent        = totalOrang;
+    document.getElementById('pendingDP').textContent         = fmtRp(menungguPelunasan);
+  }
+
+  /* ── Render Layanan / Add On list dari string Google Sheets ──
+     Format yang mungkin masuk dari Sheets:
+     1. "Hairdo – Rp 150.000 x1 | Softlens – Rp 50.000 x2"   (dengan harga & pemisah |)
+     2. "Hairdo x1, Softlens x1"                               (tanpa harga, pemisah ,)
+     3. "Wisuda Hijab – Rp 600.000 x1 orang | Pendamping – Rp 350.000 x2 orang"
+  ── */
+  function renderLayananList(raw, isAddon = false) {
+    if (!raw || raw.toString().trim() === '') return isAddon ? 'Tidak ada' : '-';
+
+    const str = raw.toString().trim();
+
+    // Pisahkan per item — coba pemisah | dulu, lalu ,
+    let items;
+    if (str.includes('|')) {
+      items = str.split('|').map(s => s.trim()).filter(Boolean);
+    } else {
+      items = str.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    if (items.length === 0) return isAddon ? 'Tidak ada' : str;
+    if (items.length === 1) return formatSatuItem(items[0]);
+
+    // Lebih dari 1 item → tampilkan sebagai list
+    const listItems = items.map(item => `<li style="margin-bottom:6px;">${formatSatuItem(item)}</li>`).join('');
+    return `<ul style="margin:0;padding-left:16px;list-style:disc;">${listItems}</ul>`;
+  }
+
+  function formatSatuItem(item) {
+    // Cek apakah sudah ada harga (mengandung "Rp")
+    if (item.includes('Rp') || item.includes('rp')) {
+      // Sudah ada harga — tampilkan apa adanya tapi pastikan format Rp rapi
+      return item.replace(/Rp\s*([\d.,]+)/g, (_, angka) => {
+        const num = parseInt(angka.replace(/[.,]/g, ''));
+        return 'Rp ' + num.toLocaleString('id-ID');
+      });
+    }
+    // Tidak ada harga — tandai dengan label abu-abu
+    return item + ' <span style="font-size:12px;color:var(--text-secondary);font-style:italic;">(harga tidak tercatat)</span>';
+  }
+
+  /* ── Modal ── */
+  function openModal(encodedBooking) {
+    const booking = JSON.parse(decodeURIComponent(encodedBooking));
+    currentBooking = booking; // simpan untuk tombol edit
+    const modalBody = document.getElementById('modalBody');
+
+    const total = parseRp(booking.subtotal);
+    const dp = parseRp(booking.dp);
+    const sisa = total - dp;
+
+    const status = booking.status || 'pending';
+    const statusClass = status === 'confirmed' ? 'status-confirmed' : 'status-pending';
+    const statusText = status === 'confirmed' ? 'Confirmed' : 'Pending';
+
+    let html = `
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <i class="ti ti-user"></i> Informasi Klien
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Nama</span>
+          <span class="detail-value">${booking.nama || '-'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">WhatsApp</span>
+          <span class="detail-value"><a href="https://wa.me/${booking.wa}" target="_blank" style="color:var(--pink); text-decoration:none;">${booking.wa || '-'}</a></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">${booking.email || '-'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Lokasi</span>
+          <span class="detail-value">${booking.lokasi || '-'}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <i class="ti ti-calendar"></i> Jadwal
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tanggal</span>
+          <span class="detail-value">${fmtDateTime(booking.tanggal)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Jam Selesai</span>
+          <span class="detail-value">${fmtTime(booking.jam_selesai)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Total Orang</span>
+          <span class="detail-value">${booking.jumlah_orang || '-'} orang</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">MUA Bertugas</span>
+          <span class="detail-value">${booking.mua_bertugas
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;background:var(--pink-light);color:var(--pink-dark);border:1px solid rgba(212,83,126,0.2);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;">${booking.mua_bertugas}</span>`
+            : '<span style="color:var(--text-secondary);font-style:italic;font-size:12px;">Belum ditentukan</span>'
+          }</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">MUA Bertugas 2</span>
+          <span class="detail-value">${booking.mua_bertugas_2
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;background:var(--pink-light);color:var(--pink-dark);border:1px solid rgba(212,83,126,0.2);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;">${booking.mua_bertugas_2}</span>`
+            : '<span style="color:var(--text-secondary);font-style:italic;font-size:12px;">—</span>'
+          }</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Hijab Stylist</span>
+          <span class="detail-value">${booking.hijab_stylist
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;color:#15803d;border:1px solid rgba(22,163,74,0.2);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;">${booking.hijab_stylist}</span>`
+            : '<span style="color:var(--text-secondary);font-style:italic;font-size:12px;">Belum ditentukan</span>'
+          }</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Hair Stylist</span>
+          <span class="detail-value">${booking.hair_stylist
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;background:#eff6ff;color:#1d4ed8;border:1px solid rgba(37,99,235,0.2);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;">${booking.hair_stylist}</span>`
+            : '<span style="color:var(--text-secondary);font-style:italic;font-size:12px;">Belum ditentukan</span>'
+          }</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <i class="ti ti-shopping-cart"></i> Layanan
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Paket</span>
+          <span class="detail-value">${renderLayananList(booking.paket)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Add On</span>
+          <span class="detail-value">${renderLayananList(booking.addon, true)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Transport</span>
+          <span class="detail-value">${booking.transport_biaya ? fmtRp(parseRp(booking.transport_biaya)) || booking.transport_biaya : '-'}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <i class="ti ti-cash"></i> Pembayaran
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Subtotal</span>
+          <span class="detail-value highlight">${fmtRp(total)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">DP</span>
+          <span class="detail-value">${fmtRp(dp)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Sisa Bayar</span>
+          <span class="detail-value highlight">${fmtRp(sisa)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value"><span class="status-badge ${statusClass}">${statusText}</span></span>
+        </div>
+      </div>
+    `;
+
+    if (booking.bukti) {
+      html += `
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <i class="ti ti-file"></i> Bukti Transfer
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">File</span>
+            <span class="detail-value">${booking.bukti}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    modalBody.innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+
+  /* ── Edit Modal ── */
+  function dateToInputValue(val) {
+    const d = parseDate(val);
+    if (!d) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function openEditModal() {
+    if (!currentBooking) return;
+    const b = currentBooking;
+
+    const editBody = document.getElementById('editModalBody');
+    editBody.innerHTML = `
+      <div class="edit-section-title"><i class="ti ti-user"></i> Informasi Klien</div>
+      <div class="edit-field">
+        <label>Nama</label>
+        <input type="text" id="ef_nama" value="${b.nama || ''}" placeholder="Nama klien">
+      </div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>WhatsApp</label>
+          <input type="text" id="ef_wa" value="${b.wa || ''}" placeholder="628xxxxxxx">
+        </div>
+        <div class="edit-field">
+          <label>Email</label>
+          <input type="email" id="ef_email" value="${b.email || ''}" placeholder="email@example.com">
+        </div>
+      </div>
+      <div class="edit-field">
+        <label>Lokasi</label>
+        <input type="text" id="ef_lokasi" value="${b.lokasi || ''}" placeholder="Alamat / lokasi make up">
+      </div>
+
+      <div class="edit-section-title"><i class="ti ti-calendar"></i> Jadwal</div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>Tanggal Make Up</label>
+          <input type="date" id="ef_tanggal" value="${dateToInputValue(b.tanggal)}">
+        </div>
+        <div class="edit-field">
+          <label>Jam Selesai</label>
+          <input type="time" id="ef_jam_selesai" value="${fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) : ''}">
+        </div>
+      </div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>Jumlah Orang</label>
+          <input type="number" id="ef_jumlah_orang" value="${b.jumlah_orang || ''}" min="1" placeholder="1">
+        </div>
+      </div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>MUA Bertugas</label>
+          <select id="ef_mua_bertugas">
+            <option value="">— Pilih MUA —</option>
+            <option value="Ratu"   ${b.mua_bertugas === 'Ratu'   ? 'selected' : ''}>Ratu</option>
+            <option value="Noven"  ${b.mua_bertugas === 'Noven'  ? 'selected' : ''}>Noven</option>
+            <option value="Darnia" ${b.mua_bertugas === 'Darnia' ? 'selected' : ''}>Darnia</option>
+          </select>
+        </div>
+        <div class="edit-field">
+          <label>MUA Bertugas 2 <span style="font-size:11px;color:var(--text-secondary);font-weight:500;">(opsional)</span></label>
+          <select id="ef_mua_bertugas_2">
+            <option value="">— Pilih MUA 2 —</option>
+            <option value="Ratu"   ${b.mua_bertugas_2 === 'Ratu'   ? 'selected' : ''}>Ratu</option>
+            <option value="Noven"  ${b.mua_bertugas_2 === 'Noven'  ? 'selected' : ''}>Noven</option>
+            <option value="Darnia" ${b.mua_bertugas_2 === 'Darnia' ? 'selected' : ''}>Darnia</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="edit-section-title"><i class="ti ti-shopping-cart"></i> Layanan</div>
+      <div class="edit-field">
+        <label>Paket</label>
+        <input type="text" id="ef_paket" value="${b.paket || ''}" placeholder="Nama paket">
+      </div>
+      <div class="edit-field">
+        <label>Add On</label>
+        <input type="text" id="ef_addon" value="${b.addon || ''}" placeholder="Tambahan layanan">
+      </div>
+      <div class="edit-field">
+        <label>Transport / Biaya Transport</label>
+        <input type="text" id="ef_transport" value="${b.transport_biaya || ''}" placeholder="Misal: Rp 50.000">
+      </div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>Hijab Stylist Bertugas</label>
+          <input type="text" id="ef_hijab_stylist" value="${b.hijab_stylist || ''}" placeholder="Nama hijab stylist">
+        </div>
+        <div class="edit-field">
+          <label>Hair Stylist Bertugas</label>
+          <input type="text" id="ef_hair_stylist" value="${b.hair_stylist || ''}" placeholder="Nama hair stylist">
+        </div>
+      </div>
+
+      <div class="edit-section-title"><i class="ti ti-cash"></i> Pembayaran</div>
+      <div class="edit-fields-row">
+        <div class="edit-field">
+          <label>Subtotal (Rp)</label>
+          <input type="number" id="ef_subtotal" value="${parseRp(b.subtotal) || ''}" placeholder="0">
+        </div>
+        <div class="edit-field">
+          <label>DP (Rp)</label>
+          <input type="number" id="ef_dp" value="${parseRp(b.dp) || ''}" placeholder="0">
+        </div>
+      </div>
+      <div class="edit-field">
+        <label>Status</label>
+        <select id="ef_status">
+          <option value="pending" ${(b.status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
+          <option value="confirmed" ${b.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+        </select>
+      </div>
+    `;
+
+    document.getElementById('editModalOverlay').classList.add('show');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModalOverlay').classList.remove('show');
+  }
+
+  /* ── Save Edit → Apps Script via GET (kompatibel CORS) ── */
+  async function saveEdit() {
+    if (!currentBooking) return;
+
+    const btn = document.getElementById('btnSaveEdit');
+    const btnText = document.getElementById('btnSaveText');
+    btn.disabled = true;
+    btnText.textContent = 'Menyimpan...';
+
+    const updated = {
+      // rowIndex = nomor baris di sheet (paling reliable, tidak tergantung format Timestamp)
+      rowIndex:        currentBooking._rowIndex || '',
+      // timestamp sebagai fallback jika rowIndex tidak tersedia
+      timestamp:       currentBooking.timestamp || '',
+      nama:            document.getElementById('ef_nama').value.trim(),
+      wa:              document.getElementById('ef_wa').value.trim(),
+      email:           document.getElementById('ef_email').value.trim(),
+      lokasi:          document.getElementById('ef_lokasi').value.trim(),
+      tanggal:         document.getElementById('ef_tanggal').value,
+      jam_selesai:     document.getElementById('ef_jam_selesai').value,
+      jumlah_orang:    document.getElementById('ef_jumlah_orang').value,
+      paket:           document.getElementById('ef_paket').value.trim(),
+      addon:           document.getElementById('ef_addon').value.trim(),
+      transport_biaya: document.getElementById('ef_transport').value.trim(),
+      subtotal:        document.getElementById('ef_subtotal').value,
+      dp:              document.getElementById('ef_dp').value,
+      status:          document.getElementById('ef_status').value,
+      mua_bertugas:    document.getElementById('ef_mua_bertugas').value,
+      mua_bertugas_2:  document.getElementById('ef_mua_bertugas_2').value,
+      hijab_stylist:   document.getElementById('ef_hijab_stylist').value.trim(),
+      hair_stylist:    document.getElementById('ef_hair_stylist').value.trim(),
+    };
+
+    console.log('[Edit] Sending update:', updated);
+
+    const params = new URLSearchParams({ action: 'updateBooking' });
+    Object.entries(updated).forEach(([k, v]) => params.append(k, v ?? ''));
+
+    try {
+      const response = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
+      const result = await response.json();
+      console.log('[Edit] Apps Script response:', result);
+
+      if (result.success) {
+        // Update data lokal agar tampilan langsung berubah tanpa reload
+        const idx = allBookings.findIndex(b => b._rowIndex === currentBooking._rowIndex);
+        if (idx !== -1) {
+          allBookings[idx] = { ...allBookings[idx], ...updated };
+          currentBooking = allBookings[idx];
+        }
+
+        closeEditModal();
+        filterBookings();
+        openModal(encodeURIComponent(JSON.stringify(currentBooking)));
+        showToast('✓ Data berhasil disimpan!', 'success');
+      } else {
+        showToast('Gagal: ' + (result.message || 'Error tidak diketahui'), 'error');
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      showToast('Koneksi gagal. Pastikan Apps Script sudah di-deploy ulang.', 'error');
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = 'Simpan';
+    }
+  }
+
+  /* ── Toast ── */
+  function showToast(msg, type = '') {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast' + (type ? ' ' + type : '');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  document.getElementById('editModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+  });
+
+  document.getElementById('modalOverlay').addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeModal(); closeEditModal(); }
+  });
+
+  /* ══════════════════════════════════════════════
+     CALENDAR
+  ══════════════════════════════════════════════ */
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth(); // 0-indexed
+
+  const CAL_DAYS_ID = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+  function calChangeMonth(delta) {
+    calMonth += delta;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    calCloseDayBookings();
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    const label = document.getElementById('calMonthLabel');
+    const grid  = document.getElementById('calGrid');
+    if (!label || !grid) return;
+
+    label.textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Build booking map: key = "YYYY-MM-DD" → array of bookings
+    const bookingMap = {};
+    allBookings.forEach(b => {
+      const d = parseDate(b.tanggal);
+      if (!d) return;
+      const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      if (!bookingMap[key]) bookingMap[key] = [];
+      bookingMap[key].push(b);
+    });
+
+    const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+    let html = '';
+
+    // Day headers
+    CAL_DAYS_ID.forEach(d => {
+      html += `<div class="cal-day-name">${d}</div>`;
+    });
+
+    // Prev month padding
+    for (let i = 0; i < firstDay; i++) {
+      const dayNum = daysInPrev - firstDay + 1 + i;
+      html += `<div class="cal-day cal-empty cal-other-month"><span class="cal-num">${dayNum}</span></div>`;
+    }
+
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateKey = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+      const dayDate = new Date(calYear, calMonth, day);
+      dayDate.setHours(0,0,0,0);
+      const isToday = dayDate.getTime() === today.getTime();
+      const bookings = bookingMap[dateKey] || [];
+      const hasBooking = bookings.length > 0;
+
+      const pendingCount   = bookings.filter(b => (b.status||'pending') === 'pending').length;
+      const confirmedCount = bookings.filter(b => (b.status||'pending') === 'confirmed').length;
+
+      let dotsHtml = '';
+      if (pendingCount > 0)   dotsHtml += `<span class="cal-dot pending"></span>`.repeat(Math.min(pendingCount, 3));
+      if (confirmedCount > 0) dotsHtml += `<span class="cal-dot confirmed"></span>`.repeat(Math.min(confirmedCount, 3));
+
+      const classes = [
+        'cal-day',
+        isToday ? 'cal-today' : '',
+        hasBooking ? 'has-booking' : '',
+      ].filter(Boolean).join(' ');
+
+      const encodedBookings = hasBooking ? encodeURIComponent(JSON.stringify(bookings.map(b => ({nama: b.nama, status: b.status||'pending'})))) : '';
+      const onclickAttr = hasBooking
+        ? `onclick="calDayClick(event, '${dateKey}', '${encodedBookings}')"`
+        : `onclick="calDayClickEmpty(event, '${dateKey}')"`;
+
+      // Build entry chips: "jam · MUA · Hijab · Hair" per booking (max 2 tampil, sisanya "+N")
+      let entriesHtml = '';
+      if (hasBooking) {
+        const maxShow = 2;
+        const shown = bookings.slice(0, maxShow);
+        const extra = bookings.length - maxShow;
+        const chips = shown.map(b => {
+          const jam   = fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) : '';
+          const mua   = [b.mua_bertugas, b.mua_bertugas_2].filter(Boolean).join('+');
+          const hijab = b.hijab_stylist  || '';
+          const hair  = b.hair_stylist   || '';
+          const label = [jam, mua, hijab, hair].filter(Boolean).join(' · ') || (b.nama || 'Booking');
+          const st = (b.status || 'pending') === 'confirmed' ? 'confirmed' : 'pending';
+          return `<span class="cal-entry ${st}">${label}</span>`;
+        }).join('');
+        const moreBadge = extra > 0 ? `<span class="cal-entry-more">+${extra} lainnya</span>` : '';
+        entriesHtml = `<div class="cal-entries">${chips}${moreBadge}</div>`;
+      }
+
+      html += `
+        <div class="${classes}" ${onclickAttr} 
+             onmouseenter="calShowPopover(event, '${dateKey}', '${encodedBookings}')"
+             onmouseleave="calHidePopover()">
+          <span class="cal-num">${day}</span>
+          ${entriesHtml}
+        </div>`;
+    }
+
+    // Next month padding to complete grid
+    const totalCells = firstDay + daysInMonth;
+    const remainder = totalCells % 7;
+    if (remainder !== 0) {
+      const nextPad = 7 - remainder;
+      for (let i = 1; i <= nextPad; i++) {
+        html += `<div class="cal-day cal-empty cal-other-month"><span class="cal-num">${i}</span></div>`;
+      }
+    }
+
+    grid.innerHTML = html;
+  }
+
+  function calShowPopover(e, dateKey, encodedBookings) {
+    if (!encodedBookings) return;
+    const popover = document.getElementById('calPopover');
+    let bookings = [];
+    try { bookings = JSON.parse(decodeURIComponent(encodedBookings)); } catch(err) { return; }
+
+    const [yr, mo, dy] = dateKey.split('-');
+    const d = new Date(yr, parseInt(mo)-1, parseInt(dy));
+    const dateLabel = d.toLocaleDateString('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+
+    let itemsHtml = bookings.map(b => `
+      <div class="cal-popover-item">
+        <span class="cal-popover-name">${b.nama || 'Tanpa Nama'}</span>
+        <span class="status-badge status-${b.status}">${b.status === 'confirmed' ? 'Confirmed' : 'Pending'}</span>
+      </div>`).join('');
+
+    popover.innerHTML = `<div class="cal-popover-date">${dateLabel}</div>${itemsHtml}`;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pw = 260;
+    let left = rect.left + rect.width / 2 - pw / 2;
+    let top  = rect.bottom + 8;
+
+    if (left + pw > window.innerWidth - 16) left = window.innerWidth - pw - 16;
+    if (left < 8) left = 8;
+    if (top + 120 > window.innerHeight) top = rect.top - 120;
+
+    popover.style.left = left + 'px';
+    popover.style.top  = top + 'px';
+    popover.classList.add('show');
+  }
+
+  function calHidePopover() {
+    const p = document.getElementById('calPopover');
+    if (p) p.classList.remove('show');
+  }
+
+  function calDayClick(event, dateKey, encodedBookings) {
+    calHidePopover();
+
+    const bookingsOnDate = allBookings.filter(b => {
+      const d = parseDate(b.tanggal);
+      if (!d) return false;
+      const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      return key === dateKey;
+    });
+
+    const panel = document.getElementById('calDayBookings');
+    const title = document.getElementById('calDayBookingsTitle');
+    const body  = document.getElementById('calDayBookingsBody');
+
+    const [yr, mo, dy] = dateKey.split('-');
+    const d = new Date(yr, parseInt(mo)-1, parseInt(dy));
+    const dateLabel = d.toLocaleDateString('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+
+    title.textContent = bookingsOnDate.length + ' Booking — ' + dateLabel;
+
+    if (bookingsOnDate.length === 0) {
+      body.innerHTML = '<div class="empty-state" style="padding:2rem;"><i class="ti ti-calendar-off" style="font-size:36px;color:var(--border);display:block;margin-bottom:8px;"></i><p>Tidak ada booking di tanggal ini</p></div>';
+    } else {
+      let rows = bookingsOnDate.map(b => {
+        const total   = parseRp(b.subtotal);
+        const dp      = parseRp(b.dp);
+        const sisa    = Math.max(0, total - dp);
+        const status  = b.status || 'pending';
+        const encoded = encodeURIComponent(JSON.stringify(b));
+        const muaBadge = (name) =>
+          `<span style="background:var(--pink-light);color:var(--pink-dark);border:1px solid rgba(212,83,126,0.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${name}</span>`;
+        const muaLabel = [b.mua_bertugas, b.mua_bertugas_2].filter(Boolean).length
+          ? [b.mua_bertugas, b.mua_bertugas_2].filter(Boolean).map(muaBadge).join(' ')
+          : `<span style="color:var(--text-secondary);font-size:11px;">—</span>`;
+        const hijabLabel = b.hijab_stylist
+          ? `<span style="background:#f0fdf4;color:#15803d;border:1px solid rgba(22,163,74,0.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${b.hijab_stylist}</span>`
+          : `<span style="color:var(--text-secondary);font-size:11px;">—</span>`;
+        const hairLabel = b.hair_stylist
+          ? `<span style="background:#eff6ff;color:#1d4ed8;border:1px solid rgba(37,99,235,0.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${b.hair_stylist}</span>`
+          : `<span style="color:var(--text-secondary);font-size:11px;">—</span>`;
+        return `<tr onclick="openModal('${encoded}')">
+          <td class="name-col">${b.nama || '-'}</td>
+          <td class="paket-col">${b.paket || '-'}</td>
+          <td>${muaLabel}</td>
+          <td>${hijabLabel}</td>
+          <td>${hairLabel}</td>
+          <td style="font-weight:500;">${fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) + ' WIB' : '-'}</td>
+          <td class="price-col">${fmtRp(total)}</td>
+          <td style="font-weight:500;">${fmtRp(dp)}</td>
+          <td>${sisa > 0 ? '<span style="color:var(--pink-dark);font-weight:700;">'+fmtRp(sisa)+'</span>' : '<span style="color:#15803d;font-weight:700;">Lunas</span>'}</td>
+          <td><span class="status-badge status-${status}">${status === 'confirmed' ? 'Confirmed' : 'Pending'}</span></td>
+        </tr>`;
+      }).join('');
+
+      body.innerHTML = `<div style="overflow-x:auto;"><table>
+        <thead><tr>
+          <th>Nama</th><th>Paket</th><th>MUA</th><th>Hijab</th><th>Hair</th><th>Jam Selesai</th><th>Total</th><th>DP</th><th>Sisa</th><th>Status</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+    }
+
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Highlight selected day
+    document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+  }
+
+  function calCloseDayBookings() {
+    const panel = document.getElementById('calDayBookings');
+    panel.style.display = 'none';
+    document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
+  }
+
+  function calDayClickEmpty(event, dateKey) {
+    calCloseDayBookings();
+  }
+
+  /* ══════════════════════════════════════════════
+     SIDEBAR NAVIGATION
+  ══════════════════════════════════════════════ */
+  const PAGE_TITLES = {
+    dashboard: 'Dashboard',
+    daftar: 'Daftar Booking',
+    kalender: 'Kalender Ketersediaan',
+    kinerja: 'Kinerja Team'
+  };
+
+  let currentPage = 'dashboard';
+
+  function switchPage(page) {
+    currentPage = page;
+
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    const navEl = document.getElementById('nav-' + page);
+    if (navEl) navEl.classList.add('active');
+
+    document.getElementById('topbarTitle').textContent = PAGE_TITLES[page] || '';
+
+    const statsGrid = document.getElementById('statsGrid');
+    statsGrid.style.display = page === 'dashboard' ? '' : 'none';
+
+    const fg1 = document.getElementById('filterGroupMonth');
+    const fg2 = document.getElementById('filterGroupStatus');
+    const fg3 = document.getElementById('filterGroupPaket');
+    const showFilters = page === 'daftar';
+    fg1.style.display = showFilters ? '' : 'none';
+    fg2.style.display = showFilters ? '' : 'none';
+    fg3.style.display = showFilters ? '' : 'none';
+
+    const pageDaftar   = document.getElementById('page-daftar');
+    const pageKalender = document.getElementById('page-kalender');
+    const pageKinerja  = document.getElementById('page-kinerja');
+
+    pageDaftar.style.display   = page === 'daftar'   ? 'block' : 'none';
+    pageKalender.style.display = page === 'kalender' ? 'block' : 'none';
+    pageKinerja.style.display  = page === 'kinerja'  ? 'block' : 'none';
+
+    if (page === 'kalender') renderCalendar();
+    if (page === 'kinerja')  renderKinerja();
+
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar.classList.contains('open')) toggleSidebar();
+  }
+
+  function toggleSidebar() {
+    const sidebar  = document.getElementById('sidebar');
+    const overlay  = document.getElementById('sidebarOverlay');
+    const isOpen   = sidebar.classList.toggle('open');
+    overlay.classList.toggle('show', isOpen);
+  }
+
+  /* ══════════════════════════════════════════════
+     KINERJA TEAM
+  ══════════════════════════════════════════════ */
+  function renderKinerja() {
+    const container = document.getElementById('kinerjaContent');
+
+    // Kumpulkan data per anggota tim
+    // Struktur: { nama: { paket: 0, orang: 0, role: 'mua'|'hijab'|'hair', bookings: [] } }
+    const teamMap = {};
+
+    const addMember = (nama, role, jumlahOrang) => {
+      if (!nama) return;
+      if (!teamMap[nama]) teamMap[nama] = { paket: 0, orang: 0, role, bookings: [] };
+      teamMap[nama].paket++;
+      teamMap[nama].orang += parseInt(jumlahOrang) || 1;
+    };
+
+    allBookings.forEach(b => {
+      const orang = parseInt(b.jumlah_orang) || 1;
+      if (b.mua_bertugas)   addMember(b.mua_bertugas,   'mua',   orang);
+      if (b.mua_bertugas_2) addMember(b.mua_bertugas_2, 'mua',   orang);
+      if (b.hijab_stylist)  addMember(b.hijab_stylist,  'hijab', orang);
+      if (b.hair_stylist)   addMember(b.hair_stylist,   'hair',  orang);
+    });
+
+    const members = Object.entries(teamMap);
+
+    if (members.length === 0) {
+      container.innerHTML = `
+        <div class="kinerja-empty">
+          <i class="ti ti-users" style="font-size:64px;color:var(--border);display:block;margin-bottom:16px;"></i>
+          <p>Belum ada data kinerja tim.<br>Isi field MUA, Hijab Stylist, dan Hair Stylist di setiap booking terlebih dahulu.</p>
+        </div>`;
+      return;
+    }
+
+    // Kelompokkan per role
+    const roles = {
+      mua:   { label: 'MUA',           icon: 'ti-brush',       color: 'var(--pink)',  bg: 'var(--pink-light)',  border: 'rgba(212,83,126,0.2)'  },
+      hijab: { label: 'Hijab Stylist',  icon: 'ti-sparkles',    color: '#15803d',      bg: '#f0fdf4',            border: 'rgba(21,128,61,0.2)'   },
+      hair:  { label: 'Hair Stylist',   icon: 'ti-cut',         color: '#1d4ed8',      bg: '#eff6ff',            border: 'rgba(29,78,216,0.2)'   },
+    };
+
+    // Total semua booking untuk bar proporsi
+    const maxPaket = Math.max(...members.map(([,v]) => v.paket), 1);
+    const maxOrang = Math.max(...members.map(([,v]) => v.orang), 1);
+
+    let html = '';
+
+    // Render per role group
+    for (const [roleKey, roleMeta] of Object.entries(roles)) {
+      const roleMembers = members.filter(([, v]) => v.role === roleKey);
+      if (roleMembers.length === 0) continue;
+
+      // Sort by paket desc
+      roleMembers.sort((a, b) => b[1].paket - a[1].paket);
+
+      html += `
+        <div class="kinerja-section">
+          <div class="kinerja-section-title">
+            <i class="ti ${roleMeta.icon}" style="color:${roleMeta.color};font-size:20px;"></i>
+            ${roleMeta.label}
+          </div>
+          <div class="kinerja-cards">
+      `;
+
+      roleMembers.forEach(([nama, data]) => {
+        const pct = Math.round((data.paket / maxPaket) * 100);
+        html += `
+          <div class="kinerja-card" style="--kinerja-color:${roleMeta.color};--kinerja-bg:${roleMeta.bg};--kinerja-border:${roleMeta.border};">
+            <div class="kinerja-card-header">
+              <div class="kinerja-avatar" style="background:${roleMeta.bg};color:${roleMeta.color};border:1px solid ${roleMeta.border};">
+                ${nama.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div class="kinerja-name">${nama}</div>
+                <div class="kinerja-role-tag" style="color:${roleMeta.color};">${roleMeta.label}</div>
+              </div>
+            </div>
+
+            <div class="kinerja-stats">
+              <div class="kinerja-stat">
+                <div class="kinerja-stat-value" style="color:${roleMeta.color};">${data.paket}</div>
+                <div class="kinerja-stat-label">Paket Dikerjakan</div>
+              </div>
+              <div class="kinerja-stat-divider"></div>
+              <div class="kinerja-stat">
+                <div class="kinerja-stat-value" style="color:${roleMeta.color};">${data.orang}</div>
+                <div class="kinerja-stat-label">Total Orang</div>
+              </div>
+            </div>
+
+            <div class="kinerja-bar-wrap">
+              <div class="kinerja-bar-label">
+                <span>Proporsi pekerjaan</span>
+                <span>${pct}%</span>
+              </div>
+              <div class="kinerja-bar-track">
+                <div class="kinerja-bar-fill" style="width:${pct}%;background:${roleMeta.color};"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+    }
+
+    container.innerHTML = html;
+  }
+  window.addEventListener('DOMContentLoaded', () => {
+    switchPage('dashboard');
+    renderCalendar();
+    loadBookings();
+  });
+
+  /* ══════════════════════════════════════════════
+     EXPORT INVOICE PDF
+  ══════════════════════════════════════════════ */
+  function exportInvoicePDF() {
+    if (!currentBooking) return;
+    const b = currentBooking;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    const W = 210, MARGIN = 20, CONTENT_W = 210 - 20 * 2;
+    const PINK  = [212, 83, 126];
+    const DARK  = [26, 26, 26];
+    const GRAY  = [107, 107, 107];
+    const LGRAY = [245, 245, 245];
+    const WHITE = [255, 255, 255];
+    const GREEN = [45, 90, 10];
+
+    let y = 0;
+
+    const rp = (n) => {
+      const num = parseRp(n);
+      if (!num) return 'Rp 0';
+      return 'Rp ' + num.toLocaleString('id-ID');
+    };
+
+    const txt = (text, x, yPos, opts = {}) => {
+      if (opts.color) doc.setTextColor(...opts.color);
+      else doc.setTextColor(...DARK);
+      doc.setFontSize(opts.size || 9);
+      doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+      const align = opts.align || 'left';
+      doc.text(String(text), x, yPos, { align });
+    };
+
+    const hline = (y1, color = [224,224,224], lw = 0.3) => {
+      doc.setDrawColor(...color);
+      doc.setLineWidth(lw);
+      doc.line(MARGIN, y1, W - MARGIN, y1);
+    };
+
+    const fillRect = (x, ry, w, h, fill) => {
+      doc.setFillColor(...fill);
+      doc.setDrawColor(...fill);
+      doc.rect(x, ry, w, h, 'F');
+    };
+
+    // ── HEADER ──
+    y = 18;
+    fillRect(0, 0, 6, 32, PINK);
+    txt('INVOICE', MARGIN, y, { bold: true, size: 22, color: PINK });
+    y += 7;
+    txt('Booking Ratu Ayu MUA', MARGIN, y, { size: 9, color: GRAY });
+
+    const invoiceNo = 'INV-' + String(b.timestamp || Date.now()).replace(/\D/g,'').slice(-8);
+    const today = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    txt('No. Invoice', W - MARGIN, y - 7, { align: 'right', size: 8, color: GRAY });
+    txt(invoiceNo, W - MARGIN, y - 2, { align: 'right', size: 9, bold: true });
+    txt('Tanggal cetak: ' + today, W - MARGIN, y + 4, { align: 'right', size: 8, color: GRAY });
+
+    y = 35;
+    hline(y, PINK, 0.6);
+
+    // ── INFORMASI KLIEN ──
+    y += 8;
+    txt('INFORMASI KLIEN', MARGIN, y, { bold: true, size: 8, color: PINK });
+    y += 5;
+
+    const colL = MARGIN, colR = MARGIN + 38;
+    const infoRows = [
+      ['Nama',      b.nama    || '-'],
+      ['WhatsApp',  b.wa      || '-'],
+      ['Email',     b.email   || '-'],
+      ['Lokasi',    b.lokasi  || '-'],
+    ];
+
+    infoRows.forEach(([label, val]) => {
+      txt(label, colL, y, { size: 8, color: GRAY });
+      const lines = doc.splitTextToSize(String(val), CONTENT_W - 40);
+      txt(lines[0], colR, y, { size: 8 });
+      if (lines.length > 1) { y += 4; txt(lines[1], colR, y, { size: 8 }); }
+      y += 5;
+    });
+
+    // ── JADWAL ──
+    y += 2; hline(y); y += 6;
+    txt('DETAIL JADWAL', MARGIN, y, { bold: true, size: 8, color: PINK });
+    y += 5;
+
+    [
+      ['Tanggal Make Up', fmtDateTime(b.tanggal)],
+      ['Jam Selesai',     fmtTime(b.jam_selesai) !== '-' ? fmtTime(b.jam_selesai) + ' WIB' : '-'],
+      ['Total Orang',     (b.jumlah_orang || '-') + ' orang'],
+    ].forEach(([label, val]) => {
+      txt(label, colL, y, { size: 8, color: GRAY });
+      txt(String(val), colR, y, { size: 8 });
+      y += 5;
+    });
+
+    // ── RINCIAN LAYANAN ──
+    y += 2; hline(y); y += 6;
+    txt('RINCIAN LAYANAN', MARGIN, y, { bold: true, size: 8, color: PINK });
+    y += 5;
+
+    // Header tabel
+    fillRect(MARGIN, y - 4.5, CONTENT_W, 7, PINK);
+    txt('Kategori',    MARGIN + 3,         y, { bold: true, size: 8, color: WHITE });
+    txt('Item',        MARGIN + 35,        y, { bold: true, size: 8, color: WHITE });
+    txt('Harga',       W - MARGIN - 3,     y, { bold: true, size: 8, color: WHITE, align: 'right' });
+    y += 5;
+
+    const parseItems = (raw) => {
+      if (!raw || !raw.toString().trim()) return [];
+      const s = raw.toString().trim();
+      return (s.includes('|') ? s.split('|') : s.split(',')).map(x => x.trim()).filter(Boolean);
+    };
+
+    let rowAlt = false;
+
+    const drawRow = (kategori, items, isAddon) => {
+      items.forEach((item, i) => {
+        if (rowAlt) fillRect(MARGIN, y - 4, CONTENT_W, 6.5, LGRAY);
+        txt(i === 0 ? kategori : '', MARGIN + 3, y, { size: 7.5, color: GRAY, bold: i === 0 });
+
+        const clean = item.replace(/Rp\s*([\d.,]+)/g, (_, n) =>
+          'Rp ' + parseInt(n.replace(/[.,]/g,'')).toLocaleString('id-ID'));
+
+        const m = clean.match(/^(.+?)\s*[–\-]\s*(Rp[\s\d.,]+)\s*(x\d+.*)$/i);
+        if (m) {
+          txt(m[1].trim() + '  ' + m[3].trim(), MARGIN + 35, y, { size: 7.5 });
+          txt(m[2].trim(), W - MARGIN - 3, y, { size: 7.5, align: 'right', color: isAddon ? GRAY : DARK });
+        } else {
+          const wl = doc.splitTextToSize(clean, CONTENT_W - 55);
+          txt(wl[0], MARGIN + 35, y, { size: 7.5 });
+          txt('—', W - MARGIN - 3, y, { size: 7.5, align: 'right', color: GRAY });
+          if (wl.length > 1) { y += 4.5; txt(wl[1], MARGIN + 35, y, { size: 7.5 }); }
+        }
+        y += 6;
+        rowAlt = !rowAlt;
+      });
+    };
+
+    drawRow('Paket',  parseItems(b.paket), false);
+    drawRow('Add On', parseItems(b.addon), true);
+
+    const transport = parseRp(b.transport_biaya);
+    if (transport > 0) {
+      if (rowAlt) fillRect(MARGIN, y - 4, CONTENT_W, 6.5, LGRAY);
+      txt('Transport', MARGIN + 3,  y, { size: 7.5, color: GRAY });
+      txt('Biaya Transport', MARGIN + 35, y, { size: 7.5 });
+      txt(rp(transport), W - MARGIN - 3, y, { size: 7.5, align: 'right' });
+      y += 6;
+    }
+
+    // ── PEMBAYARAN ──
+    y += 3; hline(y); y += 6;
+    txt('RINGKASAN PEMBAYARAN', MARGIN, y, { bold: true, size: 8, color: PINK });
+    y += 6;
+
+    const subtotal   = parseRp(b.subtotal);
+    const dp         = parseRp(b.dp);
+    const sisa       = Math.max(0, subtotal - dp);
+    const sudahLunas = (b.status || '').toLowerCase() === 'confirmed';
+
+    const payX = W - MARGIN - 65;
+    [
+      { label: 'Subtotal',   val: rp(subtotal), bold: false, color: DARK  },
+      { label: 'DP Dibayar', val: rp(dp),       bold: false, color: DARK  },
+      { label: 'Sisa Bayar', val: rp(sisa),     bold: true,  color: sudahLunas ? GREEN : PINK },
+    ].forEach(row => {
+      txt(row.label, payX,           y, { size: 8, color: GRAY });
+      txt(row.val,   W - MARGIN, y, { size: 8, align: 'right', bold: row.bold, color: row.color });
+      y += 5.5;
+    });
+
+    y += 1; hline(y, PINK, 0.5); y += 5;
+
+    // Badge status
+    const statusText  = sudahLunas ? 'LUNAS' : 'BELUM LUNAS';
+    const statusColor = sudahLunas ? GREEN : PINK;
+    const statusBg    = sudahLunas ? [230, 245, 218] : [252, 232, 240];
+    const bW = 34, bH = 8, bX = W - MARGIN - bW;
+    fillRect(bX, y - 5.5, bW, bH, statusBg);
+    doc.setDrawColor(...statusColor);
+    doc.setLineWidth(0.4);
+    doc.rect(bX, y - 5.5, bW, bH, 'S');
+    txt(statusText, bX + bW / 2, y - 0.5, { size: 7.5, bold: true, color: statusColor, align: 'center' });
+
+    // ── FOOTER ──
+    hline(284, [200,200,200], 0.3);
+    txt('Terima kasih atas kepercayaan Anda!', W / 2, 288, { size: 7.5, color: GRAY, align: 'center' });
+    txt('Invoice dicetak otomatis dari sistem booking MUA.', W / 2, 292, { size: 7, color: GRAY, align: 'center' });
+    fillRect(0, 295, W, 2, PINK);
+
+    // ── Simpan ──
+    const safeName = (b.nama || 'client').replace(/[^a-zA-Z0-9]/g, '_');
+    const tglMU    = fmtDate(b.tanggal).replace(/\s/g, '-');
+    doc.save('Invoice_' + safeName + '_' + tglMU + '.pdf');
+  }
+</script>
+
+</body>
+</html>
