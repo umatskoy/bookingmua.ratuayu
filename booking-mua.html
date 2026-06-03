@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -134,42 +133,12 @@
 
     .error-msg { display: none; grid-column: 1 / -1; background: rgba(163,45,45,0.07); border: 0.5px solid rgba(163,45,45,0.25); border-radius: 10px; padding: 1rem 1.25rem; text-align: center; color: #7a1f1f; font-size: 13px; line-height: 1.6; }
 
-    /* Kotak konfirmasi WA */
-    .wa-confirm-box {
-      display: none;
-      grid-column: 1 / -1;
-      background: #f0faf2;
-      border: 0.5px solid rgba(37,163,88,0.3);
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin-top: 4px;
-    }
-    .wa-confirm-box .wc-title {
-      font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-      color: #1a7a3a; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
-    }
-    .wa-confirm-box .wc-title i { font-size: 15px; }
-    .wa-confirm-box pre,
-    .wa-confirm-box textarea {
-      font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.75;
-      color: #1a1a1a; white-space: pre-wrap; word-break: break-word;
-      background: #fff; border: 0.5px solid rgba(37,163,88,0.25);
-      border-radius: 8px; padding: 12px 14px; margin: 0 0 8px;
-      width: 100%; box-sizing: border-box; resize: none; min-height: 260px;
-    }
-    .wa-confirm-box textarea { cursor: text; }
-    .wc-hint {
-      font-size: 11.5px; color: #2a8a4a; text-align: center;
-      margin: 0 0 4px; display: flex; align-items: center; justify-content: center; gap: 5px;
-    }
-    .wc-hint i { font-size: 13px; }
-
     .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .mua-footer { text-align: center; margin-top: 2rem; font-size: 12px; color: #c0c0c0; }
 
-    /* Export JPG button */
+    /* Export PDF button */
     .btn-export {
       display: flex; align-items: center; gap: 7px;
       margin-top: 12px; padding: 9px 16px;
@@ -343,8 +312,8 @@
       <div class="grand-summary" id="grandSummary">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <p class="gs-title" style="margin-bottom:0;">✦ Ringkasan Total</p>
-          <button type="button" class="btn-export" style="width:auto; margin-top:0; padding:6px 12px; font-size:12px;" onclick="exportJPG()">
-            <i class="ti ti-photo-down" style="font-size:14px;"></i> Simpan Invoice (JPG)
+          <button type="button" class="btn-export" style="width:auto; margin-top:0; padding:6px 12px; font-size:12px;" onclick="exportPDF()">
+            <i class="ti ti-file-type-pdf" style="font-size:14px;"></i> Export PDF
           </button>
         </div>
         <div id="gs-paket-section" class="gs-section">
@@ -375,7 +344,7 @@
 
       <div class="rekening-note">
         <i class="ti ti-shield-check" aria-hidden="true"></i>
-        <span>Transfer hanya ke rekening <strong>SeaBank – 901862619860</strong> a.n. <strong>Fairuz Qu Ratu Ayu</strong><br>Hati-hati penipuan</span>
+        <span>Transfer hanya ke rekening <strong>Seabank – 123456</strong> a.n. <strong>Fairuz Ayu</strong><br>Hati-hati penipuan</span>
       </div>
 
       <div class="form-group full">
@@ -402,12 +371,6 @@
         <p>Terima kasih telah booking. Kami akan konfirmasi melalui WhatsApp dalam 1×24 jam.</p>
       </div>
 
-      <div class="wa-confirm-box" id="waConfirmBox">
-        <div class="wc-title"><i class="ti ti-brand-whatsapp"></i> Salin & kirim ke WhatsApp Admin</div>
-        <textarea id="waConfirmText" readonly></textarea>
-        <p class="wc-hint"><i class="ti ti-hand-finger"></i> Tap teks di atas → tahan → pilih <strong>Semua</strong> lalu <strong>Salin</strong></p>
-      </div>
-
       <div class="submit-row">
         <button type="submit" class="btn-submit" id="submitBtn">
           <div class="spinner" id="spinner"></div>
@@ -423,7 +386,7 @@
     <p>Dibuat dengan ❤ untuk bisnis MUA Anda</p>
   </footer>
 
-  <!-- Hidden invoice area - populated by exportJPG() -->
+  <!-- Hidden print area - populated by exportPDF() -->
   <div id="printArea" style="display:none;"></div>
 
 </div>
@@ -431,7 +394,7 @@
 <script>
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzW4Rs9Uc7psMTYJgKSRXnE_lWb8rKtJ1IxV4z_-D9R5tiZ4OoAYDAsIRxyd1hOc7NSAQ/exec";
 
-  const PAKET_OPTIONS = [
+  let PAKET_OPTIONS = [
     { label: 'Wedding Silver – Rp 3.500.000',       value: 'Wedding Silver',       harga: 3500000 },
     { label: 'Wedding Gold – Rp 5.500.000',         value: 'Wedding Gold',         harga: 5500000 },
     { label: 'Wedding Platinum – Rp 6.500.000',     value: 'Wedding Platinum',     harga: 6500000 },
@@ -447,7 +410,7 @@
     { label: 'Exclusive Private Makeup Class – Rp 4.500.000',    value: 'Exclusive Private Makeup Class',   harga: 4500000 },
   ];
 
-  const ADDON_OPTIONS = [
+  let ADDON_OPTIONS = [
     { label: 'Hairdo – Rp 150.000',                                  value: 'Hairdo',                               harga: 150000 },
     { label: 'Hijab Stylist – Rp 100.000',                           value: 'Hijab Stylist',                        harga: 100000 },
     { label: 'Softlens – Rp 100.000',                                value: 'Softlens',                             harga: 100000 },
@@ -670,8 +633,43 @@
     return new Promise((res, rej) => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.onerror = rej; rd.readAsDataURL(file); });
   }
 
-  /* ── INIT ── */
-  window.addEventListener('DOMContentLoaded', () => tambahPaket());
+  /* ── INIT: fetch paket & addon dari Google Sheet ── */
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzW4Rs9Uc7psMTYJgKSRXnE_lWb8rKtJ1IxV4z_-D9R5tiZ4OoAYDAsIRxyd1hOc7NSAQ/exec';
+
+  function fmtLabel(nama, harga) {
+    return harga === 0
+      ? nama + ' – Gratis'
+      : nama + ' – Rp ' + Number(harga).toLocaleString('id-ID');
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const [resPaket, resAddon] = await Promise.all([
+        fetch(GAS_URL + '?action=getPakets').then(r => r.json()),
+        fetch(GAS_URL + '?action=getAddOns').then(r => r.json()),
+      ]);
+
+      if (resPaket.success && resPaket.pakets && resPaket.pakets.length > 0) {
+        PAKET_OPTIONS = resPaket.pakets.map(p => ({
+          label: fmtLabel(p.nama, p.harga),
+          value: p.nama,
+          harga: p.harga,
+        }));
+      }
+
+      if (resAddon.success && resAddon.addons && resAddon.addons.length > 0) {
+        ADDON_OPTIONS = resAddon.addons.map(a => ({
+          label: fmtLabel(a.nama, a.harga),
+          value: a.nama,
+          harga: a.harga,
+        }));
+      }
+    } catch(e) {
+      console.warn('Gagal fetch dari Sheet, pakai data default:', e);
+    }
+
+    tambahPaket();
+  });
 
   /* ── SUBMIT ── */
   document.getElementById('bookingForm').addEventListener('submit', async function(e) {
@@ -755,59 +753,10 @@
       const result = await res.json();
 
       if (result.success) {
-        // Bangun teks konfirmasi WA
-        const namaTxt    = form.nama.value.trim() || '-';
-        const waTxt      = form.wa.value.trim() || '-';
-        const tglRaw     = form.tanggal.value || '-';
-        const lokasiTxt  = form.lokasi.value.trim() || '-';
-        const dpTxt      = form.dp.value.trim();
-
-        // Format tanggal → "Sabtu, 7 Juni 2026"
-        let tglFmt = tglRaw;
-        if (tglRaw && tglRaw !== '-') {
-          const d = new Date(tglRaw + 'T00:00:00');
-          tglFmt = d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-        }
-
-        // Paket list
-        const paketLines = paketRows
-          .filter(r => r.value)
-          .map(r => {
-            const opt = PAKET_OPTIONS.find(o => o.value === r.value);
-            return opt ? `  • ${opt.value} (${r.jumlah} orang)` : '';
-          }).filter(Boolean).join('\n') || '  -';
-
-        // Add-on list
-        const addonLines = addonRows.length
-          ? addonRows.filter(r => r.value).map(r => {
-              const opt = ADDON_OPTIONS.find(o => o.value === r.value);
-              return opt ? `  • ${opt.value} ×${r.jumlah}` : '';
-            }).filter(Boolean).join('\n')
-          : '';
-
-        const subtotalTxt  = document.getElementById('gs-subtotal')?.textContent || '-';
-        const sisaBayarTxt = document.getElementById('gs-grand-total')?.textContent || '-';
-        const dpFmt        = dpTxt ? 'Rp ' + Number(dpTxt.replace(/\D/g,'')).toLocaleString('id-ID') : '-';
-
-        let msg = `BOOKING RATU AYU MUA\n`;
-        msg += `Halo Admin, saya ingin konfirmasi booking:\n\n`;
-        msg += `Nama        : ${namaTxt}\n`;
-        msg += `WhatsApp    : ${waTxt}\n`;
-        msg += `Tanggal     : ${tglFmt}\n`;
-        msg += `Lokasi      : ${lokasiTxt}\n`;
-        msg += `\nPaket:\n${paketLines}\n`;
-        if (addonLines) msg += `\nAdd-on:\n${addonLines}\n`;
-        msg += `\nTotal       : ${subtotalTxt}\n`;
-        msg += `DP          : ${dpFmt}\n`;
-        msg += `Sisa Bayar  : ${sisaBayarTxt}`;
-
-        document.getElementById('waConfirmText').value = msg;
-        document.getElementById('waConfirmBox').style.display = 'block';
-
         successMsg.style.display = 'block';
         btn.style.display = 'none';
         form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-        document.getElementById('waConfirmBox').scrollIntoView({ behavior:'smooth', block:'center' });
+        successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
       } else {
         throw new Error(result.message || 'Respons gagal dari server');
       }
@@ -822,13 +771,10 @@
     el.addEventListener('input', () => { el.style.borderColor = ''; });
   });
 
-  /* ── SALIN TEKS WA ── */
-  function copyWaText() {
-    // tidak dipakai lagi, textarea langsung bisa diselect manual
-  }
+  /* ── EXPORT PDF ── */
+  function exportPDF() {
+    const form = document.getElementById('bookingForm');
 
-  /* ── EXPORT JPG ── */
-  function exportJPG() {
     // Collect client info
     const nama     = document.getElementById('nama').value || '-';
     const wa       = document.getElementById('wa').value || '-';
@@ -891,82 +837,39 @@
 
     const addonSection = addonHTML ? `<p class="print-section-label">Add On</p>${addonHTML}` : '';
 
-    // Bangun invoice HTML di dalam container khusus untuk di-screenshot
-    const invoiceBox = document.getElementById('printArea');
-    invoiceBox.innerHTML = `
-      <div id="invoiceCanvas" style="
-        background:#fff;
-        width:520px;
-        padding:32px 36px 28px;
-        font-family:'DM Sans',sans-serif;
-        color:#1a1a1a;
-        box-sizing:border-box;
-      ">
-        <div style="text-align:center; margin-bottom:20px; border-bottom:1px solid #e0d0d8; padding-bottom:16px;">
-          <div style="font-family:'Cormorant Garamond',Georgia,serif; font-size:26px; font-weight:300; font-style:italic; color:#1a1a1a;">Invoice Booking Make Up Artist</div>
-          <div style="font-size:11px; color:#888; letter-spacing:0.1em; text-transform:uppercase; margin-top:4px;">No. ${noInvoice} &nbsp;·&nbsp; ${tglCetak}</div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; margin-bottom:18px;">
-          <div><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">Nama Klien</div><div style="font-size:12px;">${nama}</div></div>
-          <div><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">WhatsApp</div><div style="font-size:12px;">${wa}</div></div>
-          <div><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">Email</div><div style="font-size:12px;">${email}</div></div>
-          <div><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">Tanggal Make Up</div><div style="font-size:12px;">${tanggal}${jam !== '-' ? ' – selesai ' + jam : ''}</div></div>
-          <div style="grid-column:1/-1;"><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">Lokasi</div><div style="font-size:12px;">${lokasi}</div></div>
-        </div>
-
-        <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#D4537E;margin:14px 0 6px;border-bottom:0.5px solid #f0d8e4;padding-bottom:4px;">Paket Make Up</div>
-        ${paketHTML}
-        ${addonSection}
-        ${transportHTML}
-
-        <hr style="border:none;border-top:0.5px solid #e0d0d8;margin:10px 0;" />
-        <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:#555;"><span>Subtotal</span><span>${fmtRp(subtotal)}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:#555;"><span>DP</span><span style="color:#c04470;">${dpVal > 0 ? '− ' + fmtRp(dpVal) : '−'}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:#D4537E;padding:10px 0 6px;border-top:1.5px solid #D4537E;margin-top:6px;"><span>SISA PEMBAYARAN</span><span>${fmtRp(sisaBayar)}</span></div>
-
-        <div style="margin-top:20px;border:1px solid #e8d0da;border-radius:6px;padding:10px 14px;font-size:11.5px;color:#7a1f3d;text-align:center;line-height:1.7;">
-          Transfer hanya ke rekening <strong>SeaBank – 901862619860</strong> a.n. <strong>Fairuz Qu Ratu Ayu</strong><br>
-          Hati-hati penipuan
-        </div>
-
-        <div style="margin-top:24px;text-align:center;font-size:10px;color:#bbb;border-top:0.5px solid #eee;padding-top:10px;">
-          Terima kasih telah mempercayakan momen spesial Anda kepada kami 🌸
-        </div>
+    document.getElementById('printArea').innerHTML = `
+      <div class="print-header">
+        <h1>Invoice Booking Make Up Artist</h1>
+        <p>No. ${noInvoice} &nbsp;·&nbsp; Dicetak ${tglCetak}</p>
       </div>
+
+      <div class="print-meta">
+        <div class="print-meta-item"><div class="pm-label">Nama Klien</div><div class="pm-value">${nama}</div></div>
+        <div class="print-meta-item"><div class="pm-label">WhatsApp</div><div class="pm-value">${wa}</div></div>
+        <div class="print-meta-item"><div class="pm-label">Email</div><div class="pm-value">${email}</div></div>
+        <div class="print-meta-item"><div class="pm-label">Tanggal Make Up</div><div class="pm-value">${tanggal}${jam !== '-' ? ' – selesai ' + jam : ''}</div></div>
+        <div class="print-meta-item" style="grid-column:1/-1;"><div class="pm-label">Lokasi</div><div class="pm-value">${lokasi}</div></div>
+      </div>
+
+      <p class="print-section-label">Paket Make Up</p>
+      ${paketHTML}
+      ${addonSection}
+      ${transportHTML}
+
+      <hr class="print-divider" />
+      <div class="print-calc-row"><span>Subtotal</span><span>${fmtRp(subtotal)}</span></div>
+      <div class="print-calc-row dp-row"><span>DP</span><span>${dpVal > 0 ? '− ' + fmtRp(dpVal) : '−'}</span></div>
+      <div class="print-total-row"><span>SISA PEMBAYARAN</span><span>${fmtRp(sisaBayar)}</span></div>
+
+      <div class="print-rekening">
+        Transfer hanya ke rekening <strong>Seabank – 123456</strong> a.n. <strong>Fairuz Ayu</strong><br>
+        Hati-hati penipuan
+      </div>
+
+      <div class="print-footer">Terima kasih telah mempercayakan momen spesial Anda kepada kami 🌸</div>
     `;
 
-    // Tampilkan sementara untuk di-capture (di luar viewport)
-    invoiceBox.style.position = 'fixed';
-    invoiceBox.style.top = '-9999px';
-    invoiceBox.style.left = '0';
-    invoiceBox.style.display = 'block';
-
-    const target = document.getElementById('invoiceCanvas');
-
-    html2canvas(target, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false
-    }).then(canvas => {
-      // Sembunyikan kembali
-      invoiceBox.style.display = 'none';
-      invoiceBox.style.position = '';
-      invoiceBox.style.top = '';
-      invoiceBox.style.left = '';
-
-      // Download sebagai JPG
-      const link = document.createElement('a');
-      link.download = noInvoice + '.jpg';
-      link.href = canvas.toDataURL('image/jpeg', 0.95);
-      link.click();
-    }).catch(err => {
-      invoiceBox.style.display = 'none';
-      invoiceBox.style.position = '';
-      alert('Gagal membuat gambar invoice. Coba lagi.');
-      console.error(err);
-    });
+    window.print();
   }
 </script>
 
