@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -138,7 +139,7 @@
 
     .mua-footer { text-align: center; margin-top: 2rem; font-size: 12px; color: #c0c0c0; }
 
-    /* Export PDF button */
+    /* Export JPG button */
     .btn-export {
       display: flex; align-items: center; gap: 7px;
       margin-top: 12px; padding: 9px 16px;
@@ -312,8 +313,8 @@
       <div class="grand-summary" id="grandSummary">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <p class="gs-title" style="margin-bottom:0;">✦ Ringkasan Total</p>
-          <button type="button" class="btn-export" style="width:auto; margin-top:0; padding:6px 12px; font-size:12px;" onclick="exportPDF()">
-            <i class="ti ti-file-type-pdf" style="font-size:14px;"></i> Export PDF
+          <button type="button" class="btn-export" style="width:auto; margin-top:0; padding:6px 12px; font-size:12px;" onclick="exportJPG()">
+            <i class="ti ti-photo-down" style="font-size:14px;"></i> Simpan Invoice (JPG)
           </button>
         </div>
         <div id="gs-paket-section" class="gs-section">
@@ -386,7 +387,7 @@
     <p>Dibuat dengan ❤ untuk bisnis MUA Anda</p>
   </footer>
 
-  <!-- Hidden print area - populated by exportPDF() -->
+  <!-- Hidden invoice area - populated by exportJPG() -->
   <div id="printArea" style="display:none;"></div>
 
 </div>
@@ -736,10 +737,8 @@
     el.addEventListener('input', () => { el.style.borderColor = ''; });
   });
 
-  /* ── EXPORT PDF ── */
-  function exportPDF() {
-    const form = document.getElementById('bookingForm');
-
+  /* ── EXPORT JPG ── */
+  function exportJPG() {
     // Collect client info
     const nama     = document.getElementById('nama').value || '-';
     const wa       = document.getElementById('wa').value || '-';
@@ -802,39 +801,82 @@
 
     const addonSection = addonHTML ? `<p class="print-section-label">Add On</p>${addonHTML}` : '';
 
-    document.getElementById('printArea').innerHTML = `
-      <div class="print-header">
-        <h1>Invoice Booking Make Up Artist</h1>
-        <p>No. ${noInvoice} &nbsp;·&nbsp; Dicetak ${tglCetak}</p>
+    // Bangun invoice HTML di dalam container khusus untuk di-screenshot
+    const invoiceBox = document.getElementById('printArea');
+    invoiceBox.innerHTML = `
+      <div id="invoiceCanvas" style="
+        background:#fff;
+        width:520px;
+        padding:32px 36px 28px;
+        font-family:'DM Sans',sans-serif;
+        color:#1a1a1a;
+        box-sizing:border-box;
+      ">
+        <div style="text-align:center; margin-bottom:20px; border-bottom:1px solid #e0d0d8; padding-bottom:16px;">
+          <div style="font-family:'Cormorant Garamond',Georgia,serif; font-size:26px; font-weight:300; font-style:italic; color:#1a1a1a;">Invoice Booking Make Up Artist</div>
+          <div style="font-size:11px; color:#888; letter-spacing:0.1em; text-transform:uppercase; margin-top:4px;">No. ${noInvoice} &nbsp;·&nbsp; ${tglCetak}</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; margin-bottom:18px;">
+          <div><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">Nama Klien</div><div style="font-size:12px;">${nama}</div></div>
+          <div><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">WhatsApp</div><div style="font-size:12px;">${wa}</div></div>
+          <div><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">Email</div><div style="font-size:12px;">${email}</div></div>
+          <div><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">Tanggal Make Up</div><div style="font-size:12px;">${tanggal}${jam !== '-' ? ' – selesai ' + jam : ''}</div></div>
+          <div style="grid-column:1/-1;"><div style="color:#999;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;margin-bottom:2px;">Lokasi</div><div style="font-size:12px;">${lokasi}</div></div>
+        </div>
+
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#D4537E;margin:14px 0 6px;border-bottom:0.5px solid #f0d8e4;padding-bottom:4px;">Paket Make Up</div>
+        ${paketHTML}
+        ${addonSection}
+        ${transportHTML}
+
+        <hr style="border:none;border-top:0.5px solid #e0d0d8;margin:10px 0;" />
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:#555;"><span>Subtotal</span><span>${fmtRp(subtotal)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:#555;"><span>DP</span><span style="color:#c04470;">${dpVal > 0 ? '− ' + fmtRp(dpVal) : '−'}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:#D4537E;padding:10px 0 6px;border-top:1.5px solid #D4537E;margin-top:6px;"><span>SISA PEMBAYARAN</span><span>${fmtRp(sisaBayar)}</span></div>
+
+        <div style="margin-top:20px;border:1px solid #e8d0da;border-radius:6px;padding:10px 14px;font-size:11.5px;color:#7a1f3d;text-align:center;line-height:1.7;">
+          Transfer hanya ke rekening <strong>SeaBank – 901862619860</strong> a.n. <strong>Fairuz Qu Ratu Ayu</strong><br>
+          Hati-hati penipuan
+        </div>
+
+        <div style="margin-top:24px;text-align:center;font-size:10px;color:#bbb;border-top:0.5px solid #eee;padding-top:10px;">
+          Terima kasih telah mempercayakan momen spesial Anda kepada kami 🌸
+        </div>
       </div>
-
-      <div class="print-meta">
-        <div class="print-meta-item"><div class="pm-label">Nama Klien</div><div class="pm-value">${nama}</div></div>
-        <div class="print-meta-item"><div class="pm-label">WhatsApp</div><div class="pm-value">${wa}</div></div>
-        <div class="print-meta-item"><div class="pm-label">Email</div><div class="pm-value">${email}</div></div>
-        <div class="print-meta-item"><div class="pm-label">Tanggal Make Up</div><div class="pm-value">${tanggal}${jam !== '-' ? ' – selesai ' + jam : ''}</div></div>
-        <div class="print-meta-item" style="grid-column:1/-1;"><div class="pm-label">Lokasi</div><div class="pm-value">${lokasi}</div></div>
-      </div>
-
-      <p class="print-section-label">Paket Make Up</p>
-      ${paketHTML}
-      ${addonSection}
-      ${transportHTML}
-
-      <hr class="print-divider" />
-      <div class="print-calc-row"><span>Subtotal</span><span>${fmtRp(subtotal)}</span></div>
-      <div class="print-calc-row dp-row"><span>DP</span><span>${dpVal > 0 ? '− ' + fmtRp(dpVal) : '−'}</span></div>
-      <div class="print-total-row"><span>SISA PEMBAYARAN</span><span>${fmtRp(sisaBayar)}</span></div>
-
-      <div class="print-rekening">
-        Transfer hanya ke rekening <strong>SeaBank – 901862619860</strong> a.n. <strong>Fairuz Qu Ratu Ayu</strong><br>
-        Hati-hati penipuan
-      </div>
-
-      <div class="print-footer">Terima kasih telah mempercayakan momen spesial Anda kepada kami 🌸</div>
     `;
 
-    window.print();
+    // Tampilkan sementara untuk di-capture (di luar viewport)
+    invoiceBox.style.position = 'fixed';
+    invoiceBox.style.top = '-9999px';
+    invoiceBox.style.left = '0';
+    invoiceBox.style.display = 'block';
+
+    const target = document.getElementById('invoiceCanvas');
+
+    html2canvas(target, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false
+    }).then(canvas => {
+      // Sembunyikan kembali
+      invoiceBox.style.display = 'none';
+      invoiceBox.style.position = '';
+      invoiceBox.style.top = '';
+      invoiceBox.style.left = '';
+
+      // Download sebagai JPG
+      const link = document.createElement('a');
+      link.download = noInvoice + '.jpg';
+      link.href = canvas.toDataURL('image/jpeg', 0.95);
+      link.click();
+    }).catch(err => {
+      invoiceBox.style.display = 'none';
+      invoiceBox.style.position = '';
+      alert('Gagal membuat gambar invoice. Coba lagi.');
+      console.error(err);
+    });
   }
 </script>
 
