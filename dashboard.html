@@ -3186,8 +3186,8 @@
 
     const subtotal   = parseRp(b.subtotal);
     const dp         = parseRp(b.dp);
-    const sisa       = Math.max(0, subtotal - dp);
     const sudahLunas = ['lunas', 'confirmed'].includes((b.status || '').toLowerCase());
+    const sisa       = sudahLunas ? 0 : Math.max(0, subtotal - dp);
 
     const payX = W - MARGIN - 65;
     [
