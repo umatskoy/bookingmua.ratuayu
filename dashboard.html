@@ -2931,9 +2931,9 @@
 
     const totalPendapatan = rows.reduce((s, b) => s + parseRp(b.subtotal), 0);
     const totalDP         = rows.reduce((s, b) => s + parseRp(b.dp), 0);
-    const totalSisa       = rows.reduce((s, b) => s + Math.max(0, parseRp(b.subtotal) - parseRp(b.dp)), 0);
-    const lunas           = rows.filter(b => parseRp(b.subtotal) - parseRp(b.dp) <= 0).length;
-    const belumLunas      = rows.filter(b => parseRp(b.subtotal) - parseRp(b.dp) > 0).length;
+    const totalSisa       = rows.filter(b => b.status !== 'lunas').reduce((s, b) => s + Math.max(0, parseRp(b.subtotal) - parseRp(b.dp)), 0);
+    const lunas           = rows.filter(b => b.status === 'lunas').length;
+    const belumLunas      = rows.filter(b => b.status !== 'lunas').length;
 
     document.getElementById('keuanganSummary').innerHTML = `
       <div class="keuangan-sum-card">
@@ -2981,9 +2981,11 @@
 
       const muaNames = [b.mua_bertugas, b.mua_bertugas_2].filter(Boolean).join(', ') || '—';
 
-      const sisaHtml = sisa > 0
-        ? `<span style="color:var(--pink);font-weight:600;">${fmtRp(sisa)}</span>`
-        : `<span style="color:#2d5a0a;font-weight:600;">Lunas</span>`;
+      const sisaHtml = b.status === 'lunas'
+        ? `<span style="color:#2d5a0a;font-weight:600;">Lunas</span>`
+        : sisa > 0
+          ? `<span style="color:var(--pink);font-weight:600;">${fmtRp(sisa)}</span>`
+          : `<span style="color:#2d5a0a;font-weight:600;">Lunas</span>`;
 
       const encoded = encodeURIComponent(JSON.stringify(b));
 
