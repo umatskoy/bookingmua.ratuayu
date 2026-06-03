@@ -149,21 +149,20 @@
       color: #1a7a3a; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
     }
     .wa-confirm-box .wc-title i { font-size: 15px; }
-    .wa-confirm-box pre {
+    .wa-confirm-box pre,
+    .wa-confirm-box textarea {
       font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.75;
       color: #1a1a1a; white-space: pre-wrap; word-break: break-word;
       background: #fff; border: 0.5px solid rgba(37,163,88,0.25);
-      border-radius: 8px; padding: 12px 14px; margin: 0 0 12px;
-      user-select: all;
+      border-radius: 8px; padding: 12px 14px; margin: 0 0 8px;
+      width: 100%; box-sizing: border-box; resize: none; min-height: 260px;
     }
-    .btn-copy-wa {
-      width: 100%; padding: 11px; font-family: 'DM Sans', sans-serif; font-size: 13.5px;
-      font-weight: 500; color: #fff; background: #25a858; border: none; border-radius: 8px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
-      transition: background 0.15s;
+    .wa-confirm-box textarea { cursor: text; }
+    .wc-hint {
+      font-size: 11.5px; color: #2a8a4a; text-align: center;
+      margin: 0 0 4px; display: flex; align-items: center; justify-content: center; gap: 5px;
     }
-    .btn-copy-wa:hover { background: #1e9049; }
-    .btn-copy-wa.copied { background: #1a7a3a; }
+    .wc-hint i { font-size: 13px; }
 
     .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -405,11 +404,8 @@
 
       <div class="wa-confirm-box" id="waConfirmBox">
         <div class="wc-title"><i class="ti ti-brand-whatsapp"></i> Salin & kirim ke WhatsApp Admin</div>
-        <pre id="waConfirmText"></pre>
-        <button type="button" class="btn-copy-wa" id="btnCopyWa" onclick="copyWaText()">
-          <i class="ti ti-copy"></i>
-          <span id="copyBtnLabel">Salin Pesan</span>
-        </button>
+        <textarea id="waConfirmText" readonly></textarea>
+        <p class="wc-hint"><i class="ti ti-hand-finger"></i> Tap teks di atas → tahan → pilih <strong>Semua</strong> lalu <strong>Salin</strong></p>
       </div>
 
       <div class="submit-row">
@@ -805,7 +801,7 @@
         msg += `DP          : ${dpFmt}\n`;
         msg += `Sisa Bayar  : ${sisaBayarTxt}`;
 
-        document.getElementById('waConfirmText').textContent = msg;
+        document.getElementById('waConfirmText').value = msg;
         document.getElementById('waConfirmBox').style.display = 'block';
 
         successMsg.style.display = 'block';
@@ -828,61 +824,7 @@
 
   /* ── SALIN TEKS WA ── */
   function copyWaText() {
-    const text = document.getElementById('waConfirmText').textContent;
-    const btn  = document.getElementById('btnCopyWa');
-    const lbl  = document.getElementById('copyBtnLabel');
-
-    // Coba Clipboard API dulu (butuh HTTPS)
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => {
-        lbl.textContent = 'Tersalin! ✓';
-        btn.classList.add('copied');
-        setTimeout(() => { lbl.textContent = 'Salin Pesan'; btn.classList.remove('copied'); }, 2500);
-        return;
-      }).catch(() => fallbackCopy());
-    } else {
-      fallbackCopy();
-    }
-
-    function fallbackCopy() {
-      // Ganti <pre> jadi <textarea> agar bisa di-select native (iPhone/Android friendly)
-      const pre = document.getElementById('waConfirmText');
-      const ta  = document.createElement('textarea');
-      ta.id    = 'waConfirmText';
-      ta.value = text;
-      ta.style.cssText = `
-        font-family: 'DM Sans', sans-serif;
-        font-size: 13px;
-        line-height: 1.75;
-        color: #1a1a1a;
-        background: #fff;
-        border: 0.5px solid rgba(37,163,88,0.25);
-        border-radius: 8px;
-        padding: 12px 14px;
-        margin: 0 0 12px;
-        width: 100%;
-        box-sizing: border-box;
-        resize: none;
-        min-height: 260px;
-        white-space: pre-wrap;
-      `;
-      ta.readOnly = false;
-      pre.parentNode.replaceChild(ta, pre);
-      ta.focus();
-      ta.select();
-      // iOS butuh setSelectionRange
-      ta.setSelectionRange(0, 99999);
-      try {
-        document.execCommand('copy');
-        lbl.textContent = 'Tersalin! ✓';
-        btn.classList.add('copied');
-        setTimeout(() => { lbl.textContent = 'Salin Pesan'; btn.classList.remove('copied'); }, 2500);
-      } catch (e) {
-        // Jika execCommand juga gagal, teks sudah terseleksi — user tinggal tap Copy
-        lbl.textContent = 'Pilih Semua lalu Salin';
-        btn.classList.add('copied');
-      }
-    }
+    // tidak dipakai lagi, textarea langsung bisa diselect manual
   }
 
   /* ── EXPORT JPG ── */
