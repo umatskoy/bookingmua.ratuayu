@@ -1454,6 +1454,10 @@
         <i class="ti ti-report-money"></i>
         <span>Keuangan</span>
       </button>
+      <button class="sidebar-item" id="nav-setting" onclick="switchPage('setting')">
+        <i class="ti ti-settings"></i>
+        <span>Pengaturan</span>
+      </button>
     </nav>
     <button class="sidebar-toggle-mobile" id="sidebarClose" onclick="toggleSidebar()">
       <i class="ti ti-x"></i>
@@ -1636,6 +1640,20 @@
       <div class="keuangan-summary" id="keuanganSummary"></div>
       <!-- Table -->
       <div class="bookings-table" id="keuanganTable"></div>
+    </div>
+  </div>
+
+  <!-- ── SETTING PAGE ── -->
+  <div class="page-panel" id="page-setting" style="display:none;">
+    <div class="bookings-section">
+      <div class="bookings-header">
+        <h2><i class="ti ti-tag" style="color:var(--pink);font-size:16px;"></i> Pengaturan Paket</h2>
+        <button class="btn-refresh" onclick="openAddPaketModal()">
+          <i class="ti ti-plus"></i> Tambah Paket
+        </button>
+      </div>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Daftar paket tersimpan di perangkat ini. Saat edit booking, paket dapat dipilih langsung dari dropdown.</p>
+      <div id="settingPaketList"></div>
     </div>
   </div>
 
@@ -2354,7 +2372,25 @@
       <div class="edit-section-title"><i class="ti ti-shopping-cart"></i> Layanan</div>
       <div class="edit-field">
         <label>Paket</label>
-        <input type="text" id="ef_paket" value="${b.paket || ''}" placeholder="Nama paket">
+        ${(() => {
+          const savedPakets = getPaketList();
+          if (savedPakets.length === 0) {
+            return `<input type="text" id="ef_paket" value="${b.paket || ''}" placeholder="Nama paket (tambah di Pengaturan)">`;
+          }
+          const currentVal = b.paket || '';
+          const matchedPaket = savedPakets.find(p => currentVal.startsWith(p.nama));
+          const options = savedPakets.map(p =>
+            `<option value="${p.nama}" ${matchedPaket && matchedPaket.nama === p.nama ? 'selected' : ''}>${p.nama} – Rp ${Number(p.harga).toLocaleString('id-ID')}</option>`
+          ).join('');
+          return `
+            <select id="ef_paket_select" onchange="syncPaketField()" style="margin-bottom:6px;">
+              <option value="">-- Pilih Paket --</option>
+              ${options}
+              <option value="__manual__" ${!matchedPaket && currentVal ? 'selected' : ''}>Ketik manual...</option>
+            </select>
+            <input type="text" id="ef_paket" value="${currentVal}" placeholder="Nama paket"
+              style="display:${!matchedPaket && currentVal ? 'block' : (matchedPaket ? 'none' : 'none')};">`;
+        })()}
       </div>
       <div class="edit-field">
         <label>Add On</label>
@@ -2739,6 +2775,7 @@
     kalender: 'Kalender Ketersediaan',
     kinerja: 'Kinerja Team',
     keuangan: 'Keuangan',
+    setting: 'Pengaturan',
   };
 
   let currentPage = 'dashboard';
@@ -2770,15 +2807,18 @@
     const pageKalender = document.getElementById('page-kalender');
     const pageKinerja  = document.getElementById('page-kinerja');
     const pageKeuangan = document.getElementById('page-keuangan');
+    const pageSetting  = document.getElementById('page-setting');
 
     pageDaftar.style.display   = page === 'daftar'   ? 'block' : 'none';
     pageKalender.style.display = page === 'kalender' ? 'block' : 'none';
     pageKinerja.style.display  = page === 'kinerja'  ? 'block' : 'none';
     pageKeuangan.style.display = page === 'keuangan' ? 'block' : 'none';
+    pageSetting.style.display  = page === 'setting'  ? 'block' : 'none';
 
     if (page === 'kalender') renderCalendar();
     if (page === 'kinerja')  renderKinerja();
     if (page === 'keuangan') renderKeuangan();
+    if (page === 'setting')  renderSettingPaket();
 
     const sidebar = document.getElementById('sidebar');
     if (sidebar.classList.contains('open')) toggleSidebar();
@@ -3053,6 +3093,7 @@
     switchPage('dashboard');
     renderCalendar();
     loadBookings();
+    loadPakets();
   });
 
   /* ══════════════════════════════════════════════
@@ -3253,7 +3294,180 @@
     const tglMU    = fmtDate(b.tanggal).replace(/\s/g, '-');
     doc.save('Invoice_' + safeName + '_' + tglMU + '.pdf');
   }
+
+  /* ══════════════════════════════════════════════
+     SETTING — KELOLA PAKET (Google Sheet)
+  ══════════════════════════════════════════════ */
+
+  let allPakets = [];
+
+  function getPaketList() { return allPakets; }
+
+  async function loadPakets() {
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?action=getPakets');
+      const data = await res.json();
+      if (data.success) allPakets = data.pakets || [];
+    } catch (err) { console.error('Error loading pakets:', err); }
+  }
+
+  function syncPaketField() {
+    const sel   = document.getElementById('ef_paket_select');
+    const input = document.getElementById('ef_paket');
+    if (!sel || !input) return;
+    if (sel.value === '__manual__') {
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    } else if (sel.value === '') {
+      input.style.display = 'none';
+      input.value = '';
+    } else {
+      input.style.display = 'none';
+      input.value = sel.value;
+    }
+  }
+
+  function renderSettingPaket() {
+    const container = document.getElementById('settingPaketList');
+    if (!allPakets.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:48px 0;color:var(--text-secondary);">
+          <i class="ti ti-package-off" style="font-size:36px;display:block;margin-bottom:12px;opacity:.4;"></i>
+          Belum ada paket. Klik <strong>Tambah Paket</strong> untuk mulai.
+        </div>`;
+      return;
+    }
+    container.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1.5px solid var(--border);">
+            <th style="text-align:left;padding:10px 12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">Nama Paket</th>
+            <th style="text-align:right;padding:10px 12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">Harga / Orang</th>
+            <th style="padding:10px 12px;width:100px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${allPakets.map((p, i) => `
+            <tr style="border-bottom:1px solid var(--border);transition:background .15s;"
+                onmouseover="this.style.background='var(--bg-soft)'"
+                onmouseout="this.style.background=''">
+              <td style="padding:12px;font-size:14px;font-weight:500;">${p.nama}</td>
+              <td style="padding:12px;font-size:14px;color:var(--pink);text-align:right;font-weight:600;">
+                Rp ${Number(p.harga).toLocaleString('id-ID')}
+              </td>
+              <td style="padding:12px;text-align:right;">
+                <button onclick="openEditPaketModal(${i})"
+                  style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text-secondary);margin-right:4px;">
+                  <i class="ti ti-pencil"></i>
+                </button>
+                <button onclick="deletePaket(${i})"
+                  style="background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:#dc2626;">
+                  <i class="ti ti-trash"></i>
+                </button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  async function deletePaket(index) {
+    if (!confirm('Hapus paket ini?')) return;
+    const p = allPakets[index];
+    try {
+      const params = new URLSearchParams({ action: 'deletePaket', rowIndex: p._rowIndex });
+      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
+      const data = await res.json();
+      if (data.success) { allPakets.splice(index, 1); renderSettingPaket(); }
+      else alert('Gagal hapus: ' + data.message);
+    } catch (err) { alert('Error: ' + err.message); }
+  }
+
+  // ── Modal Tambah / Edit Paket ──
+  let editingPaketIndex = null;
+
+  function openAddPaketModal() {
+    editingPaketIndex = null;
+    document.getElementById('paketModalTitle').textContent = 'Tambah Paket';
+    document.getElementById('pmNama').value  = '';
+    document.getElementById('pmHarga').value = '';
+    document.getElementById('paketModal').style.display = 'flex';
+    document.getElementById('pmNama').focus();
+  }
+
+  function openEditPaketModal(index) {
+    const p = allPakets[index];
+    editingPaketIndex = index;
+    document.getElementById('paketModalTitle').textContent = 'Edit Paket';
+    document.getElementById('pmNama').value  = p.nama;
+    document.getElementById('pmHarga').value = Number(p.harga).toLocaleString('id-ID');
+    document.getElementById('paketModal').style.display = 'flex';
+    document.getElementById('pmNama').focus();
+  }
+
+  function closePaketModal() {
+    document.getElementById('paketModal').style.display = 'none';
+  }
+
+  async function savePaketModal() {
+    const nama  = document.getElementById('pmNama').value.trim();
+    const harga = parseInt(document.getElementById('pmHarga').value.replace(/\D/g, ''), 10);
+    if (!nama)              { alert('Nama paket wajib diisi.'); return; }
+    if (!harga || isNaN(harga)) { alert('Harga harus diisi dengan angka.'); return; }
+
+    const isEdit = editingPaketIndex !== null;
+    const params = new URLSearchParams({
+      action: isEdit ? 'updatePaket' : 'addPaket',
+      nama, harga,
+      ...(isEdit ? { rowIndex: allPakets[editingPaketIndex]._rowIndex } : {})
+    });
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
+      const data = await res.json();
+      if (data.success) { closePaketModal(); await loadPakets(); renderSettingPaket(); }
+      else alert('Gagal simpan: ' + data.message);
+    } catch (err) { alert('Error: ' + err.message); }
+  }
+
+  // Format input harga
+  document.addEventListener('DOMContentLoaded', () => {
+    const hargaInput = document.getElementById('pmHarga');
+    if (hargaInput) {
+      hargaInput.addEventListener('input', function() {
+        const raw = this.value.replace(/\D/g, '');
+        this.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+      });
+    }
+  });
 </script>
+
+<!-- Modal Paket Setting -->
+<div id="paketModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h3 id="paketModalTitle" style="font-size:16px;font-weight:600;">Tambah Paket</h3>
+      <button onclick="closePaketModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-secondary);line-height:1;">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Nama Paket</label>
+      <input id="pmNama" type="text" placeholder="Contoh: Engagement Hairdo"
+        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
+        onkeydown="if(event.key==='Enter') document.getElementById('pmHarga').focus()">
+    </div>
+    <div style="margin-bottom:24px;">
+      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Harga per Orang (Rp)</label>
+      <input id="pmHarga" type="text" inputmode="numeric" placeholder="Contoh: 850.000"
+        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
+        onkeydown="if(event.key==='Enter') savePaketModal()">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closePaketModal()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;">Batal</button>
+      <button onclick="savePaketModal()" style="padding:9px 20px;border:none;border-radius:8px;background:var(--pink);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Simpan</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
