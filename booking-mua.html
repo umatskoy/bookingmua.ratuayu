@@ -831,21 +831,58 @@
     const text = document.getElementById('waConfirmText').textContent;
     const btn  = document.getElementById('btnCopyWa');
     const lbl  = document.getElementById('copyBtnLabel');
-    navigator.clipboard.writeText(text).then(() => {
-      lbl.textContent = 'Tersalin! ✓';
-      btn.classList.add('copied');
-      setTimeout(() => { lbl.textContent = 'Salin Pesan'; btn.classList.remove('copied'); }, 2500);
-    }).catch(() => {
-      // Fallback untuk browser lama / iOS Safari
-      const ta = document.createElement('textarea');
-      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.focus(); ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      lbl.textContent = 'Tersalin! ✓';
-      btn.classList.add('copied');
-      setTimeout(() => { lbl.textContent = 'Salin Pesan'; btn.classList.remove('copied'); }, 2500);
-    });
+
+    // Coba Clipboard API dulu (butuh HTTPS)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        lbl.textContent = 'Tersalin! ✓';
+        btn.classList.add('copied');
+        setTimeout(() => { lbl.textContent = 'Salin Pesan'; btn.classList.remove('copied'); }, 2500);
+        return;
+      }).catch(() => fallbackCopy());
+    } else {
+      fallbackCopy();
+    }
+
+    function fallbackCopy() {
+      // Ganti <pre> jadi <textarea> agar bisa di-select native (iPhone/Android friendly)
+      const pre = document.getElementById('waConfirmText');
+      const ta  = document.createElement('textarea');
+      ta.id    = 'waConfirmText';
+      ta.value = text;
+      ta.style.cssText = `
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        line-height: 1.75;
+        color: #1a1a1a;
+        background: #fff;
+        border: 0.5px solid rgba(37,163,88,0.25);
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin: 0 0 12px;
+        width: 100%;
+        box-sizing: border-box;
+        resize: none;
+        min-height: 260px;
+        white-space: pre-wrap;
+      `;
+      ta.readOnly = false;
+      pre.parentNode.replaceChild(ta, pre);
+      ta.focus();
+      ta.select();
+      // iOS butuh setSelectionRange
+      ta.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+        lbl.textContent = 'Tersalin! ✓';
+        btn.classList.add('copied');
+        setTimeout(() => { lbl.textContent = 'Salin Pesan'; btn.classList.remove('copied'); }, 2500);
+      } catch (e) {
+        // Jika execCommand juga gagal, teks sudah terseleksi — user tinggal tap Copy
+        lbl.textContent = 'Pilih Semua lalu Salin';
+        btn.classList.add('copied');
+      }
+    }
   }
 
   /* ── EXPORT JPG ── */
