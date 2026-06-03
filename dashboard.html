@@ -1645,15 +1645,27 @@
 
   <!-- ── SETTING PAGE ── -->
   <div class="page-panel" id="page-setting" style="display:none;">
-    <div class="bookings-section">
+    <!-- Paket -->
+    <div class="bookings-section" style="margin-bottom:24px;">
       <div class="bookings-header">
         <h2><i class="ti ti-tag" style="color:var(--pink);font-size:16px;"></i> Pengaturan Paket</h2>
         <button class="btn-refresh" onclick="openAddPaketModal()">
           <i class="ti ti-plus"></i> Tambah Paket
         </button>
       </div>
-      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Daftar paket tersimpan di perangkat ini. Saat edit booking, paket dapat dipilih langsung dari dropdown.</p>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Data tersimpan di tab <strong>Paket</strong> kolom A–B. Tersinkron ke semua perangkat.</p>
       <div id="settingPaketList"></div>
+    </div>
+    <!-- Add On -->
+    <div class="bookings-section">
+      <div class="bookings-header">
+        <h2><i class="ti ti-sparkles" style="color:var(--pink);font-size:16px;"></i> Pengaturan Add On</h2>
+        <button class="btn-refresh" onclick="openAddAddonModal()">
+          <i class="ti ti-plus"></i> Tambah Add On
+        </button>
+      </div>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Data tersimpan di tab <strong>Paket</strong> kolom D–E. Di form edit booking, add on bisa dipilih lebih dari satu.</p>
+      <div id="settingAddonList"></div>
     </div>
   </div>
 
@@ -2394,7 +2406,36 @@
       </div>
       <div class="edit-field">
         <label>Add On</label>
-        <input type="text" id="ef_addon" value="${b.addon || ''}" placeholder="Tambahan layanan">
+        ${(() => {
+          if (!allAddOns.length) {
+            return `<input type="text" id="ef_addon" value="${b.addon || ''}" placeholder="Tambahan layanan (tambah di Pengaturan)">`;
+          }
+          // Parse add on yang sudah dipilih sebelumnya (format: "Nama – Rp harga x1, Nama2 – ...")
+          const currentAddon = b.addon || '';
+          const checkboxes = allAddOns.map((a, i) => {
+            const isChecked = currentAddon.includes(a.nama);
+            return `
+              <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:6px;font-size:13px;transition:background .15s;"
+                onmouseover="this.style.background='var(--bg-soft)'" onmouseout="this.style.background=''">
+                <input type="checkbox" value="${a.nama}" data-harga="${a.harga}" ${isChecked ? 'checked' : ''}
+                  onchange="syncAddonField()"
+                  style="accent-color:var(--pink);width:15px;height:15px;cursor:pointer;">
+                <span style="flex:1;">${a.nama}</span>
+                <span style="color:var(--pink);font-weight:600;">Rp ${Number(a.harga).toLocaleString('id-ID')}</span>
+              </label>`;
+          }).join('');
+          return `
+            <div id="ef_addon_checks">${checkboxes}</div>
+            <input type="hidden" id="ef_addon" value="${currentAddon}">
+            <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px dashed var(--border);border-radius:8px;cursor:pointer;margin-bottom:6px;font-size:13px;color:var(--text-secondary);">
+              <input type="checkbox" id="ef_addon_manual_toggle" onchange="toggleAddonManual()"
+                style="accent-color:var(--pink);width:15px;height:15px;cursor:pointer;">
+              <span>Ketik manual...</span>
+            </label>
+            <input type="text" id="ef_addon_manual" placeholder="Tambahan layanan manual"
+              style="display:none;width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;"
+              oninput="syncAddonField()">`;
+        })()}
       </div>
       <div class="edit-field">
         <label>Transport / Biaya Transport</label>
@@ -3094,6 +3135,7 @@
     renderCalendar();
     loadBookings();
     loadPakets();
+    loadAddOns();
   });
 
   /* ══════════════════════════════════════════════
@@ -3300,8 +3342,10 @@
   ══════════════════════════════════════════════ */
 
   let allPakets = [];
+  let allAddOns = [];
 
   function getPaketList() { return allPakets; }
+  function getAddOnList()  { return allAddOns; }
 
   async function loadPakets() {
     try {
@@ -3309,6 +3353,14 @@
       const data = await res.json();
       if (data.success) allPakets = data.pakets || [];
     } catch (err) { console.error('Error loading pakets:', err); }
+  }
+
+  async function loadAddOns() {
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?action=getAddOns');
+      const data = await res.json();
+      if (data.success) allAddOns = data.addons || [];
+    } catch (err) { console.error('Error loading addons:', err); }
   }
 
   function syncPaketField() {
@@ -3326,6 +3378,25 @@
       input.style.display = 'none';
       input.value = sel.value;
     }
+  }
+
+  function syncAddonField() {
+    const hidden = document.getElementById('ef_addon');
+    if (!hidden) return;
+    const checks = document.querySelectorAll('#ef_addon_checks input[type=checkbox]:checked');
+    const parts  = Array.from(checks).map(c => `${c.value} – Rp ${Number(c.dataset.harga).toLocaleString('id-ID')} x1`);
+    const manual = document.getElementById('ef_addon_manual');
+    if (manual && manual.value.trim()) parts.push(manual.value.trim());
+    hidden.value = parts.join(', ');
+  }
+
+  function toggleAddonManual() {
+    const toggle = document.getElementById('ef_addon_manual_toggle');
+    const input  = document.getElementById('ef_addon_manual');
+    if (!toggle || !input) return;
+    input.style.display = toggle.checked ? 'block' : 'none';
+    if (toggle.checked) input.focus();
+    syncAddonField();
   }
 
   function renderSettingPaket() {
@@ -3438,7 +3509,122 @@
         this.value = raw ? Number(raw).toLocaleString('id-ID') : '';
       });
     }
+    const addonHargaInput = document.getElementById('amHarga');
+    if (addonHargaInput) {
+      addonHargaInput.addEventListener('input', function() {
+        const raw = this.value.replace(/\D/g, '');
+        this.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+      });
+    }
   });
+
+  /* ── Render Setting Add On ── */
+  function renderSettingAddon() {
+    const container = document.getElementById('settingAddonList');
+    if (!allAddOns.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:48px 0;color:var(--text-secondary);">
+          <i class="ti ti-sparkles" style="font-size:36px;display:block;margin-bottom:12px;opacity:.4;"></i>
+          Belum ada add on. Klik <strong>Tambah Add On</strong> untuk mulai.
+        </div>`;
+      return;
+    }
+    container.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1.5px solid var(--border);">
+            <th style="text-align:left;padding:10px 12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">Nama Add On</th>
+            <th style="text-align:right;padding:10px 12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">Harga</th>
+            <th style="padding:10px 12px;width:100px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${allAddOns.map((a, i) => `
+            <tr style="border-bottom:1px solid var(--border);transition:background .15s;"
+                onmouseover="this.style.background='var(--bg-soft)'"
+                onmouseout="this.style.background=''">
+              <td style="padding:12px;font-size:14px;font-weight:500;">${a.nama}</td>
+              <td style="padding:12px;font-size:14px;color:var(--pink);text-align:right;font-weight:600;">
+                Rp ${Number(a.harga).toLocaleString('id-ID')}
+              </td>
+              <td style="padding:12px;text-align:right;">
+                <button onclick="openEditAddonModal(${i})"
+                  style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text-secondary);margin-right:4px;">
+                  <i class="ti ti-pencil"></i>
+                </button>
+                <button onclick="deleteAddon(${i})"
+                  style="background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:#dc2626;">
+                  <i class="ti ti-trash"></i>
+                </button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  async function deleteAddon(index) {
+    if (!confirm('Hapus add on ini?')) return;
+    const a = allAddOns[index];
+    try {
+      const params = new URLSearchParams({ action: 'deleteAddOn', rowIndex: a._rowIndex });
+      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
+      const data = await res.json();
+      if (data.success) { allAddOns.splice(index, 1); renderSettingAddon(); }
+      else alert('Gagal hapus: ' + data.message);
+    } catch (err) { alert('Error: ' + err.message); }
+  }
+
+  let editingAddonIndex = null;
+
+  function openAddAddonModal() {
+    editingAddonIndex = null;
+    document.getElementById('addonModalTitle').textContent = 'Tambah Add On';
+    document.getElementById('amNama').value  = '';
+    document.getElementById('amHarga').value = '';
+    document.getElementById('addonModal').style.display = 'flex';
+    document.getElementById('amNama').focus();
+  }
+
+  function openEditAddonModal(index) {
+    const a = allAddOns[index];
+    editingAddonIndex = index;
+    document.getElementById('addonModalTitle').textContent = 'Edit Add On';
+    document.getElementById('amNama').value  = a.nama;
+    document.getElementById('amHarga').value = Number(a.harga).toLocaleString('id-ID');
+    document.getElementById('addonModal').style.display = 'flex';
+    document.getElementById('amNama').focus();
+  }
+
+  function closeAddonModal() {
+    document.getElementById('addonModal').style.display = 'none';
+  }
+
+  async function saveAddonModal() {
+    const nama  = document.getElementById('amNama').value.trim();
+    const harga = parseInt(document.getElementById('amHarga').value.replace(/\D/g, ''), 10);
+    if (!nama)              { alert('Nama add on wajib diisi.'); return; }
+    if (!harga || isNaN(harga)) { alert('Harga harus diisi dengan angka.'); return; }
+
+    const isEdit = editingAddonIndex !== null;
+    const params = new URLSearchParams({
+      action: isEdit ? 'updateAddOn' : 'addAddOn',
+      nama, harga,
+      ...(isEdit ? { rowIndex: allAddOns[editingAddonIndex]._rowIndex } : {})
+    });
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
+      const data = await res.json();
+      if (data.success) { closeAddonModal(); await loadAddOns(); renderSettingAddon(); }
+      else alert('Gagal simpan: ' + data.message);
+    } catch (err) { alert('Error: ' + err.message); }
+  }
+
+  /* ── Patch renderSettingPaket untuk juga render addon ── */
+  const _origRenderSettingPaket = renderSettingPaket;
+  function renderSettingPaket() {
+    _origRenderSettingPaket();
+    renderSettingAddon();
+  }
 </script>
 
 <!-- Modal Paket Setting -->
@@ -3465,6 +3651,34 @@
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button onclick="closePaketModal()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;">Batal</button>
       <button onclick="savePaketModal()" style="padding:9px 20px;border:none;border-radius:8px;background:var(--pink);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add On Setting -->
+<div id="addonModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h3 id="addonModalTitle" style="font-size:16px;font-weight:600;">Tambah Add On</h3>
+      <button onclick="closeAddonModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-secondary);line-height:1;">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Nama Add On</label>
+      <input id="amNama" type="text" placeholder="Contoh: Hairdo"
+        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
+        onkeydown="if(event.key==='Enter') document.getElementById('amHarga').focus()">
+    </div>
+    <div style="margin-bottom:24px;">
+      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Harga (Rp)</label>
+      <input id="amHarga" type="text" inputmode="numeric" placeholder="Contoh: 150.000"
+        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
+        onkeydown="if(event.key==='Enter') saveAddonModal()">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeAddonModal()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;">Batal</button>
+      <button onclick="saveAddonModal()" style="padding:9px 20px;border:none;border-radius:8px;background:var(--pink);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Simpan</button>
     </div>
   </div>
 </div>
