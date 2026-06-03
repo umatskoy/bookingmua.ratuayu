@@ -1804,7 +1804,7 @@
       dp:              pick('dp', 'down_payment', 'DP', 'uang_muka'),
       transport_biaya: pick('transport_biaya', 'transport biaya', 'Transport Biaya', 'transport', 'biaya_transport'),
       bukti:           pick('bukti', 'bukti_transfer', 'Bukti Transfer', 'bukti transfer'),
-      status:          pick('status', 'Status') || 'pending',
+      status:          pick('status', 'Status') || 'dp',
       mua_bertugas:    pick('mua_bertugas', 'mua bertugas', 'MUA Bertugas', 'mua', 'MUA', 'tim_mua', 'tim mua'),
       mua_bertugas_2:  pick('mua_bertugas_2', 'mua bertugas 2', 'MUA Bertugas 2', 'mua2', 'MUA 2'),
       hijab_stylist:   pick('hijab_stylist', 'hijab stylist', 'Hijab Stylist', 'hijab'),
@@ -2389,8 +2389,8 @@
       <div class="edit-field">
         <label>Status</label>
         <select id="ef_status">
-          <option value="pending"   ${(b.status || 'pending') === 'pending'   ? 'selected' : ''}>Perlu Update Data</option>
-          <option value="dp"        ${b.status === 'dp'        ? 'selected' : ''}>DP</option>
+          <option value="pending"   ${b.status === 'pending'   ? 'selected' : ''}>Perlu Update Data</option>
+          <option value="dp"        ${(b.status || 'dp') === 'dp' ? 'selected' : ''}>DP</option>
           <option value="confirmed" ${b.status === 'confirmed' ? 'selected' : ''}>Butuh Team</option>
           <option value="lunas"     ${b.status === 'lunas'     ? 'selected' : ''}>Lunas</option>
         </select>
