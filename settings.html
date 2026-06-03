@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settings – Ratu Ayu MUA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --pink: #D4537E;
+    --pink-light: #fdf0f4;
+    --pink-mid: #f7d6e2;
+    --text: #1a1a1a;
+    --text-secondary: #888;
+    --border: #e8e0e4;
+    --bg: #faf8f9;
+    --white: #ffffff;
+    --green: #3dab7a;
+    --red: #e05252;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-brand { display: flex; align-items: center; gap: 12px; }
+  .header-brand .logo { width: 36px; height: 36px; background: var(--pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .header-brand .logo svg { width: 18px; height: 18px; fill: white; }
+  .header-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--text); }
+  .header-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+  .btn-save-all {
+    background: var(--pink);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-save-all:hover { background: #c0426d; }
+  .btn-save-all:active { transform: scale(0.98); }
+  .btn-save-all:disabled { background: #e0b0c0; cursor: not-allowed; }
+
+  /* MAIN */
+  .main { max-width: 900px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; gap: 32px; }
+
+  /* CARD */
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .card-head {
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-head-left { display: flex; align-items: center; gap: 10px; }
+  .card-head-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--pink-light); display: flex; align-items: center; justify-content: center; }
+  .card-head-icon svg { width: 16px; height: 16px; stroke: var(--pink); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .card-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; }
+  .card-count { font-size: 12px; color: var(--text-secondary); background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px; }
+
+  .btn-add {
+    background: transparent;
+    border: 1.5px dashed var(--pink);
+    color: var(--pink);
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.15s;
+  }
+  .btn-add:hover { background: var(--pink-light); }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--bg); }
+  th {
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th:last-child { text-align: center; width: 60px; }
+  td { padding: 10px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fdf8fa; }
+
+  /* INPUTS inside table */
+  .td-input {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--text);
+    padding: 5px 8px;
+    border-radius: 6px;
+    transition: border 0.15s, background 0.15s;
+    outline: none;
+  }
+  .td-input:hover { border-color: var(--border); background: var(--white); }
+  .td-input:focus { border-color: var(--pink); background: var(--white); box-shadow: 0 0 0 3px rgba(212,83,126,0.08); }
+  .td-input.harga { font-variant-numeric: tabular-nums; }
+
+  .td-harga-wrap { display: flex; align-items: center; gap: 4px; }
+  .td-harga-prefix { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+
+  /* DELETE btn */
+  .btn-del {
+    background: none; border: none; cursor: pointer;
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #ccc;
+    transition: color 0.15s, background 0.15s;
+    margin: 0 auto;
+  }
+  .btn-del:hover { color: var(--red); background: #fdf0f0; }
+  .btn-del svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* DRAG handle */
+  .drag-handle { cursor: grab; color: #ddd; display: flex; align-items: center; }
+  .drag-handle:active { cursor: grabbing; }
+  .drag-handle svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+  tr.dragging { opacity: 0.4; }
+  tr.drag-over td { background: var(--pink-light); }
+
+  /* STATUS BAR */
+  .status-bar {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: white;
+    padding: 12px 24px; border-radius: 30px;
+    font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 999;
+  }
+  .status-bar.show { opacity: 1; pointer-events: auto; }
+  .status-bar.success { background: var(--green); }
+  .status-bar.error { background: var(--red); }
+  .status-bar svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  /* EMPTY STATE */
+  .empty-row td { text-align: center; padding: 32px; color: var(--text-secondary); font-size: 13px; font-style: italic; }
+
+  /* LOADING overlay */
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(255,255,255,0.75);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .loading-overlay.show { opacity: 1; pointer-events: auto; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--pink-mid);
+    border-top-color: var(--pink);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .header { padding: 14px 16px; }
+    .main { padding: 20px 12px; }
+    .card-head { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+    td, th { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+    </div>
+    <div>
+      <div class="header-title">Settings — Ratu Ayu MUA</div>
+      <div class="header-sub">Kelola paket & add on tanpa ubah kode</div>
+    </div>
+  </div>
+  <button class="btn-save-all" id="btn-save" onclick="saveAll()">
+    <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    Simpan ke Google Sheet
+  </button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- PAKET CARD -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-head-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Paket Make Up</div>
+        </div>
+        <span class="card-count" id="paket-count">0 item</span>
+      </div>
+      <button class="btn-add" onclick="addPaketRow()">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Tambah Paket
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:32px;"></th>
+            <th>Nama Paket</th>
+            <th style="width:200px;">Harga (Rp)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="paket-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADDON CARD -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-head-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Add On</div>
+        </div>
+        <span class="card-count" id="addon-count">0 item</span>
+      </div>
+      <button class="btn-add" onclick="addAddonRow()">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Tambah Add On
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:32px;"></th>
+            <th>Nama Add On</th>
+            <th style="width:200px;">Harga (Rp)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="addon-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar" id="status-bar">
+  <svg id="status-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="status-msg">Tersimpan!</span>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<script>
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzW4Rs9Uc7psMTYJgKSRXnE_lWb8rKtJ1IxV4z_-D9R5tiZ4OoAYDAsIRxyd1hOc7NSAQ/exec';
+
+  // ── DEFAULT DATA (fallback jika Sheet kosong) ──
+  const DEFAULT_PAKET = [
+    { nama: 'Wedding Silver',               harga: 3500000 },
+    { nama: 'Wedding Gold',                 harga: 5500000 },
+    { nama: 'Wedding Platinum',             harga: 6500000 },
+    { nama: 'Wedding Diamond',              harga: 10000000 },
+    { nama: 'Engagement Hairdo',            harga: 850000 },
+    { nama: 'Engagement Hijab',             harga: 800000 },
+    { nama: 'Prewedd Hairdo',               harga: 850000 },
+    { nama: 'Prewedd Hijab',                harga: 800000 },
+    { nama: 'Reguler Owner Hijab',          harga: 600000 },
+    { nama: 'Reguler Owner Hairdo',         harga: 700000 },
+    { nama: 'Self Makeup Class',            harga: 850000 },
+    { nama: 'Pro Class Basic/Wedding',      harga: 2500000 },
+    { nama: 'Exclusive Private Makeup Class', harga: 4500000 },
+  ];
+
+  const DEFAULT_ADDON = [
+    { nama: 'Hairdo',                                       harga: 150000 },
+    { nama: 'Hijab Stylist',                                harga: 100000 },
+    { nama: 'Softlens',                                     harga: 100000 },
+    { nama: 'Hijab by MUA',                                 harga: 0 },
+    { nama: 'Softlens Minus',                               harga: 125000 },
+    { nama: 'Gaun Private Class 1 Hari',                    harga: 100000 },
+    { nama: 'Gaun Private Class 2 Hari',                    harga: 200000 },
+    { nama: 'FG Private Class 1 Hari',                      harga: 100000 },
+    { nama: 'FG Private Class 2 Hari',                      harga: 200000 },
+    { nama: 'Attire Bahan Bludru/Ekor Panjang',             harga: 500000 },
+    { nama: 'Pemasangan Jarik/Attire Wedding 2 Orang',      harga: 200000 },
+  ];
+
+  // ── STATE ──
+  let paketData = [];
+  let addonData = [];
+  let dragSrc = null;
+
+  // ── INIT ──
+  async function init() {
+    showLoading(true);
+    try {
+      const res = await fetch(GAS_URL + '?action=getSettings');
+      const json = await res.json();
+      paketData = (json.paket && json.paket.length > 0) ? json.paket : DEFAULT_PAKET;
+      addonData = (json.addon && json.addon.length > 0) ? json.addon : DEFAULT_ADDON;
+    } catch(e) {
+      paketData = [...DEFAULT_PAKET];
+      addonData = [...DEFAULT_ADDON];
+      showStatus('Gagal load dari Sheet, menampilkan data default', 'error');
+    }
+    renderPaket();
+    renderAddon();
+    showLoading(false);
+  }
+
+  // ── RENDER ──
+  function renderPaket() {
+    const tbody = document.getElementById('paket-tbody');
+    tbody.innerHTML = '';
+    if (paketData.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Belum ada paket. Klik "+ Tambah Paket"</td></tr>';
+    } else {
+      paketData.forEach((p, i) => tbody.appendChild(makeRow('paket', i, p)));
+    }
+    document.getElementById('paket-count').textContent = paketData.length + ' item';
+  }
+
+  function renderAddon() {
+    const tbody = document.getElementById('addon-tbody');
+    tbody.innerHTML = '';
+    if (addonData.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Belum ada add on. Klik "+ Tambah Add On"</td></tr>';
+    } else {
+      addonData.forEach((a, i) => tbody.appendChild(makeRow('addon', i, a)));
+    }
+    document.getElementById('addon-count').textContent = addonData.length + ' item';
+  }
+
+  function makeRow(type, idx, item) {
+    const tr = document.createElement('tr');
+    tr.dataset.type = type;
+    tr.dataset.idx = idx;
+    tr.draggable = true;
+
+    tr.innerHTML = `
+      <td>
+        <div class="drag-handle" title="Drag untuk urutkan">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+      </td>
+      <td>
+        <input class="td-input" type="text" value="${escHtml(item.nama)}"
+          placeholder="Nama ${type === 'paket' ? 'paket' : 'add on'}"
+          oninput="updateData('${type}', ${idx}, 'nama', this.value)" />
+      </td>
+      <td>
+        <div class="td-harga-wrap">
+          <span class="td-harga-prefix">Rp</span>
+          <input class="td-input harga" type="number" min="0" step="1000" value="${item.harga}"
+            placeholder="0"
+            oninput="updateData('${type}', ${idx}, 'harga', parseInt(this.value)||0)" />
+        </div>
+      </td>
+      <td>
+        <button class="btn-del" title="Hapus" onclick="deleteRow('${type}', ${idx})">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </td>
+    `;
+
+    // drag events
+    tr.addEventListener('dragstart', e => { dragSrc = tr; tr.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    tr.addEventListener('dragend', () => { tr.classList.remove('dragging'); document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over')); });
+    tr.addEventListener('dragover', e => { e.preventDefault(); tr.classList.add('drag-over'); });
+    tr.addEventListener('dragleave', () => tr.classList.remove('drag-over'));
+    tr.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragSrc && dragSrc !== tr && dragSrc.dataset.type === tr.dataset.type) {
+        const arr = type === 'paket' ? paketData : addonData;
+        const from = parseInt(dragSrc.dataset.idx);
+        const to = parseInt(tr.dataset.idx);
+        const [moved] = arr.splice(from, 1);
+        arr.splice(to, 0, moved);
+        type === 'paket' ? renderPaket() : renderAddon();
+      }
+    });
+
+    return tr;
+  }
+
+  // ── CRUD ──
+  function updateData(type, idx, field, val) {
+    const arr = type === 'paket' ? paketData : addonData;
+    arr[idx][field] = val;
+  }
+
+  function deleteRow(type, idx) {
+    if (!confirm('Hapus item ini?')) return;
+    const arr = type === 'paket' ? paketData : addonData;
+    arr.splice(idx, 1);
+    type === 'paket' ? renderPaket() : renderAddon();
+  }
+
+  function addPaketRow() {
+    paketData.push({ nama: '', harga: 0 });
+    renderPaket();
+    // focus last input
+    const rows = document.querySelectorAll('#paket-tbody tr');
+    const last = rows[rows.length - 1];
+    if (last) last.querySelector('input')?.focus();
+  }
+
+  function addAddonRow() {
+    addonData.push({ nama: '', harga: 0 });
+    renderAddon();
+    const rows = document.querySelectorAll('#addon-tbody tr');
+    const last = rows[rows.length - 1];
+    if (last) last.querySelector('input')?.focus();
+  }
+
+  // ── SAVE ──
+  async function saveAll() {
+    // Validasi
+    const emptyPaket = paketData.some(p => !p.nama.trim());
+    const emptyAddon = addonData.some(a => !a.nama.trim());
+    if (emptyPaket || emptyAddon) {
+      showStatus('Ada nama yang masih kosong, harap isi dulu', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btn-save');
+    btn.disabled = true;
+    showLoading(true);
+
+    try {
+      const res = await fetch(GAS_URL + '?action=saveSettings', {
+        method: 'POST',
+        body: JSON.stringify({ paket: paketData, addon: addonData })
+      });
+      const json = await res.json();
+      if (json.success) {
+        showStatus('✓ Tersimpan ke Google Sheet!', 'success');
+      } else {
+        showStatus('Gagal simpan: ' + (json.error || 'unknown'), 'error');
+      }
+    } catch(e) {
+      showStatus('Gagal koneksi ke Google Sheet', 'error');
+    }
+
+    btn.disabled = false;
+    showLoading(false);
+  }
+
+  // ── UI HELPERS ──
+  function showLoading(v) { document.getElementById('loading').classList.toggle('show', v); }
+
+  let statusTimer;
+  function showStatus(msg, type = 'success') {
+    const bar = document.getElementById('status-bar');
+    const icon = document.getElementById('status-icon');
+    document.getElementById('status-msg').textContent = msg;
+    bar.className = 'status-bar show ' + type;
+    icon.innerHTML = type === 'success'
+      ? '<polyline points="20 6 9 17 4 12"/>'
+      : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => bar.classList.remove('show'), 4000);
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  init();
+</script>
+</body>
+</html>
