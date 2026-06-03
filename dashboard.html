@@ -1484,12 +1484,6 @@
             <option value="">Semua Paket</option>
           </select>
         </div>
-        <div class="filter-group" id="filterGroupMUA">
-          <label for="filterMUA">MUA:</label>
-          <select id="filterMUA" onchange="filterBookings()">
-            <option value="">Semua MUA</option>
-          </select>
-        </div>
         <div class="filter-group" id="filterGroupStatus">
           <label for="filterStatus">Status:</label>
           <select id="filterStatus" onchange="filterBookings()">
@@ -1839,7 +1833,6 @@
         console.log('[Dashboard] Normalized sample:', allBookings[0]);
         populateMonthFilter();
         populatePaketFilter();
-        populateMUAFilter();
         populateKeuanganFilter();
         filterBookings();
         if (currentPage === 'kinerja') renderKinerja();
@@ -1918,7 +1911,6 @@
     const monthFilter  = document.getElementById('filterMonth').value;
     const statusFilter = document.getElementById('filterStatus').value;
     const paketFilter  = document.getElementById('filterPaket').value;
-    const muaFilter    = document.getElementById('filterMUA').value;
 
     filteredBookings = allBookings.filter(b => {
       let match = true;
@@ -1938,10 +1930,6 @@
       if (paketFilter) {
         const namaPaket = (b.paket || '').split('–')[0].split('|')[0].trim();
         match = match && namaPaket === paketFilter;
-      }
-
-      if (muaFilter) {
-        match = match && (b.mua_bertugas === muaFilter || b.mua_bertugas_2 === muaFilter);
       }
 
       return match;
@@ -2759,12 +2747,10 @@
     const fg2 = document.getElementById('filterGroupStatus');
     const fg3 = document.getElementById('filterGroupPaket');
     const fg4 = document.getElementById('filterGroupKeuanganBulan');
-    const fg5 = document.getElementById('filterGroupMUA');
     fg1.style.display = page === 'daftar'   ? '' : 'none';
     fg2.style.display = page === 'daftar'   ? '' : 'none';
     fg3.style.display = page === 'daftar'   ? '' : 'none';
     fg4.style.display = page === 'keuangan' ? '' : 'none';
-    fg5.style.display = page === 'daftar'   ? '' : 'none';
 
     const pageDaftar   = document.getElementById('page-daftar');
     const pageKalender = document.getElementById('page-kalender');
@@ -2905,21 +2891,7 @@
   /* ══════════════════════════════════════════════
      KEUANGAN
   ══════════════════════════════════════════════ */
-  function populateMUAFilter() {
-    const sel = document.getElementById('filterMUA');
-    // Reset dan isi ulang dari data terkini
-    sel.innerHTML = '<option value="">Semua MUA</option>';
-    const muaSet = new Set();
-    allBookings.forEach(b => {
-      if (b.mua_bertugas)   muaSet.add(b.mua_bertugas.trim());
-      if (b.mua_bertugas_2) muaSet.add(b.mua_bertugas_2.trim());
-    });
-    Array.from(muaSet).sort().forEach(nama => {
-      const opt = document.createElement('option');
-      opt.value = nama; opt.textContent = nama;
-      sel.appendChild(opt);
-    });
-  }
+  function populateKeuanganFilter() {
     const sel = document.getElementById('filterKeuanganBulan');
     const existing = new Set(Array.from(sel.options).map(o => o.value).filter(Boolean));
     const months = new Set();
