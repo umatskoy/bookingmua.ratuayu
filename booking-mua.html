@@ -134,6 +134,37 @@
 
     .error-msg { display: none; grid-column: 1 / -1; background: rgba(163,45,45,0.07); border: 0.5px solid rgba(163,45,45,0.25); border-radius: 10px; padding: 1rem 1.25rem; text-align: center; color: #7a1f1f; font-size: 13px; line-height: 1.6; }
 
+    /* Kotak konfirmasi WA */
+    .wa-confirm-box {
+      display: none;
+      grid-column: 1 / -1;
+      background: #f0faf2;
+      border: 0.5px solid rgba(37,163,88,0.3);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-top: 4px;
+    }
+    .wa-confirm-box .wc-title {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #1a7a3a; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .wa-confirm-box .wc-title i { font-size: 15px; }
+    .wa-confirm-box pre {
+      font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.75;
+      color: #1a1a1a; white-space: pre-wrap; word-break: break-word;
+      background: #fff; border: 0.5px solid rgba(37,163,88,0.25);
+      border-radius: 8px; padding: 12px 14px; margin: 0 0 12px;
+      user-select: all;
+    }
+    .btn-copy-wa {
+      width: 100%; padding: 11px; font-family: 'DM Sans', sans-serif; font-size: 13.5px;
+      font-weight: 500; color: #fff; background: #25a858; border: none; border-radius: 8px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: background 0.15s;
+    }
+    .btn-copy-wa:hover { background: #1e9049; }
+    .btn-copy-wa.copied { background: #1a7a3a; }
+
     .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -370,6 +401,15 @@
         <i class="ti ti-circle-check" aria-hidden="true"></i>
         <strong>Booking berhasil dikirim! 🌸</strong>
         <p>Terima kasih telah booking. Kami akan konfirmasi melalui WhatsApp dalam 1×24 jam.</p>
+      </div>
+
+      <div class="wa-confirm-box" id="waConfirmBox">
+        <div class="wc-title"><i class="ti ti-brand-whatsapp"></i> Salin & kirim ke WhatsApp Admin</div>
+        <pre id="waConfirmText"></pre>
+        <button type="button" class="btn-copy-wa" id="btnCopyWa" onclick="copyWaText()">
+          <i class="ti ti-copy"></i>
+          <span id="copyBtnLabel">Salin Pesan</span>
+        </button>
       </div>
 
       <div class="submit-row">
@@ -719,10 +759,59 @@
       const result = await res.json();
 
       if (result.success) {
+        // Bangun teks konfirmasi WA
+        const namaTxt    = form.nama.value.trim() || '-';
+        const waTxt      = form.wa.value.trim() || '-';
+        const tglRaw     = form.tanggal.value || '-';
+        const lokasiTxt  = form.lokasi.value.trim() || '-';
+        const dpTxt      = form.dp.value.trim();
+
+        // Format tanggal → "Sabtu, 7 Juni 2026"
+        let tglFmt = tglRaw;
+        if (tglRaw && tglRaw !== '-') {
+          const d = new Date(tglRaw + 'T00:00:00');
+          tglFmt = d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+        }
+
+        // Paket list
+        const paketLines = paketRows
+          .filter(r => r.value)
+          .map(r => {
+            const opt = PAKET_OPTIONS.find(o => o.value === r.value);
+            return opt ? `  • ${opt.value} (${r.jumlah} orang)` : '';
+          }).filter(Boolean).join('\n') || '  -';
+
+        // Add-on list
+        const addonLines = addonRows.length
+          ? addonRows.filter(r => r.value).map(r => {
+              const opt = ADDON_OPTIONS.find(o => o.value === r.value);
+              return opt ? `  • ${opt.value} ×${r.jumlah}` : '';
+            }).filter(Boolean).join('\n')
+          : '';
+
+        const subtotalTxt  = document.getElementById('gs-subtotal')?.textContent || '-';
+        const sisaBayarTxt = document.getElementById('gs-grand-total')?.textContent || '-';
+        const dpFmt        = dpTxt ? 'Rp ' + Number(dpTxt.replace(/\D/g,'')).toLocaleString('id-ID') : '-';
+
+        let msg = `BOOKING RATU AYU MUA\n`;
+        msg += `Halo Admin, saya ingin konfirmasi booking:\n\n`;
+        msg += `Nama        : ${namaTxt}\n`;
+        msg += `WhatsApp    : ${waTxt}\n`;
+        msg += `Tanggal     : ${tglFmt}\n`;
+        msg += `Lokasi      : ${lokasiTxt}\n`;
+        msg += `\nPaket:\n${paketLines}\n`;
+        if (addonLines) msg += `\nAdd-on:\n${addonLines}\n`;
+        msg += `\nTotal       : ${subtotalTxt}\n`;
+        msg += `DP          : ${dpFmt}\n`;
+        msg += `Sisa Bayar  : ${sisaBayarTxt}`;
+
+        document.getElementById('waConfirmText').textContent = msg;
+        document.getElementById('waConfirmBox').style.display = 'block';
+
         successMsg.style.display = 'block';
         btn.style.display = 'none';
         form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-        successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+        document.getElementById('waConfirmBox').scrollIntoView({ behavior:'smooth', block:'center' });
       } else {
         throw new Error(result.message || 'Respons gagal dari server');
       }
@@ -736,6 +825,28 @@
   document.querySelectorAll('input, select').forEach(el => {
     el.addEventListener('input', () => { el.style.borderColor = ''; });
   });
+
+  /* ── SALIN TEKS WA ── */
+  function copyWaText() {
+    const text = document.getElementById('waConfirmText').textContent;
+    const btn  = document.getElementById('btnCopyWa');
+    const lbl  = document.getElementById('copyBtnLabel');
+    navigator.clipboard.writeText(text).then(() => {
+      lbl.textContent = 'Tersalin! ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { lbl.textContent = 'Salin Pesan'; btn.classList.remove('copied'); }, 2500);
+    }).catch(() => {
+      // Fallback untuk browser lama / iOS Safari
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      lbl.textContent = 'Tersalin! ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { lbl.textContent = 'Salin Pesan'; btn.classList.remove('copied'); }, 2500);
+    });
+  }
 
   /* ── EXPORT JPG ── */
   function exportJPG() {
