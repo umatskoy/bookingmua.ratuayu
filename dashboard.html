@@ -357,6 +357,18 @@
       border: 0.5px solid var(--success-border);
     }
 
+    .status-dp {
+      background: rgba(37,99,235,0.1);
+      color: #2563eb;
+      border: 0.5px solid rgba(37,99,235,0.3);
+    }
+
+    .status-lunas {
+      background: rgba(45,90,10,0.08);
+      color: #2d5a0a;
+      border: 0.5px solid rgba(45,90,10,0.3);
+    }
+
     /* ── MAIN CONTENT ── */
     .dashboard-main {
       max-width: 1400px;
@@ -1477,8 +1489,10 @@
           <label for="filterStatus">Status:</label>
           <select id="filterStatus" onchange="filterBookings()">
             <option value="">Semua Status</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
+            <option value="pending">Perlu Update Data</option>
+            <option value="dp">DP</option>
+            <option value="confirmed">Butuh Team</option>
+            <option value="lunas">Lunas</option>
           </select>
         </div>
         <div class="filter-group" id="filterGroupKeuanganBulan">
@@ -1561,8 +1575,8 @@
         <div class="calendar-grid" id="calGrid"></div>
         <div class="calendar-legend">
           <div class="legend-item"><span class="legend-dot" style="background:var(--pink);"></span>Hari ini</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>Pending</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#2d5a0a;"></span>Confirmed</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>Perlu Update Data</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#2d5a0a;"></span>Butuh Team</div>
           <div class="legend-item"><span class="legend-dot" style="background:rgba(212,83,126,0.15); border:1px solid rgba(212,83,126,0.3); border-radius:50%;"></span>Ada Booking</div>
         </div>
       </div>
@@ -1992,8 +2006,8 @@
 
     filteredBookings.forEach(booking => {
       const status = booking.status || 'pending';
-      const statusClass = status === 'confirmed' ? 'status-confirmed' : 'status-pending';
-      const statusText = status === 'confirmed' ? 'Confirmed' : 'Pending';
+      const statusClass = status === 'confirmed' ? 'status-confirmed' : status === 'dp' ? 'status-dp' : status === 'lunas' ? 'status-lunas' : 'status-pending';
+      const statusText = status === 'confirmed' ? 'Butuh Team' : status === 'dp' ? 'DP' : status === 'lunas' ? 'Lunas' : 'Perlu Update Data';
 
       const total = parseRp(booking.subtotal);
       const dp = parseRp(booking.dp);
@@ -2117,8 +2131,8 @@
     const sisa = total - dp;
 
     const status = booking.status || 'pending';
-    const statusClass = status === 'confirmed' ? 'status-confirmed' : 'status-pending';
-    const statusText = status === 'confirmed' ? 'Confirmed' : 'Pending';
+    const statusClass = status === 'confirmed' ? 'status-confirmed' : status === 'dp' ? 'status-dp' : status === 'lunas' ? 'status-lunas' : 'status-pending';
+    const statusText = status === 'confirmed' ? 'Butuh Team' : status === 'dp' ? 'DP' : status === 'lunas' ? 'Lunas' : 'Perlu Update Data';
 
     let html = `
       <div class="detail-section">
@@ -2364,8 +2378,10 @@
       <div class="edit-field">
         <label>Status</label>
         <select id="ef_status">
-          <option value="pending" ${(b.status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
-          <option value="confirmed" ${b.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+          <option value="pending"   ${(b.status || 'pending') === 'pending'   ? 'selected' : ''}>Perlu Update Data</option>
+          <option value="dp"        ${b.status === 'dp'        ? 'selected' : ''}>DP</option>
+          <option value="confirmed" ${b.status === 'confirmed' ? 'selected' : ''}>Butuh Team</option>
+          <option value="lunas"     ${b.status === 'lunas'     ? 'selected' : ''}>Lunas</option>
         </select>
       </div>
     `;
@@ -2598,7 +2614,7 @@
       <div class="cal-popover-item">
         <span class="cal-popover-name">${b.nama || 'Tanpa Nama'}</span>
         <span class="cal-popover-status">
-          <span class="status-badge status-${b.status}">${b.status === 'confirmed' ? 'Confirmed' : 'Pending'}</span>
+          <span class="status-badge status-${b.status}">${b.status === 'confirmed' ? 'Butuh Team' : b.status === 'dp' ? 'DP' : b.status === 'lunas' ? 'Lunas' : 'Perlu Update Data'}</span>
         </span>
       </div>`).join('');
 
@@ -2673,7 +2689,7 @@
           <td class="price-col">${fmtRp(total)}</td>
           <td>${fmtRp(dp)}</td>
           <td>${sisa > 0 ? '<span style="color:var(--pink);font-weight:600;">'+fmtRp(sisa)+'</span>' : '<span style="color:#2d5a0a;font-weight:600;">Lunas</span>'}</td>
-          <td><span class="status-badge status-${status}">${status === 'confirmed' ? 'Confirmed' : 'Pending'}</span></td>
+          <td><span class="status-badge status-${status}">${status === 'confirmed' ? 'Butuh Team' : status === 'dp' ? 'DP' : status === 'lunas' ? 'Lunas' : 'Perlu Update Data'}</span></td>
         </tr>`;
       }).join('');
 
@@ -2981,7 +2997,7 @@
         <td class="price-col">${fmtRp(total)}</td>
         <td class="price-col">${fmtRp(dp)}</td>
         <td class="price-col">${sisaHtml}</td>
-        <td><span class="status-badge status-${status}">${status === 'confirmed' ? 'Confirmed' : 'Pending'}</span></td>
+        <td><span class="status-badge status-${status}">${status === 'confirmed' ? 'Butuh Team' : status === 'dp' ? 'DP' : status === 'lunas' ? 'Lunas' : 'Perlu Update Data'}</span></td>
       </tr>`;
     }).join('');
 
