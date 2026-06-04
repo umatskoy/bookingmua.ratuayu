@@ -2058,7 +2058,7 @@
         <td class="name-col">${booking.nama || '-'}</td>
         <td class="paket-col">${booking.paket ? booking.paket.split('|')[0].trim() : '-'}</td>
         <td class="date-col">${fmtDate(booking.tanggal)}</td>
-        <td style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">${booking.jam_selesai || '—'}</td>
+        <td style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">${fmtTime(booking.jam_selesai) !== '-' ? fmtTime(booking.jam_selesai) : '—'}</td>
         <td style="font-size:13px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${booking.lokasi || ''}">${booking.lokasi || '—'}</td>
         <td>${muaLabel}</td>
         <td>${hijabLabel}</td>
