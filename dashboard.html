@@ -1855,7 +1855,7 @@
     };
   }
 
-  /* ── Load Bookings ── */
+  /* ── Load All (satu request: bookings + pakets + addons + team) ── */
   async function loadBookings() {
     const btn = document.getElementById('refreshBtn');
     const spinner = document.getElementById('loadingSpinner');
@@ -1866,17 +1866,16 @@
     spinner.style.display = 'block';
 
     try {
-      const response = await fetch(APPS_SCRIPT_URL + '?action=getBookings');
+      const response = await fetch(APPS_SCRIPT_URL + '?action=getAll');
       const data = await response.json();
 
-      if (data.success && data.bookings) {
-        // Simpan rowIndex (nomor baris di sheet, mulai dari 2) sebagai identifier paling reliable
-        allBookings = data.bookings.map((b, i) => {
+      if (data.success) {
+        // Bookings
+        allBookings = (data.bookings || []).map((b, i) => {
           const norm = normalizeBooking(b);
-          norm._rowIndex = (data.startRow || 2) + i; // Apps Script kirim startRow, default baris ke-2
+          norm._rowIndex = (data.startRow || 2) + i;
           return norm;
         });
-        console.log('[Dashboard] Raw sample:', data.bookings[0]);
         console.log('[Dashboard] Normalized sample:', allBookings[0]);
         populateMonthFilter();
         populatePaketFilter();
@@ -1885,11 +1884,20 @@
         filterBookings();
         if (currentPage === 'kinerja') renderKinerja();
         renderCalendar();
+
+        // Pakets, Add Ons, Team
+        allPakets = data.pakets || [];
+        allAddOns = data.addons || [];
+        allTeam   = data.team   || [];
+
+        // Jika halaman Setting sudah aktif saat data tiba
+        if (currentPage === 'setting') renderSettingPaket();
+
       } else {
         container.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><p>Gagal memuat data</p></div>';
       }
     } catch (err) {
-      console.error('Error loading bookings:', err);
+      console.error('Error loading data:', err);
       container.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><p>Error: ' + err.message + '</p></div>';
     } finally {
       btn.classList.remove('loading');
@@ -2889,13 +2897,7 @@
     if (page === 'kinerja')  renderKinerja();
     if (page === 'keuangan') renderKeuangan();
     if (page === 'setting')  {
-      ['settingPaketList','settingAddonList','settingTeamList'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = `<div style="padding:24px;color:var(--text-secondary);font-size:13px;"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block;margin-right:6px;"></i>Memuat data...</div>`;
-      });
-      loadPakets();
-      loadAddOns();
-      loadTeam();
+      renderSettingPaket();
     }
 
     const sidebar = document.getElementById('sidebar');
@@ -3171,9 +3173,6 @@
     switchPage('dashboard');
     renderCalendar();
     loadBookings();
-    loadPakets();
-    loadAddOns();
-    loadTeam();
   });
 
   /* ══════════════════════════════════════════════
