@@ -114,6 +114,21 @@
   .spinner { width: 34px; height: 34px; border: 3px solid var(--pink-mid); border-top-color: var(--pink); border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  .td-select {
+    appearance: auto;
+    cursor: pointer;
+  }
+  .td-role-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+  .td-role-badge.role-mua { background: #fdf0f4; color: var(--pink); border: 1px solid var(--pink-mid); }
+  .td-role-badge.role-hair-stylist { background: #f0f4fd; color: #4a6fbf; border: 1px solid #c5d3f0; }
+  .td-role-badge.role-hijab-stylist { background: #f0fdf4; color: #2d7a4f; border: 1px solid #b6e8cc; }
+
   @media (max-width: 600px) {
     .header { padding: 14px 16px; }
     .main { padding: 20px 12px; }
@@ -130,7 +145,7 @@
     </div>
     <div>
       <div class="header-title">Settings — Ratu Ayu MUA</div>
-      <div class="header-sub">Kelola paket & add on tanpa ubah kode</div>
+      <div class="header-sub">Kelola paket, add on & tim tanpa ubah kode</div>
     </div>
   </div>
 </div>
@@ -179,6 +194,27 @@
     </table>
   </div>
 
+  <!-- TIM -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="card-title">Tim</div>
+        <span class="badge" id="tim-badge">–</span>
+      </div>
+      <button class="btn-add" onclick="startAddTim()">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Tambah Anggota
+      </button>
+    </div>
+    <table>
+      <thead><tr><th>Nama</th><th style="width:200px">Role</th><th class="th-act">Aksi</th></tr></thead>
+      <tbody id="tim-tbody"></tbody>
+    </table>
+  </div>
+
 </div>
 
 <!-- TOAST -->
@@ -195,11 +231,12 @@
 
   let pakets = [];   // { nama, harga, _rowIndex }
   let addons = [];   // { nama, harga, _rowIndex }
+  let timData = [];  // { nama, role, _rowIndex }
 
   // ── INIT ──
   async function init() {
     load(true);
-    await Promise.all([loadPakets(), loadAddons()]);
+    await Promise.all([loadPakets(), loadAddons(), loadTim()]);
     load(false);
   }
 
@@ -217,6 +254,14 @@
       addons = r.addons || [];
       renderAddon();
     } catch(e) { toast('Gagal load add on: ' + e.message, 'error'); }
+  }
+
+  async function loadTim() {
+    try {
+      const r = await gas('getTeam');
+      timData = r.team || [];
+      renderTim();
+    } catch(e) { toast('Gagal load tim: ' + e.message, 'error'); }
   }
 
   // ── RENDER PAKET ──
@@ -435,6 +480,142 @@
       } else {
         toast('Gagal: ' + r.message, 'error');
       }
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+    load(false);
+  }
+
+  // ── RENDER TIM ──
+  const ROLES = ['MUA', 'Hair Stylist', 'Hijab Stylist'];
+
+  function renderTim() {
+    const tb = document.getElementById('tim-tbody');
+    tb.innerHTML = '';
+    if (!timData.length) {
+      tb.innerHTML = '<tr class="empty-row"><td colspan="3">Belum ada anggota tim. Klik "+ Tambah Anggota"</td></tr>';
+    } else {
+      timData.forEach(t => tb.appendChild(makeTimViewRow(t)));
+    }
+    document.getElementById('tim-badge').textContent = timData.length + ' orang';
+  }
+
+  function makeTimViewRow(item) {
+    const tr = document.createElement('tr');
+    tr.dataset.rowIndex = item._rowIndex;
+    tr.innerHTML = `
+      <td><span class="td-view">${esc(item.nama)}</span></td>
+      <td><span class="td-role-badge role-${item.role.toLowerCase().replace(/\s/g,'-')}">${esc(item.role)}</span></td>
+      <td>
+        <div class="actions">
+          <button class="btn-icon btn-edit-row" title="Edit" onclick="startEditTim(this)">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon btn-del-row" title="Hapus" onclick="doDeleteTim(this)">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </td>`;
+    return tr;
+  }
+
+  function roleSelectHTML(selected, idSuffix) {
+    const opts = ROLES.map(r => `<option value="${r}" ${r === selected ? 'selected' : ''}>${r}</option>`).join('');
+    return `<select class="td-input td-select" id="tim-role-${idSuffix}">${opts}</select>`;
+  }
+
+  function startEditTim(btn) {
+    const tr = btn.closest('tr');
+    const rowIndex = parseInt(tr.dataset.rowIndex);
+    const item = timData.find(x => x._rowIndex === rowIndex);
+    if (!item) return;
+
+    tr.innerHTML = `
+      <td><input class="td-input" id="tim-nama-${rowIndex}" value="${esc(item.nama)}" placeholder="Nama" /></td>
+      <td>${roleSelectHTML(item.role, rowIndex)}</td>
+      <td>
+        <div class="actions">
+          <button class="btn-icon btn-save-row" title="Simpan" onclick="doUpdateTim(this, ${rowIndex})">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button class="btn-icon btn-edit-row" title="Batal" onclick="renderTim()">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </td>`;
+    tr.querySelector(`#tim-nama-${rowIndex}`).focus();
+  }
+
+  async function doUpdateTim(btn, rowIndex) {
+    const nama = document.getElementById('tim-nama-' + rowIndex).value.trim();
+    const role = document.getElementById('tim-role-' + rowIndex).value;
+    if (!nama) { toast('Nama tidak boleh kosong', 'error'); return; }
+
+    load(true);
+    try {
+      const r = await gas('updateTeamMember', { rowIndex, nama, role });
+      if (r.success) {
+        const item = timData.find(x => x._rowIndex === rowIndex);
+        if (item) { item.nama = nama; item.role = role; }
+        renderTim();
+        toast('Anggota tim berhasil diupdate!', 'success');
+      } else { toast('Gagal: ' + r.message, 'error'); }
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+    load(false);
+  }
+
+  async function doDeleteTim(btn) {
+    if (!confirm('Hapus anggota tim ini?')) return;
+    const tr = btn.closest('tr');
+    const rowIndex = parseInt(tr.dataset.rowIndex);
+
+    load(true);
+    try {
+      const r = await gas('deleteTeamMember', { rowIndex });
+      if (r.success) {
+        await loadTim();
+        toast('Anggota dihapus', 'success');
+      } else { toast('Gagal hapus: ' + r.message, 'error'); }
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+    load(false);
+  }
+
+  function startAddTim() {
+    const tb = document.getElementById('tim-tbody');
+    const empty = tb.querySelector('.empty-row');
+    if (empty) empty.remove();
+    if (document.getElementById('new-tim-row')) return;
+
+    const tr = document.createElement('tr');
+    tr.className = 'new-row';
+    tr.id = 'new-tim-row';
+    tr.innerHTML = `
+      <td><input class="td-input" id="new-tim-nama" placeholder="Nama anggota" /></td>
+      <td>${roleSelectHTML('MUA', 'new')}</td>
+      <td>
+        <div class="actions">
+          <button class="btn-icon btn-save-row" title="Simpan" onclick="doAddTim()">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button class="btn-icon btn-edit-row" title="Batal" onclick="renderTim()">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </td>`;
+    tb.appendChild(tr);
+    document.getElementById('new-tim-nama').focus();
+  }
+
+  async function doAddTim() {
+    const nama = document.getElementById('new-tim-nama').value.trim();
+    const role = document.getElementById('tim-role-new').value;
+    if (!nama) { toast('Nama tidak boleh kosong', 'error'); return; }
+
+    load(true);
+    try {
+      const r = await gas('addTeamMember', { nama, role });
+      if (r.success) {
+        await loadTim();
+        toast('Anggota tim berhasil ditambahkan!', 'success');
+      } else { toast('Gagal: ' + r.message, 'error'); }
     } catch(e) { toast('Error: ' + e.message, 'error'); }
     load(false);
   }
