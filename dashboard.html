@@ -2011,14 +2011,14 @@
       <thead>
         <tr>
           <th>Nama</th>
-          <th>Tanggal</th>
           <th>Paket</th>
+          <th>Tanggal</th>
+          <th>Jam</th>
+          <th>Lokasi</th>
           <th>MUA</th>
           <th>Hijab</th>
           <th>Hair</th>
-          <th>Total</th>
-          <th>DP</th>
-          <th>Sisa</th>
+          <th>Add On</th>
           <th>Status</th>
           <th></th>
         </tr>
@@ -2050,16 +2050,20 @@
         ? `<span style="background:#eff6ff;color:#2563eb;border:0.5px solid rgba(37,99,235,0.25);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap;">${booking.hair_stylist}</span>`
         : `<span style="color:var(--border);font-size:11px;">—</span>`;
 
+      const addonLabel = booking.addon && booking.addon !== 'Tidak ada'
+        ? `<span style="font-size:12px;color:var(--text-secondary);">${booking.addon.split('|').map(s => s.trim().split('–')[0].trim()).join(', ')}</span>`
+        : `<span style="color:var(--border);font-size:11px;">—</span>`;
+
       html += `<tr onclick="openModal('${encodeURIComponent(JSON.stringify(booking))}')">
         <td class="name-col">${booking.nama || '-'}</td>
-        <td class="date-col">${fmtDate(booking.tanggal)}</td>
         <td class="paket-col">${booking.paket ? booking.paket.split('|')[0].trim() : '-'}</td>
+        <td class="date-col">${fmtDate(booking.tanggal)}</td>
+        <td style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">${booking.jam_selesai || '—'}</td>
+        <td style="font-size:13px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${booking.lokasi || ''}">${booking.lokasi || '—'}</td>
         <td>${muaLabel}</td>
         <td>${hijabLabel}</td>
         <td>${hairLabel}</td>
-        <td class="price-col">${fmtRp(total)}</td>
-        <td>${fmtRp(dp)}</td>
-        <td class="price-col">${fmtRp(sisa)}</td>
+        <td>${addonLabel}</td>
         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
         <td><button class="btn-detail" onclick="event.stopPropagation(); openModal('${encodeURIComponent(JSON.stringify(booking))}')">
           <i class="ti ti-eye" style="font-size:12px;"></i> Detail
