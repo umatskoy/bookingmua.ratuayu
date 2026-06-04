@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -223,6 +224,34 @@
       .mua-header h1 { font-size: 28px; }
       .row-builder.paket-row, .row-builder.addon-row { grid-template-columns: 1fr auto auto; }
     }
+
+    /* ── INVOICE CARD (for html2canvas) ── */
+    #invoiceCard {
+      position: fixed; left: -9999px; top: 0;
+      width: 600px;
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      padding: 40px 44px 36px;
+      box-sizing: border-box;
+      border: 1px solid #e8d0da;
+    }
+    #invoiceCard .inv-header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #e0d0d8; padding-bottom: 16px; }
+    #invoiceCard .inv-header h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 300; font-style: italic; color: #1a1a1a; }
+    #invoiceCard .inv-header p  { font-size: 11px; color: #888; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+    #invoiceCard .inv-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; margin-bottom: 18px; }
+    #invoiceCard .inv-meta-item .pm-label { color: #999; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; margin-bottom: 2px; }
+    #invoiceCard .inv-meta-item .pm-value { color: #1a1a1a; font-size: 12px; }
+    #invoiceCard .inv-section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #D4537E; margin: 14px 0 6px; border-bottom: 0.5px solid #f0d8e4; padding-bottom: 4px; }
+    #invoiceCard .inv-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 4px 0; border-bottom: 0.5px solid #f5eef2; }
+    #invoiceCard .inv-row .pr-name { color: #1a1a1a; flex: 1; }
+    #invoiceCard .inv-row .pr-qty  { color: #888; font-size: 11px; min-width: 60px; text-align: center; }
+    #invoiceCard .inv-row .pr-price { font-weight: 500; color: #1a1a1a; min-width: 100px; text-align: right; }
+    #invoiceCard .inv-divider { border: none; border-top: 0.5px solid #e0d0d8; margin: 10px 0; }
+    #invoiceCard .inv-calc-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; color: #555; }
+    #invoiceCard .inv-calc-row.dp-row span:last-child { color: #c04470; }
+    #invoiceCard .inv-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: #D4537E; padding: 10px 0 6px; border-top: 1.5px solid #D4537E; margin-top: 6px; }
+    #invoiceCard .inv-rekening { margin-top: 20px; border: 1px solid #e8d0da; border-radius: 6px; padding: 10px 14px; font-size: 11.5px; color: #7a1f3d; text-align: center; line-height: 1.7; }
+    #invoiceCard .inv-footer { margin-top: 24px; text-align: center; font-size: 10px; color: #bbb; border-top: 0.5px solid #eee; padding-top: 10px; }
   </style>
 </head>
 <body>
@@ -312,8 +341,8 @@
       <div class="grand-summary" id="grandSummary">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <p class="gs-title" style="margin-bottom:0;">✦ Ringkasan Total</p>
-          <button type="button" class="btn-export" style="width:auto; margin-top:0; padding:6px 12px; font-size:12px;" onclick="exportPDF()">
-            <i class="ti ti-file-type-pdf" style="font-size:14px;"></i> Export PDF
+          <button type="button" class="btn-export" style="width:auto; margin-top:0; padding:6px 12px; font-size:12px;" onclick="exportJPG()" id="btnExport">
+            <i class="ti ti-photo" style="font-size:14px;"></i> Export Invoice
           </button>
         </div>
         <div id="gs-paket-section" class="gs-section">
@@ -388,6 +417,9 @@
 
   <!-- Hidden print area - populated by exportPDF() -->
   <div id="printArea" style="display:none;"></div>
+
+  <!-- Invoice card for html2canvas export -->
+  <div id="invoiceCard" style="display:none;"></div>
 
 </div>
 
@@ -771,8 +803,14 @@
     el.addEventListener('input', () => { el.style.borderColor = ''; });
   });
 
-  /* ── EXPORT PDF ── */
-  function exportPDF() {
+  /* ── EXPORT JPG (html2canvas) ── */
+  async function exportJPG() {
+    const btnExport = document.getElementById('btnExport');
+    const origHTML = btnExport.innerHTML;
+    btnExport.disabled = true;
+    btnExport.innerHTML = '<i class="ti ti-loader" style="font-size:14px;"></i> Membuat...';
+
+    // --- collect data (same as before) ---
     const form = document.getElementById('bookingForm');
 
     // Collect client info
@@ -869,7 +907,49 @@
       <div class="print-footer">Terima kasih telah mempercayakan momen spesial Anda kepada kami 🌸</div>
     `;
 
-    window.print();
+    // Render invoice card
+    const card = document.getElementById('invoiceCard');
+    card.innerHTML = document.getElementById('printArea').innerHTML
+      .replace(/class="print-/g, 'class="inv-')
+      .replace(/print-header/g, 'inv-header')
+      .replace(/print-meta/g, 'inv-meta')
+      .replace(/print-section-label/g, 'inv-section-label')
+      .replace(/print-row/g, 'inv-row')
+      .replace(/print-divider/g, 'inv-divider')
+      .replace(/print-calc-row/g, 'inv-calc-row')
+      .replace(/print-total-row/g, 'inv-total-row')
+      .replace(/print-rekening/g, 'inv-rekening')
+      .replace(/print-footer/g, 'inv-footer');
+    card.style.display = 'block';
+
+    try {
+      const canvas = await html2canvas(card, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const now2 = new Date();
+      const fname = 'INV-'
+        + now2.getFullYear()
+        + String(now2.getMonth()+1).padStart(2,'0')
+        + String(now2.getDate()).padStart(2,'0')
+        + '-' + String(now2.getTime()).slice(-4)
+        + '.jpg';
+
+      const link = document.createElement('a');
+      link.download = fname;
+      link.href = canvas.toDataURL('image/jpeg', 0.95);
+      link.click();
+    } catch(err) {
+      alert('Gagal membuat invoice: ' + err.message);
+    } finally {
+      card.style.display = 'none';
+      card.innerHTML = '';
+      btnExport.disabled = false;
+      btnExport.innerHTML = origHTML;
+    }
   }
 </script>
 
