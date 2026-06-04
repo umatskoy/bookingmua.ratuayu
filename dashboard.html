@@ -1454,10 +1454,10 @@
         <i class="ti ti-report-money"></i>
         <span>Keuangan</span>
       </button>
-      <button class="sidebar-item" id="nav-setting" onclick="switchPage('setting')">
+      <a class="sidebar-item" href="settings.html" target="_blank">
         <i class="ti ti-settings"></i>
         <span>Pengaturan</span>
-      </button>
+      </a>
     </nav>
     <button class="sidebar-toggle-mobile" id="sidebarClose" onclick="toggleSidebar()">
       <i class="ti ti-x"></i>
@@ -1643,42 +1643,6 @@
     </div>
   </div>
 
-  <!-- ── SETTING PAGE ── -->
-  <div class="page-panel" id="page-setting" style="display:none;">
-    <!-- Paket -->
-    <div class="bookings-section" style="margin-bottom:24px;">
-      <div class="bookings-header">
-        <h2><i class="ti ti-tag" style="color:var(--pink);font-size:16px;"></i> Pengaturan Paket</h2>
-        <button class="btn-refresh" onclick="openAddPaketModal()">
-          <i class="ti ti-plus"></i> Tambah Paket
-        </button>
-      </div>
-      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Data tersimpan di tab <strong>Paket</strong> kolom A–B. Tersinkron ke semua perangkat.</p>
-      <div id="settingPaketList"></div>
-    </div>
-    <!-- Add On -->
-    <div class="bookings-section" style="margin-bottom:24px;">
-      <div class="bookings-header">
-        <h2><i class="ti ti-sparkles" style="color:var(--pink);font-size:16px;"></i> Pengaturan Add On</h2>
-        <button class="btn-refresh" onclick="openAddAddonModal()">
-          <i class="ti ti-plus"></i> Tambah Add On
-        </button>
-      </div>
-      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Data tersimpan di tab <strong>Paket</strong> kolom D–E. Di form edit booking, add on bisa dipilih lebih dari satu.</p>
-      <div id="settingAddonList"></div>
-    </div>
-    <!-- Team -->
-    <div class="bookings-section">
-      <div class="bookings-header">
-        <h2><i class="ti ti-users" style="color:var(--pink);font-size:16px;"></i> Pengaturan Tim</h2>
-        <button class="btn-refresh" onclick="openAddTeamModal()">
-          <i class="ti ti-plus"></i> Tambah Anggota
-        </button>
-      </div>
-      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Data tersimpan di tab <strong>Team</strong>. Digunakan sebagai dropdown MUA, Hair Stylist, dan Hijab Stylist di form booking.</p>
-      <div id="settingTeamList"></div>
-    </div>
-  </div>
 
 </div><!-- /.dashboard-main -->
   </div><!-- /.main-area -->
@@ -1890,8 +1854,6 @@
         allAddOns = data.addons || [];
         allTeam   = data.team   || [];
 
-        // Jika halaman Setting sudah aktif saat data tiba
-        if (currentPage === 'setting') renderSettingPaket();
 
       } else {
         container.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><p>Gagal memuat data</p></div>';
@@ -2853,7 +2815,6 @@
     kalender: 'Kalender Ketersediaan',
     kinerja: 'Kinerja Team',
     keuangan: 'Keuangan',
-    setting: 'Pengaturan',
   };
 
   let currentPage = 'dashboard';
@@ -2896,13 +2857,7 @@
     if (page === 'kalender') renderCalendar();
     if (page === 'kinerja')  renderKinerja();
     if (page === 'keuangan') renderKeuangan();
-    if (page === 'setting')  {
-      ['settingPaketList','settingAddonList','settingTeamList'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el && !el.innerHTML.trim()) el.innerHTML = `<div style="padding:24px;color:var(--text-secondary);font-size:13px;"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block;margin-right:6px;"></i>Memuat data...</div>`;
-      });
-      (_loadAllPromise || Promise.resolve()).then(() => renderSettingPaket());
-    }
+
 
     const sidebar = document.getElementById('sidebar');
     if (sidebar.classList.contains('open')) toggleSidebar();
@@ -3397,10 +3352,7 @@
       const data = await res.json();
       if (data.success) {
         allPakets = data.pakets || [];
-        if (currentPage === 'setting') {
-          const el = document.getElementById('settingPaketList');
-          if (el) renderSettingPaket();
-        }
+
       }
     } catch (err) { console.error('Error loading pakets:', err); }
   }
@@ -3411,7 +3363,6 @@
       const data = await res.json();
       if (data.success) {
         allAddOns = data.addons || [];
-        if (currentPage === 'setting') renderSettingAddon();
       }
     } catch (err) { console.error('Error loading addons:', err); }
   }
@@ -3422,7 +3373,6 @@
       const data = await res.json();
       if (data.success) {
         allTeam = data.team || [];
-        if (currentPage === 'setting') renderSettingTeam();
       }
     } catch (err) { console.error('Error loading team:', err); }
   }
@@ -3463,387 +3413,8 @@
     syncAddonField();
   }
 
-  function renderSettingPaket() {
-    const container = document.getElementById('settingPaketList');
-    if (!container) return;
-    if (!allPakets.length) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:48px 0;color:var(--text-secondary);">
-          <i class="ti ti-package-off" style="font-size:36px;display:block;margin-bottom:12px;opacity:.4;"></i>
-          Belum ada paket. Klik <strong>Tambah Paket</strong> untuk mulai.
-        </div>`;
-      return;
-    }
-    container.innerHTML = `
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="border-bottom:1.5px solid var(--border);">
-            <th style="text-align:left;padding:10px 12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">Nama Paket</th>
-            <th style="text-align:right;padding:10px 12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">Harga / Orang</th>
-            <th style="padding:10px 12px;width:100px;"></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${allPakets.map((p, i) => `
-            <tr style="border-bottom:1px solid var(--border);transition:background .15s;"
-                onmouseover="this.style.background='var(--bg-soft)'"
-                onmouseout="this.style.background=''">
-              <td style="padding:12px;font-size:14px;font-weight:500;">${p.nama}</td>
-              <td style="padding:12px;font-size:14px;color:var(--pink);text-align:right;font-weight:600;">
-                Rp ${Number(p.harga).toLocaleString('id-ID')}
-              </td>
-              <td style="padding:12px;text-align:right;">
-                <button onclick="openEditPaketModal(${i})"
-                  style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text-secondary);margin-right:4px;">
-                  <i class="ti ti-pencil"></i>
-                </button>
-                <button onclick="deletePaket(${i})"
-                  style="background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:#dc2626;">
-                  <i class="ti ti-trash"></i>
-                </button>
-              </td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`;
-  }
-
-  async function deletePaket(index) {
-    if (!confirm('Hapus paket ini?')) return;
-    const p = allPakets[index];
-    try {
-      const params = new URLSearchParams({ action: 'deletePaket', rowIndex: p._rowIndex });
-      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
-      const data = await res.json();
-      if (data.success) { allPakets.splice(index, 1); renderSettingPaket(); }
-      else alert('Gagal hapus: ' + data.message);
-    } catch (err) { alert('Error: ' + err.message); }
-  }
-
-  // ── Modal Tambah / Edit Paket ──
-  let editingPaketIndex = null;
-
-  function openAddPaketModal() {
-    editingPaketIndex = null;
-    document.getElementById('paketModalTitle').textContent = 'Tambah Paket';
-    document.getElementById('pmNama').value  = '';
-    document.getElementById('pmHarga').value = '';
-    document.getElementById('paketModal').style.display = 'flex';
-    document.getElementById('pmNama').focus();
-  }
-
-  function openEditPaketModal(index) {
-    const p = allPakets[index];
-    editingPaketIndex = index;
-    document.getElementById('paketModalTitle').textContent = 'Edit Paket';
-    document.getElementById('pmNama').value  = p.nama;
-    document.getElementById('pmHarga').value = Number(p.harga).toLocaleString('id-ID');
-    document.getElementById('paketModal').style.display = 'flex';
-    document.getElementById('pmNama').focus();
-  }
-
-  function closePaketModal() {
-    document.getElementById('paketModal').style.display = 'none';
-  }
-
-  async function savePaketModal() {
-    const nama  = document.getElementById('pmNama').value.trim();
-    const harga = parseInt(document.getElementById('pmHarga').value.replace(/\D/g, ''), 10);
-    if (!nama)              { alert('Nama paket wajib diisi.'); return; }
-    if (!harga || isNaN(harga)) { alert('Harga harus diisi dengan angka.'); return; }
-
-    const isEdit = editingPaketIndex !== null;
-    const params = new URLSearchParams({
-      action: isEdit ? 'updatePaket' : 'addPaket',
-      nama, harga,
-      ...(isEdit ? { rowIndex: allPakets[editingPaketIndex]._rowIndex } : {})
-    });
-    try {
-      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
-      const data = await res.json();
-      if (data.success) { closePaketModal(); await loadPakets(); renderSettingPaket(); }
-      else alert('Gagal simpan: ' + data.message);
-    } catch (err) { alert('Error: ' + err.message); }
-  }
-
-  // Format input harga
-  document.addEventListener('DOMContentLoaded', () => {
-    const hargaInput = document.getElementById('pmHarga');
-    if (hargaInput) {
-      hargaInput.addEventListener('input', function() {
-        const raw = this.value.replace(/\D/g, '');
-        this.value = raw ? Number(raw).toLocaleString('id-ID') : '';
-      });
-    }
-    const addonHargaInput = document.getElementById('amHarga');
-    if (addonHargaInput) {
-      addonHargaInput.addEventListener('input', function() {
-        const raw = this.value.replace(/\D/g, '');
-        this.value = raw ? Number(raw).toLocaleString('id-ID') : '';
-      });
-    }
-  });
-
-  /* ── Render Setting Add On ── */
-  function renderSettingAddon() {
-    const container = document.getElementById('settingAddonList');
-    if (!allAddOns.length) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:48px 0;color:var(--text-secondary);">
-          <i class="ti ti-sparkles" style="font-size:36px;display:block;margin-bottom:12px;opacity:.4;"></i>
-          Belum ada add on. Klik <strong>Tambah Add On</strong> untuk mulai.
-        </div>`;
-      return;
-    }
-    container.innerHTML = `
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="border-bottom:1.5px solid var(--border);">
-            <th style="text-align:left;padding:10px 12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">Nama Add On</th>
-            <th style="text-align:right;padding:10px 12px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">Harga</th>
-            <th style="padding:10px 12px;width:100px;"></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${allAddOns.map((a, i) => `
-            <tr style="border-bottom:1px solid var(--border);transition:background .15s;"
-                onmouseover="this.style.background='var(--bg-soft)'"
-                onmouseout="this.style.background=''">
-              <td style="padding:12px;font-size:14px;font-weight:500;">${a.nama}</td>
-              <td style="padding:12px;font-size:14px;color:var(--pink);text-align:right;font-weight:600;">
-                Rp ${Number(a.harga).toLocaleString('id-ID')}
-              </td>
-              <td style="padding:12px;text-align:right;">
-                <button onclick="openEditAddonModal(${i})"
-                  style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text-secondary);margin-right:4px;">
-                  <i class="ti ti-pencil"></i>
-                </button>
-                <button onclick="deleteAddon(${i})"
-                  style="background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:#dc2626;">
-                  <i class="ti ti-trash"></i>
-                </button>
-              </td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`;
-  }
-
-  async function deleteAddon(index) {
-    if (!confirm('Hapus add on ini?')) return;
-    const a = allAddOns[index];
-    try {
-      const params = new URLSearchParams({ action: 'deleteAddOn', rowIndex: a._rowIndex });
-      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
-      const data = await res.json();
-      if (data.success) { allAddOns.splice(index, 1); renderSettingAddon(); }
-      else alert('Gagal hapus: ' + data.message);
-    } catch (err) { alert('Error: ' + err.message); }
-  }
-
-  let editingAddonIndex = null;
-
-  function openAddAddonModal() {
-    editingAddonIndex = null;
-    document.getElementById('addonModalTitle').textContent = 'Tambah Add On';
-    document.getElementById('amNama').value  = '';
-    document.getElementById('amHarga').value = '';
-    document.getElementById('addonModal').style.display = 'flex';
-    document.getElementById('amNama').focus();
-  }
-
-  function openEditAddonModal(index) {
-    const a = allAddOns[index];
-    editingAddonIndex = index;
-    document.getElementById('addonModalTitle').textContent = 'Edit Add On';
-    document.getElementById('amNama').value  = a.nama;
-    document.getElementById('amHarga').value = Number(a.harga).toLocaleString('id-ID');
-    document.getElementById('addonModal').style.display = 'flex';
-    document.getElementById('amNama').focus();
-  }
-
-  function closeAddonModal() {
-    document.getElementById('addonModal').style.display = 'none';
-  }
-
-  async function saveAddonModal() {
-    const nama  = document.getElementById('amNama').value.trim();
-    const harga = parseInt(document.getElementById('amHarga').value.replace(/\D/g, ''), 10);
-    if (!nama)              { alert('Nama add on wajib diisi.'); return; }
-    if (!harga || isNaN(harga)) { alert('Harga harus diisi dengan angka.'); return; }
-
-    const isEdit = editingAddonIndex !== null;
-    const params = new URLSearchParams({
-      action: isEdit ? 'updateAddOn' : 'addAddOn',
-      nama, harga,
-      ...(isEdit ? { rowIndex: allAddOns[editingAddonIndex]._rowIndex } : {})
-    });
-    try {
-      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
-      const data = await res.json();
-      if (data.success) { closeAddonModal(); await loadAddOns(); renderSettingAddon(); }
-      else alert('Gagal simpan: ' + data.message);
-    } catch (err) { alert('Error: ' + err.message); }
-  }
-
-  /* ── Patch renderSettingPaket untuk juga render addon + team ── */
-  const _origRenderSettingPaket = renderSettingPaket;
-  function renderSettingPaket() {
-    _origRenderSettingPaket();
-    renderSettingAddon();
-    renderSettingTeam();
-  }
-
-  /* ── Render Setting Team ── */
-  const ROLE_BADGE = {
-    'MUA':           { bg: '#fdf2f8', color: '#be185d', border: '#f9a8d4' },
-    'Hair Stylist':  { bg: '#eff6ff', color: '#1d4ed8', border: '#93c5fd' },
-    'Hijab Stylist': { bg: '#f0fdf4', color: '#15803d', border: '#86efac' },
-  };
-  function roleBadge(role) {
-    const s = ROLE_BADGE[role] || { bg: '#f5f5f5', color: '#555', border: '#ddd' };
-    return `<span style="background:${s.bg};color:${s.color};border:1px solid ${s.border};border-radius:6px;padding:2px 10px;font-size:11px;font-weight:600;">${role}</span>`;
-  }
-  function renderSettingTeam() {
-    const container = document.getElementById('settingTeamList');
-    if (!container) return;
-    if (!allTeam.length) {
-      container.innerHTML = `<div style="text-align:center;padding:48px 0;color:var(--text-secondary);"><i class="ti ti-users" style="font-size:36px;display:block;margin-bottom:12px;opacity:.4;"></i>Belum ada anggota tim. Klik <strong>Tambah Anggota</strong> untuk mulai.</div>`;
-      return;
-    }
-    const roles = ['MUA', 'Hair Stylist', 'Hijab Stylist'];
-    container.innerHTML = roles.map(role => {
-      const members = allTeam.filter(t => t.role === role);
-      if (!members.length) return '';
-      return `<div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:8px;">${role}</div><table style="width:100%;border-collapse:collapse;"><tbody>${members.map(m => { const idx = allTeam.indexOf(m); return `<tr style="border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='var(--bg-soft)'" onmouseout="this.style.background=''"><td style="padding:10px 12px;font-size:14px;font-weight:500;">${m.nama}</td><td style="padding:10px 12px;">${roleBadge(m.role)}</td><td style="padding:10px 12px;text-align:right;"><button onclick="openEditTeamModal(${idx})" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text-secondary);margin-right:4px;"><i class="ti ti-pencil"></i></button><button onclick="deleteTeamMember(${idx})" style="background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:#dc2626;"><i class="ti ti-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
-    }).join('');
-  }
-  async function deleteTeamMember(index) {
-    if (!confirm('Hapus anggota ini?')) return;
-    const m = allTeam[index];
-    try {
-      const params = new URLSearchParams({ action: 'deleteTeamMember', rowIndex: m._rowIndex });
-      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
-      const data = await res.json();
-      if (data.success) { allTeam.splice(index, 1); renderSettingTeam(); }
-      else alert('Gagal hapus: ' + data.message);
-    } catch (err) { alert('Error: ' + err.message); }
-  }
-  let editingTeamIndex = null;
-  function openAddTeamModal() {
-    editingTeamIndex = null;
-    document.getElementById('teamModalTitle').textContent = 'Tambah Anggota Tim';
-    document.getElementById('tmNama').value = '';
-    document.getElementById('tmRole').value = 'MUA';
-    document.getElementById('teamModal').style.display = 'flex';
-    document.getElementById('tmNama').focus();
-  }
-  function openEditTeamModal(index) {
-    const m = allTeam[index];
-    editingTeamIndex = index;
-    document.getElementById('teamModalTitle').textContent = 'Edit Anggota Tim';
-    document.getElementById('tmNama').value = m.nama;
-    document.getElementById('tmRole').value = m.role;
-    document.getElementById('teamModal').style.display = 'flex';
-    document.getElementById('tmNama').focus();
-  }
-  function closeTeamModal() { document.getElementById('teamModal').style.display = 'none'; }
-  async function saveTeamModal() {
-    const nama = document.getElementById('tmNama').value.trim();
-    const role = document.getElementById('tmRole').value;
-    if (!nama) { alert('Nama anggota wajib diisi.'); return; }
-    const isEdit = editingTeamIndex !== null;
-    const params = new URLSearchParams({ action: isEdit ? 'updateTeamMember' : 'addTeamMember', nama, role, ...(isEdit ? { rowIndex: allTeam[editingTeamIndex]._rowIndex } : {}) });
-    try {
-      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
-      const data = await res.json();
-      if (data.success) { closeTeamModal(); await loadTeam(); renderSettingTeam(); }
-      else alert('Gagal simpan: ' + data.message);
-    } catch (err) { alert('Error: ' + err.message); }
-  }
 </script>
 
-<!-- Modal Paket Setting -->
-<div id="paketModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1200;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h3 id="paketModalTitle" style="font-size:16px;font-weight:600;">Tambah Paket</h3>
-      <button onclick="closePaketModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-secondary);line-height:1;">
-        <i class="ti ti-x"></i>
-      </button>
-    </div>
-    <div style="margin-bottom:16px;">
-      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Nama Paket</label>
-      <input id="pmNama" type="text" placeholder="Contoh: Engagement Hairdo"
-        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
-        onkeydown="if(event.key==='Enter') document.getElementById('pmHarga').focus()">
-    </div>
-    <div style="margin-bottom:24px;">
-      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Harga per Orang (Rp)</label>
-      <input id="pmHarga" type="text" inputmode="numeric" placeholder="Contoh: 850.000"
-        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
-        onkeydown="if(event.key==='Enter') savePaketModal()">
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button onclick="closePaketModal()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;">Batal</button>
-      <button onclick="savePaketModal()" style="padding:9px 20px;border:none;border-radius:8px;background:var(--pink);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Add On Setting -->
-<div id="addonModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1200;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h3 id="addonModalTitle" style="font-size:16px;font-weight:600;">Tambah Add On</h3>
-      <button onclick="closeAddonModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-secondary);line-height:1;">
-        <i class="ti ti-x"></i>
-      </button>
-    </div>
-    <div style="margin-bottom:16px;">
-      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Nama Add On</label>
-      <input id="amNama" type="text" placeholder="Contoh: Hairdo"
-        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
-        onkeydown="if(event.key==='Enter') document.getElementById('amHarga').focus()">
-    </div>
-    <div style="margin-bottom:24px;">
-      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Harga (Rp)</label>
-      <input id="amHarga" type="text" inputmode="numeric" placeholder="Contoh: 150.000"
-        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
-        onkeydown="if(event.key==='Enter') saveAddonModal()">
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button onclick="closeAddonModal()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;">Batal</button>
-      <button onclick="saveAddonModal()" style="padding:9px 20px;border:none;border-radius:8px;background:var(--pink);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Tim Setting -->
-<div id="teamModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1200;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h3 id="teamModalTitle" style="font-size:16px;font-weight:600;">Tambah Anggota Tim</h3>
-      <button onclick="closeTeamModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-secondary);line-height:1;"><i class="ti ti-x"></i></button>
-    </div>
-    <div style="margin-bottom:16px;">
-      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Nama</label>
-      <input id="tmNama" type="text" placeholder="Contoh: Ratu"
-        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
-        onkeydown="if(event.key==='Enter') saveTeamModal()">
-    </div>
-    <div style="margin-bottom:24px;">
-      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Role</label>
-      <select id="tmRole" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff;">
-        <option value="MUA">MUA</option>
-        <option value="Hair Stylist">Hair Stylist</option>
-        <option value="Hijab Stylist">Hijab Stylist</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button onclick="closeTeamModal()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;">Batal</button>
-      <button onclick="saveTeamModal()" style="padding:9px 20px;border:none;border-radius:8px;background:var(--pink);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Simpan</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
