@@ -225,6 +225,146 @@
       .row-builder.paket-row, .row-builder.addon-row { grid-template-columns: 1fr auto auto; }
     }
 
+    /* ── WA CONFIRMATION MODAL ── */
+    .wa-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.45);
+      padding: 1rem;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    @media (min-width: 521px) {
+      .wa-overlay { align-items: center; }
+    }
+    .wa-overlay.visible { display: flex; }
+
+    .wa-sheet {
+      background: #fff;
+      border-radius: 20px 20px 16px 16px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      animation: sheetUp 0.28s cubic-bezier(.22,.68,0,1.2) both;
+    }
+    @media (min-width: 521px) {
+      .wa-sheet {
+        border-radius: 16px;
+        animation: sheetFade 0.22s ease both;
+      }
+    }
+    @keyframes sheetUp  { from { transform: translateY(60px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    @keyframes sheetFade { from { opacity:0; transform: scale(0.97); } to { opacity:1; transform: scale(1); } }
+
+    .wa-head {
+      padding: 18px 20px 14px;
+      border-bottom: 0.5px solid var(--border);
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .wa-icon {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .wa-icon svg { width: 20px; height: 20px; fill: #fff; }
+    .wa-head-text h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-weight: 600; color: var(--text-primary);
+    }
+    .wa-head-text p { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+    .wa-body {
+      flex: 1; overflow-y: auto; padding: 16px 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .wa-preview-label {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;
+    }
+
+    .wa-bubble {
+      background: #f0fdf4;
+      border: 0.5px solid #bbf7d0;
+      border-radius: 4px 12px 12px 12px;
+      padding: 12px 14px;
+      font-size: 13px; line-height: 1.65;
+      color: #1a2e1a;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'DM Sans', sans-serif;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .wa-copy-hint {
+      font-size: 11.5px; color: var(--text-secondary);
+      margin-top: 8px; text-align: center;
+    }
+
+    .wa-foot {
+      padding: 14px 20px;
+      border-top: 0.5px solid var(--border);
+      display: flex; flex-direction: column; gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-wa-copy {
+      width: 100%; padding: 13px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: #fff; background: var(--pink);
+      border: none; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .btn-wa-copy:hover { background: #bf4570; }
+    .btn-wa-copy.copied { background: #2d8a4e; }
+
+    .btn-wa-open {
+      width: 100%; padding: 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      color: #25D366; background: #fff;
+      border: 1px solid #25D366; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.15s;
+      text-decoration: none;
+    }
+    .btn-wa-open:hover { background: #f0fdf4; }
+
+    .btn-wa-close {
+      width: 100%; padding: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--text-secondary); background: transparent;
+      border: none; cursor: pointer; border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .btn-wa-close:hover { background: var(--bg-soft); }
+
+    /* Fallback select-to-copy area — shown only when clipboard fails */
+    .wa-fallback {
+      display: none;
+      margin-top: 10px;
+    }
+    .wa-fallback textarea {
+      width: 100%; min-height: 80px;
+      font-size: 13px; line-height: 1.6;
+      padding: 10px 12px; border-radius: 8px;
+      border: 1px solid var(--border);
+      font-family: 'DM Sans', sans-serif;
+      resize: none; background: #fafaf9;
+      color: var(--text-primary);
+      -webkit-user-select: text; user-select: text;
+    }
+    .wa-fallback p {
+      font-size: 11.5px; color: var(--text-secondary);
+      margin-bottom: 6px; text-align: center;
+    }
+
     /* ── INVOICE CARD (for html2canvas) ── */
     #invoiceCard {
       position: fixed; left: -9999px; top: 0;
@@ -421,6 +561,46 @@
   <!-- Invoice card for html2canvas export -->
   <div id="invoiceCard" style="display:none;"></div>
 
+</div>
+
+<!-- WA CONFIRMATION MODAL -->
+<div class="wa-overlay" id="waOverlay" role="dialog" aria-modal="true" aria-labelledby="waTitle">
+  <div class="wa-sheet">
+    <div class="wa-head">
+      <div class="wa-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M12.004 2C6.477 2 2 6.477 2 12.004c0 1.765.461 3.454 1.34 4.948L2 22l5.233-1.31A9.953 9.953 0 0012.004 22C17.527 22 22 17.527 22 12.004 22 6.477 17.527 2 12.004 2zm0 18.214a8.192 8.192 0 01-4.35-1.247l-.312-.187-3.107.779.818-2.996-.204-.323a8.188 8.188 0 01-1.259-4.24c0-4.527 3.682-8.21 8.214-8.21 4.528 0 8.21 3.683 8.21 8.21 0 4.527-3.682 8.214-8.21 8.214z"/>
+        </svg>
+      </div>
+      <div class="wa-head-text">
+        <h3 id="waTitle">Konfirmasi Booking via WhatsApp</h3>
+        <p>Salin pesan lalu kirim ke admin kami</p>
+      </div>
+    </div>
+
+    <div class="wa-body">
+      <p class="wa-preview-label">Preview pesan</p>
+      <div class="wa-bubble" id="waBubble"></div>
+      <p class="wa-copy-hint">Tap tombol di bawah untuk menyalin pesan</p>
+      <div class="wa-fallback" id="waFallback">
+        <p>Pilih semua teks lalu salin secara manual:</p>
+        <textarea id="waFallbackTextarea" readonly></textarea>
+      </div>
+    </div>
+
+    <div class="wa-foot">
+      <button class="btn-wa-copy" id="btnSalin" onclick="salinPesan()">
+        <i class="ti ti-copy" style="font-size:16px;"></i>
+        <span id="salinLabel">Salin Pesan</span>
+      </button>
+      <a class="btn-wa-open" id="btnBukaWA" href="#" target="_blank" rel="noopener">
+        <i class="ti ti-brand-whatsapp" style="font-size:17px;"></i>
+        Buka WhatsApp Admin
+      </a>
+      <button class="btn-wa-close" onclick="tutupWAModal()">Tutup</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -785,10 +965,14 @@
       const result = await res.json();
 
       if (result.success) {
+        // Tampilkan success message
         successMsg.style.display = 'block';
         btn.style.display = 'none';
         form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
         successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+
+        // Tampilkan modal konfirmasi WA otomatis
+        tampilWAModal(payload);
       } else {
         throw new Error(result.message || 'Respons gagal dari server');
       }
@@ -802,6 +986,163 @@
   document.querySelectorAll('input, select').forEach(el => {
     el.addEventListener('input', () => { el.style.borderColor = ''; });
   });
+
+  /* ── NOMOR WA ADMIN ── */
+  const WA_ADMIN = '6285725065002'; // ganti dengan nomor WA admin (format: 628xxxxxxxx)
+
+  /* ── BUILD PESAN WA ── */
+  function buildWAMessage(payload) {
+    const tgl = payload.tanggal
+      ? new Date(payload.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+      : '-';
+    const jam = payload.jam_selesai && payload.jam_selesai !== '-' ? payload.jam_selesai : null;
+
+    // Paket lines
+    const paketLines = paketRows.map(r => {
+      const opt = PAKET_OPTIONS.find(o => o.value === r.value);
+      if (!opt) return '';
+      const harga = opt.harga === 0 ? 'Diskusi' : 'Rp ' + (opt.harga * r.jumlah).toLocaleString('id-ID');
+      return `  • ${opt.value} ×${r.jumlah} orang = ${harga}`;
+    }).filter(Boolean).join('\n');
+
+    // Addon lines
+    const addonLines = addonRows.length > 0
+      ? addonRows.map(r => {
+          const opt = ADDON_OPTIONS.find(o => o.value === r.value);
+          if (!opt) return '';
+          const harga = opt.harga === 0 ? 'Gratis' : 'Rp ' + (opt.harga * r.jumlah).toLocaleString('id-ID');
+          return `  • ${opt.value} ×${r.jumlah} = ${harga}`;
+        }).filter(Boolean).join('\n')
+      : null;
+
+    const transportBiaya = parseRp(payload.transport_biaya);
+    const dpVal = parseRp(payload.dp);
+    const subtotalEl = document.getElementById('gs-subtotal').textContent;
+    const sisaEl = document.getElementById('gs-grand-total').textContent;
+
+    let msg = `Halo, kak! 🌸 Saya ingin konfirmasi booking make up:
+
+👤 *Nama:* ${payload.nama}
+📱 *WhatsApp:* ${payload.wa}
+📧 *Email:* ${payload.email}
+
+📅 *Tanggal:* ${tgl}${jam ? '\n⏰ *Jam Selesai Target:* ' + jam : ''}
+📍 *Lokasi:* ${payload.lokasi}
+
+💄 *Paket:*
+${paketLines}`;
+
+    if (addonLines) {
+      msg += `\n\n✨ *Add On:*\n${addonLines}`;
+    }
+
+    if (transportBiaya > 0) {
+      msg += `\n\n🚗 *Transport:* Rp ${transportBiaya.toLocaleString('id-ID')}`;
+    }
+
+    msg += `\n\n💰 *Subtotal:* ${subtotalEl}`;
+    if (dpVal > 0) {
+      msg += `\n💵 *DP:* Rp ${dpVal.toLocaleString('id-ID')}`;
+      msg += `\n🧾 *Sisa Bayar:* ${sisaEl}`;
+    }
+
+    msg += `\n\nMohon konfirmasinya, terima kasih 🙏`;
+    return msg;
+  }
+
+  /* ── TAMPIL WA MODAL ── */
+  function tampilWAModal(payload) {
+    const msg = buildWAMessage(payload);
+
+    // Isi bubble preview
+    document.getElementById('waBubble').textContent = msg;
+
+    // Isi fallback textarea
+    document.getElementById('waFallbackTextarea').value = msg;
+
+    // Set WA link
+    const encoded = encodeURIComponent(msg);
+    document.getElementById('btnBukaWA').href = `https://wa.me/${WA_ADMIN}?text=${encoded}`;
+
+    // Reset tombol salin
+    const btn = document.getElementById('btnSalin');
+    btn.classList.remove('copied');
+    document.getElementById('salinLabel').textContent = 'Salin Pesan';
+
+    // Sembunyikan fallback dulu
+    document.getElementById('waFallback').style.display = 'none';
+
+    // Tampilkan overlay
+    document.getElementById('waOverlay').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  /* ── TUTUP WA MODAL ── */
+  function tutupWAModal() {
+    document.getElementById('waOverlay').classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  // Tutup modal jika klik overlay (bukan sheet)
+  document.getElementById('waOverlay').addEventListener('click', function(e) {
+    if (e.target === this) tutupWAModal();
+  });
+
+  /* ── SALIN PESAN (Safari-safe triple fallback) ── */
+  async function salinPesan() {
+    const msg = document.getElementById('waFallbackTextarea').value;
+    const btn = document.getElementById('btnSalin');
+    const label = document.getElementById('salinLabel');
+    const fallbackEl = document.getElementById('waFallback');
+
+    // Strategi 1: navigator.clipboard (Chrome, Firefox, Safari iOS 15.4+)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(msg);
+        berhasilSalin(btn, label);
+        return;
+      } catch (e) {
+        // lanjut ke strategi 2
+      }
+    }
+
+    // Strategi 2: ClipboardItem API (Safari iOS modern)
+    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+      try {
+        const item = new ClipboardItem({ 'text/plain': new Blob([msg], { type: 'text/plain' }) });
+        await navigator.clipboard.write([item]);
+        berhasilSalin(btn, label);
+        return;
+      } catch (e) {
+        // lanjut ke strategi 3
+      }
+    }
+
+    // Strategi 3: execCommand (Safari lama, iOS < 13)
+    const ta = document.getElementById('waFallbackTextarea');
+    fallbackEl.style.display = 'block';
+    ta.style.display = 'block';
+    ta.focus();
+    ta.setSelectionRange(0, ta.value.length);
+    try {
+      const ok = document.execCommand('copy');
+      if (ok) { berhasilSalin(btn, label); return; }
+    } catch (e) {}
+
+    // Gagal semua — tampilkan textarea agar user bisa salin manual
+    label.textContent = 'Pilih teks & salin manual';
+    btn.style.background = '#888';
+    ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function berhasilSalin(btn, label) {
+    btn.classList.add('copied');
+    label.textContent = '✓ Tersalin!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      label.textContent = 'Salin Pesan';
+    }, 2500);
+  }
 
   /* ── EXPORT JPG (html2canvas) ── */
   async function exportJPG() {
@@ -900,7 +1241,7 @@
       <div class="print-total-row"><span>SISA PEMBAYARAN</span><span>${fmtRp(sisaBayar)}</span></div>
 
       <div class="print-rekening">
-        Transfer hanya ke rekening <strong>Seabank – 123456</strong> a.n. <strong>Fairuz Ayu</strong><br>
+        Transfer hanya ke rekening <strong>SeaBank – 901862619860</strong> a.n. <strong>Fairuz Qu Ratu Ayu</strong><br>
         Hati-hati penipuan
       </div>
 
