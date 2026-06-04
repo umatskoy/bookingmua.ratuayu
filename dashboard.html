@@ -2888,7 +2888,15 @@
     if (page === 'kalender') renderCalendar();
     if (page === 'kinerja')  renderKinerja();
     if (page === 'keuangan') renderKeuangan();
-    if (page === 'setting')  renderSettingPaket();
+    if (page === 'setting')  {
+      // Tampilkan loading dulu
+      ['settingPaketList','settingAddonList','settingTeamList'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<div style="padding:24px;color:var(--text-secondary);font-size:13px;"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block;margin-right:6px;"></i>Memuat data...</div>`;
+      });
+      // Load ulang dari GAS lalu render
+      Promise.all([loadPakets(), loadAddOns(), loadTeam()]).then(() => renderSettingPaket());
+    }
 
     const sidebar = document.getElementById('sidebar');
     if (sidebar.classList.contains('open')) toggleSidebar();
@@ -3383,7 +3391,10 @@
     try {
       const res  = await fetch(APPS_SCRIPT_URL + '?action=getPakets');
       const data = await res.json();
-      if (data.success) allPakets = data.pakets || [];
+      if (data.success) {
+        allPakets = data.pakets || [];
+        if (currentPage === 'setting') renderSettingPaket();
+      }
     } catch (err) { console.error('Error loading pakets:', err); }
   }
 
@@ -3391,7 +3402,10 @@
     try {
       const res  = await fetch(APPS_SCRIPT_URL + '?action=getAddOns');
       const data = await res.json();
-      if (data.success) allAddOns = data.addons || [];
+      if (data.success) {
+        allAddOns = data.addons || [];
+        if (currentPage === 'setting') renderSettingAddon();
+      }
     } catch (err) { console.error('Error loading addons:', err); }
   }
 
@@ -3399,7 +3413,10 @@
     try {
       const res  = await fetch(APPS_SCRIPT_URL + '?action=getTeam');
       const data = await res.json();
-      if (data.success) allTeam = data.team || [];
+      if (data.success) {
+        allTeam = data.team || [];
+        if (currentPage === 'setting') renderSettingTeam();
+      }
     } catch (err) { console.error('Error loading team:', err); }
   }
 
@@ -3441,6 +3458,7 @@
 
   function renderSettingPaket() {
     const container = document.getElementById('settingPaketList');
+    if (!container) return;
     if (!allPakets.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:48px 0;color:var(--text-secondary);">
