@@ -1657,7 +1657,7 @@
       <div id="settingPaketList"></div>
     </div>
     <!-- Add On -->
-    <div class="bookings-section">
+    <div class="bookings-section" style="margin-bottom:24px;">
       <div class="bookings-header">
         <h2><i class="ti ti-sparkles" style="color:var(--pink);font-size:16px;"></i> Pengaturan Add On</h2>
         <button class="btn-refresh" onclick="openAddAddonModal()">
@@ -1666,6 +1666,17 @@
       </div>
       <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Data tersimpan di tab <strong>Paket</strong> kolom D–E. Di form edit booking, add on bisa dipilih lebih dari satu.</p>
       <div id="settingAddonList"></div>
+    </div>
+    <!-- Team -->
+    <div class="bookings-section">
+      <div class="bookings-header">
+        <h2><i class="ti ti-users" style="color:var(--pink);font-size:16px;"></i> Pengaturan Tim</h2>
+        <button class="btn-refresh" onclick="openAddTeamModal()">
+          <i class="ti ti-plus"></i> Tambah Anggota
+        </button>
+      </div>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Data tersimpan di tab <strong>Team</strong>. Digunakan sebagai dropdown MUA, Hair Stylist, dan Hijab Stylist di form booking.</p>
+      <div id="settingTeamList"></div>
     </div>
   </div>
 
@@ -2365,18 +2376,22 @@
           <label>MUA Bertugas</label>
           <select id="ef_mua_bertugas">
             <option value="">— Pilih MUA —</option>
-            <option value="Ratu"   ${b.mua_bertugas === 'Ratu'   ? 'selected' : ''}>Ratu</option>
-            <option value="Noven"  ${b.mua_bertugas === 'Noven'  ? 'selected' : ''}>Noven</option>
-            <option value="Darnia" ${b.mua_bertugas === 'Darnia' ? 'selected' : ''}>Darnia</option>
+            ${allTeam.filter(t => t.role === 'MUA').map(t =>
+              `<option value="${t.nama}" ${b.mua_bertugas === t.nama ? 'selected' : ''}>${t.nama}</option>`
+            ).join('')}
+            ${!allTeam.filter(t => t.role === 'MUA').find(t => t.nama === b.mua_bertugas) && b.mua_bertugas
+              ? `<option value="${b.mua_bertugas}" selected>${b.mua_bertugas}</option>` : ''}
           </select>
         </div>
         <div class="edit-field">
           <label>MUA Bertugas 2 <span style="font-size:10px;color:var(--text-secondary);font-weight:400;">(opsional)</span></label>
           <select id="ef_mua_bertugas_2">
             <option value="">— Pilih MUA 2 —</option>
-            <option value="Ratu"   ${b.mua_bertugas_2 === 'Ratu'   ? 'selected' : ''}>Ratu</option>
-            <option value="Noven"  ${b.mua_bertugas_2 === 'Noven'  ? 'selected' : ''}>Noven</option>
-            <option value="Darnia" ${b.mua_bertugas_2 === 'Darnia' ? 'selected' : ''}>Darnia</option>
+            ${allTeam.filter(t => t.role === 'MUA').map(t =>
+              `<option value="${t.nama}" ${b.mua_bertugas_2 === t.nama ? 'selected' : ''}>${t.nama}</option>`
+            ).join('')}
+            ${!allTeam.filter(t => t.role === 'MUA').find(t => t.nama === b.mua_bertugas_2) && b.mua_bertugas_2
+              ? `<option value="${b.mua_bertugas_2}" selected>${b.mua_bertugas_2}</option>` : ''}
           </select>
         </div>
       </div>
@@ -2444,11 +2459,25 @@
       <div class="edit-fields-row">
         <div class="edit-field">
           <label>Hijab Stylist Bertugas</label>
-          <input type="text" id="ef_hijab_stylist" value="${b.hijab_stylist || ''}" placeholder="Nama hijab stylist">
+          <select id="ef_hijab_stylist">
+            <option value="">— Pilih Hijab Stylist —</option>
+            ${allTeam.filter(t => t.role === 'Hijab Stylist').map(t =>
+              `<option value="${t.nama}" ${b.hijab_stylist === t.nama ? 'selected' : ''}>${t.nama}</option>`
+            ).join('')}
+            ${!allTeam.filter(t => t.role === 'Hijab Stylist').find(t => t.nama === b.hijab_stylist) && b.hijab_stylist
+              ? `<option value="${b.hijab_stylist}" selected>${b.hijab_stylist}</option>` : ''}
+          </select>
         </div>
         <div class="edit-field">
           <label>Hair Stylist Bertugas</label>
-          <input type="text" id="ef_hair_stylist" value="${b.hair_stylist || ''}" placeholder="Nama hair stylist">
+          <select id="ef_hair_stylist">
+            <option value="">— Pilih Hair Stylist —</option>
+            ${allTeam.filter(t => t.role === 'Hair Stylist').map(t =>
+              `<option value="${t.nama}" ${b.hair_stylist === t.nama ? 'selected' : ''}>${t.nama}</option>`
+            ).join('')}
+            ${!allTeam.filter(t => t.role === 'Hair Stylist').find(t => t.nama === b.hair_stylist) && b.hair_stylist
+              ? `<option value="${b.hair_stylist}" selected>${b.hair_stylist}</option>` : ''}
+          </select>
         </div>
       </div>
 
@@ -3136,6 +3165,7 @@
     loadBookings();
     loadPakets();
     loadAddOns();
+    loadTeam();
   });
 
   /* ══════════════════════════════════════════════
@@ -3343,9 +3373,11 @@
 
   let allPakets = [];
   let allAddOns = [];
+  let allTeam   = [];
 
   function getPaketList() { return allPakets; }
   function getAddOnList()  { return allAddOns; }
+  function getTeamList()   { return allTeam; }
 
   async function loadPakets() {
     try {
@@ -3361,6 +3393,14 @@
       const data = await res.json();
       if (data.success) allAddOns = data.addons || [];
     } catch (err) { console.error('Error loading addons:', err); }
+  }
+
+  async function loadTeam() {
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?action=getTeam');
+      const data = await res.json();
+      if (data.success) allTeam = data.team || [];
+    } catch (err) { console.error('Error loading team:', err); }
   }
 
   function syncPaketField() {
@@ -3619,11 +3659,80 @@
     } catch (err) { alert('Error: ' + err.message); }
   }
 
-  /* ── Patch renderSettingPaket untuk juga render addon ── */
+  /* ── Patch renderSettingPaket untuk juga render addon + team ── */
   const _origRenderSettingPaket = renderSettingPaket;
   function renderSettingPaket() {
     _origRenderSettingPaket();
     renderSettingAddon();
+    renderSettingTeam();
+  }
+
+  /* ── Render Setting Team ── */
+  const ROLE_BADGE = {
+    'MUA':           { bg: '#fdf2f8', color: '#be185d', border: '#f9a8d4' },
+    'Hair Stylist':  { bg: '#eff6ff', color: '#1d4ed8', border: '#93c5fd' },
+    'Hijab Stylist': { bg: '#f0fdf4', color: '#15803d', border: '#86efac' },
+  };
+  function roleBadge(role) {
+    const s = ROLE_BADGE[role] || { bg: '#f5f5f5', color: '#555', border: '#ddd' };
+    return `<span style="background:${s.bg};color:${s.color};border:1px solid ${s.border};border-radius:6px;padding:2px 10px;font-size:11px;font-weight:600;">${role}</span>`;
+  }
+  function renderSettingTeam() {
+    const container = document.getElementById('settingTeamList');
+    if (!container) return;
+    if (!allTeam.length) {
+      container.innerHTML = `<div style="text-align:center;padding:48px 0;color:var(--text-secondary);"><i class="ti ti-users" style="font-size:36px;display:block;margin-bottom:12px;opacity:.4;"></i>Belum ada anggota tim. Klik <strong>Tambah Anggota</strong> untuk mulai.</div>`;
+      return;
+    }
+    const roles = ['MUA', 'Hair Stylist', 'Hijab Stylist'];
+    container.innerHTML = roles.map(role => {
+      const members = allTeam.filter(t => t.role === role);
+      if (!members.length) return '';
+      return `<div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:8px;">${role}</div><table style="width:100%;border-collapse:collapse;"><tbody>${members.map(m => { const idx = allTeam.indexOf(m); return `<tr style="border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='var(--bg-soft)'" onmouseout="this.style.background=''"><td style="padding:10px 12px;font-size:14px;font-weight:500;">${m.nama}</td><td style="padding:10px 12px;">${roleBadge(m.role)}</td><td style="padding:10px 12px;text-align:right;"><button onclick="openEditTeamModal(${idx})" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text-secondary);margin-right:4px;"><i class="ti ti-pencil"></i></button><button onclick="deleteTeamMember(${idx})" style="background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:#dc2626;"><i class="ti ti-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
+    }).join('');
+  }
+  async function deleteTeamMember(index) {
+    if (!confirm('Hapus anggota ini?')) return;
+    const m = allTeam[index];
+    try {
+      const params = new URLSearchParams({ action: 'deleteTeamMember', rowIndex: m._rowIndex });
+      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
+      const data = await res.json();
+      if (data.success) { allTeam.splice(index, 1); renderSettingTeam(); }
+      else alert('Gagal hapus: ' + data.message);
+    } catch (err) { alert('Error: ' + err.message); }
+  }
+  let editingTeamIndex = null;
+  function openAddTeamModal() {
+    editingTeamIndex = null;
+    document.getElementById('teamModalTitle').textContent = 'Tambah Anggota Tim';
+    document.getElementById('tmNama').value = '';
+    document.getElementById('tmRole').value = 'MUA';
+    document.getElementById('teamModal').style.display = 'flex';
+    document.getElementById('tmNama').focus();
+  }
+  function openEditTeamModal(index) {
+    const m = allTeam[index];
+    editingTeamIndex = index;
+    document.getElementById('teamModalTitle').textContent = 'Edit Anggota Tim';
+    document.getElementById('tmNama').value = m.nama;
+    document.getElementById('tmRole').value = m.role;
+    document.getElementById('teamModal').style.display = 'flex';
+    document.getElementById('tmNama').focus();
+  }
+  function closeTeamModal() { document.getElementById('teamModal').style.display = 'none'; }
+  async function saveTeamModal() {
+    const nama = document.getElementById('tmNama').value.trim();
+    const role = document.getElementById('tmRole').value;
+    if (!nama) { alert('Nama anggota wajib diisi.'); return; }
+    const isEdit = editingTeamIndex !== null;
+    const params = new URLSearchParams({ action: isEdit ? 'updateTeamMember' : 'addTeamMember', nama, role, ...(isEdit ? { rowIndex: allTeam[editingTeamIndex]._rowIndex } : {}) });
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?' + params);
+      const data = await res.json();
+      if (data.success) { closeTeamModal(); await loadTeam(); renderSettingTeam(); }
+      else alert('Gagal simpan: ' + data.message);
+    } catch (err) { alert('Error: ' + err.message); }
   }
 </script>
 
@@ -3679,6 +3788,34 @@
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button onclick="closeAddonModal()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;">Batal</button>
       <button onclick="saveAddonModal()" style="padding:9px 20px;border:none;border-radius:8px;background:var(--pink);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tim Setting -->
+<div id="teamModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h3 id="teamModalTitle" style="font-size:16px;font-weight:600;">Tambah Anggota Tim</h3>
+      <button onclick="closeTeamModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-secondary);line-height:1;"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Nama</label>
+      <input id="tmNama" type="text" placeholder="Contoh: Ratu"
+        style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
+        onkeydown="if(event.key==='Enter') saveTeamModal()">
+    </div>
+    <div style="margin-bottom:24px;">
+      <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Role</label>
+      <select id="tmRole" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff;">
+        <option value="MUA">MUA</option>
+        <option value="Hair Stylist">Hair Stylist</option>
+        <option value="Hijab Stylist">Hijab Stylist</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeTeamModal()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit;">Batal</button>
+      <button onclick="saveTeamModal()" style="padding:9px 20px;border:none;border-radius:8px;background:var(--pink);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Simpan</button>
     </div>
   </div>
 </div>
