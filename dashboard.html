@@ -2897,7 +2897,11 @@
     if (page === 'kinerja')  renderKinerja();
     if (page === 'keuangan') renderKeuangan();
     if (page === 'setting')  {
-      renderSettingPaket();
+      ['settingPaketList','settingAddonList','settingTeamList'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.innerHTML.trim()) el.innerHTML = `<div style="padding:24px;color:var(--text-secondary);font-size:13px;"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block;margin-right:6px;"></i>Memuat data...</div>`;
+      });
+      (_loadAllPromise || Promise.resolve()).then(() => renderSettingPaket());
     }
 
     const sidebar = document.getElementById('sidebar');
@@ -3172,7 +3176,7 @@
   window.addEventListener('DOMContentLoaded', () => {
     switchPage('dashboard');
     renderCalendar();
-    loadBookings();
+    _loadAllPromise = loadBookings();
   });
 
   /* ══════════════════════════════════════════════
@@ -3381,6 +3385,7 @@
   let allPakets = [];
   let allAddOns = [];
   let allTeam   = [];
+  let _loadAllPromise = null; // track promise agar switchPage bisa tunggu
 
   function getPaketList() { return allPakets; }
   function getAddOnList()  { return allAddOns; }
