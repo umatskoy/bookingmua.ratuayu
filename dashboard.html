@@ -2889,13 +2889,13 @@
     if (page === 'kinerja')  renderKinerja();
     if (page === 'keuangan') renderKeuangan();
     if (page === 'setting')  {
-      // Tampilkan loading dulu
       ['settingPaketList','settingAddonList','settingTeamList'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = `<div style="padding:24px;color:var(--text-secondary);font-size:13px;"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block;margin-right:6px;"></i>Memuat data...</div>`;
       });
-      // Load ulang dari GAS lalu render
-      Promise.all([loadPakets(), loadAddOns(), loadTeam()]).then(() => renderSettingPaket());
+      loadPakets();
+      loadAddOns();
+      loadTeam();
     }
 
     const sidebar = document.getElementById('sidebar');
@@ -3393,7 +3393,10 @@
       const data = await res.json();
       if (data.success) {
         allPakets = data.pakets || [];
-        if (currentPage === 'setting') renderSettingPaket();
+        if (currentPage === 'setting') {
+          const el = document.getElementById('settingPaketList');
+          if (el) renderSettingPaket();
+        }
       }
     } catch (err) { console.error('Error loading pakets:', err); }
   }
