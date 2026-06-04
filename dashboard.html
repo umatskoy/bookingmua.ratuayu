@@ -2846,13 +2846,11 @@
     const pageKalender = document.getElementById('page-kalender');
     const pageKinerja  = document.getElementById('page-kinerja');
     const pageKeuangan = document.getElementById('page-keuangan');
-    const pageSetting  = document.getElementById('page-setting');
 
     pageDaftar.style.display   = page === 'daftar'   ? 'block' : 'none';
     pageKalender.style.display = page === 'kalender' ? 'block' : 'none';
     pageKinerja.style.display  = page === 'kinerja'  ? 'block' : 'none';
     pageKeuangan.style.display = page === 'keuangan' ? 'block' : 'none';
-    pageSetting.style.display  = page === 'setting'  ? 'block' : 'none';
 
     if (page === 'kalender') renderCalendar();
     if (page === 'kinerja')  renderKinerja();
