@@ -956,12 +956,12 @@
     btn.disabled = true; spinner.style.display = 'block'; btnText.textContent = 'Mengirim...';
 
     try {
-      // Kirim via GET + query params — satu-satunya cara yang reliable dengan Apps Script
-      // (POST dengan no-cors tidak bisa kirim JSON body ke doGet/doPost)
-      const params = new URLSearchParams({ action: 'submitBooking' });
-      Object.entries(payload).forEach(([k, v]) => params.append(k, v ?? ''));
-
-      const res = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
+      // Kirim via POST + JSON body
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'submitBooking', ...payload })
+      });
       const result = await res.json();
 
       if (result.success) {
