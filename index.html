@@ -932,8 +932,7 @@
         errorMsg.style.display = 'block';
         return;
       }
-      try { const b64 = await toBase64(buktiFile); buktiInfo = buktiFile.name + ' (' + b64.substring(0,50) + '...)'; }
-      catch { buktiInfo = buktiFile.name + ' (gagal dikonversi)'; }
+      buktiInfo = buktiFile.name;
     }
 
     const payload = {
