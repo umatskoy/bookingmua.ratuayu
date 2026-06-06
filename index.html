@@ -115,7 +115,14 @@
     .upload-zone p { font-size: 13.5px; color: var(--text-secondary); font-weight: 400; margin-bottom: 3px; }
     .upload-zone small { font-size: 11px; color: #b0b0b0; }
     .upload-zone input[type="file"] { display: none; }
-    #file-name { font-size: 12px; color: var(--success-text); margin-top: 6px; display: none; }
+    #file-name { margin-top: 10px; display: none; }
+    #file-name .preview-wrap { display: flex; align-items: center; gap: 10px; background: #fff8f9; border: 1px solid #f2c4cc; border-radius: 10px; padding: 10px 12px; }
+    #file-name .preview-img { width: 56px; height: 56px; object-fit: cover; border-radius: 7px; border: 1px solid #f2c4cc; flex-shrink: 0; }
+    #file-name .preview-info { flex: 1; min-width: 0; }
+    #file-name .preview-name { font-size: 13px; font-weight: 600; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #file-name .preview-size { font-size: 11px; color: #999; margin-top: 2px; }
+    #file-name .preview-remove { background: none; border: none; cursor: pointer; color: #bbb; font-size: 18px; padding: 0 4px; line-height: 1; flex-shrink: 0; }
+    #file-name .preview-remove:hover { color: #E24B4A; }
 
     .info-note { grid-column: 1 / -1; background: #fdf6f9; border: 0.5px solid rgba(212,83,126,0.2); border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: #9a3a5f; line-height: 1.55; display: flex; gap: 8px; align-items: flex-start; }
     .info-note i { margin-top: 1px; flex-shrink: 0; font-size: 15px; }
@@ -835,7 +842,27 @@
   /* ── FILE ── */
   function showFileName(input) {
     const lbl = document.getElementById('file-name');
-    if (input.files?.[0]) { lbl.textContent = '✓ ' + input.files[0].name; lbl.style.display = 'block'; }
+    const file = input.files?.[0];
+    if (!file) { lbl.style.display = 'none'; lbl.innerHTML = ''; return; }
+    const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+    const objUrl = URL.createObjectURL(file);
+    lbl.innerHTML = `
+      <div class="preview-wrap">
+        <img class="preview-img" src="${objUrl}" alt="preview bukti" />
+        <div class="preview-info">
+          <div class="preview-name">✓ ${file.name}</div>
+          <div class="preview-size">${sizeMB} MB</div>
+        </div>
+        <button type="button" class="preview-remove" onclick="removeBukti()" title="Hapus file">✕</button>
+      </div>`;
+    lbl.style.display = 'block';
+  }
+  function removeBukti() {
+    const input = document.getElementById('bukti');
+    input.value = '';
+    const lbl = document.getElementById('file-name');
+    lbl.style.display = 'none';
+    lbl.innerHTML = '';
   }
   function toBase64(file) {
     return new Promise((res, rej) => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.onerror = rej; rd.readAsDataURL(file); });
@@ -922,6 +949,12 @@
 
     let buktiInfo = 'Tidak diupload';
     const buktiFile = document.getElementById('bukti').files[0];
+    if (!buktiFile) {
+      errorMsg.innerHTML = '⚠ Harap upload bukti transfer sebelum mengirim booking.';
+      errorMsg.style.display = 'block';
+      errorMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
     if (buktiFile) {
       if (buktiFile.size > 3 * 1024 * 1024) {
         errorMsg.innerHTML = '⚠ Ukuran file bukti transfer melebihi 3 MB.';
