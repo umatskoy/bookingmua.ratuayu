@@ -956,26 +956,21 @@
     btn.disabled = true; spinner.style.display = 'block'; btnText.textContent = 'Mengirim...';
 
     try {
-      // Kirim via POST + JSON body
-      const res = await fetch(APPS_SCRIPT_URL, {
+      // Kirim via POST + no-cors (Apps Script CORS workaround)
+      await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
         body: JSON.stringify({ action: 'submitBooking', ...payload })
       });
-      const result = await res.json();
 
-      if (result.success) {
-        // Tampilkan success message
-        successMsg.style.display = 'block';
-        btn.style.display = 'none';
-        form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-        successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+      // no-cors = response opaque, tidak bisa dibaca — anggap sukses jika tidak throw
+      successMsg.style.display = 'block';
+      btn.style.display = 'none';
+      form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
+      successMsg.scrollIntoView({ behavior:'smooth', block:'center' });
 
-        // Tampilkan modal konfirmasi WA otomatis
-        tampilWAModal(payload);
-      } else {
-        throw new Error(result.message || 'Respons gagal dari server');
-      }
+      // Tampilkan modal konfirmasi WA otomatis
+      tampilWAModal(payload);
     } catch (err) {
       errorMsg.innerHTML = '⚠ Gagal terhubung ke server. Cek koneksi internet Anda dan coba lagi.<br><small style="color:#999;">' + err.message + '</small>';
       errorMsg.style.display = 'block';
