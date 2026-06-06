@@ -517,7 +517,7 @@
         <div class="upload-zone" onclick="document.getElementById('bukti').click()" role="button" tabindex="0" aria-label="Upload bukti transfer">
           <i class="ti ti-upload up-icon" aria-hidden="true"></i>
           <p>Klik untuk upload bukti transfer</p>
-          <small>JPG, PNG, PDF — maks. 5 MB</small>
+          <small>JPG, PNG — maks. 3 MB</small>
           <input type="file" id="bukti" name="bukti" accept="image/*,.pdf" onchange="showFileName(this)" />
         </div>
         <div id="file-name"></div>
@@ -923,12 +923,30 @@
     let buktiInfo = 'Tidak diupload';
     const buktiFile = document.getElementById('bukti').files[0];
     if (buktiFile) {
-      if (buktiFile.size > 5 * 1024 * 1024) {
-        errorMsg.innerHTML = '⚠ Ukuran file bukti transfer melebihi 5 MB.';
+      if (buktiFile.size > 3 * 1024 * 1024) {
+        errorMsg.innerHTML = '⚠ Ukuran file bukti transfer melebihi 3 MB.';
         errorMsg.style.display = 'block';
         return;
       }
-      buktiInfo = buktiFile.name;
+      // Upload ke ImgBB
+      try {
+        btnText.textContent = 'Mengupload bukti...';
+        btn.disabled = true; spinner.style.display = 'block';
+        const formData = new FormData();
+        formData.append('image', buktiFile);
+        const imgbbRes = await fetch('https://api.imgbb.com/1/upload?key=0c93df7398d1a708af4386afbfa9b45d', {
+          method: 'POST',
+          body: formData
+        });
+        const imgbbData = await imgbbRes.json();
+        if (imgbbData.success) {
+          buktiInfo = imgbbData.data.url;
+        } else {
+          throw new Error('Upload gagal');
+        }
+      } catch {
+        buktiInfo = buktiFile.name + ' (gagal upload)';
+      }
     }
 
     const payload = {
