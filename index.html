@@ -987,7 +987,7 @@
       wa: form.wa.value.trim(),
       lokasi: form.lokasi.value.trim(),
       tanggal: form.tanggal.value,
-      jam_selesai: form.jam_selesai.value || '-',
+      jam_selesai: (form.jam_selesai.value || '-').replace(':', '.'),
       paket: getPaketString(),
       jumlah_orang: getTotalOrang(),
       addon: getAddonString(),
