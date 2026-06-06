@@ -940,7 +940,7 @@
         });
         const imgbbData = await imgbbRes.json();
         if (imgbbData.success) {
-          buktiInfo = imgbbData.data.url_viewer;
+          buktiInfo = imgbbData.data.url;
         } else {
           throw new Error('Upload gagal');
         }
