@@ -421,10 +421,6 @@
         <input type="tel" id="wa" name="wa" placeholder="08xxxxxxxxxx" required />
       </div>
 
-      <div class="form-group full">
-        <label class="field-label" for="email">Email <span class="req">*</span></label>
-        <input type="email" id="email" name="email" placeholder="contoh@email.com" required />
-      </div>
 
       <div class="form-group full">
         <label class="field-label" for="lokasi">Lokasi Make Up <span class="req">*</span></label>
@@ -894,7 +890,7 @@
     const errorMsg = document.getElementById('errorMsg');
     errorMsg.style.display = 'none';
 
-    const requiredIds = ['nama','wa','email','lokasi','tanggal','dp'];
+    const requiredIds = ['nama','wa','lokasi','tanggal','dp'];
     let valid = true;
     requiredIds.forEach(fid => {
       const el = document.getElementById(fid);
@@ -938,7 +934,6 @@
     const payload = {
       nama: form.nama.value.trim(),
       wa: form.wa.value.trim(),
-      email: form.email.value.trim(),
       lokasi: form.lokasi.value.trim(),
       tanggal: form.tanggal.value,
       jam_selesai: form.jam_selesai.value || '-',
@@ -1018,7 +1013,6 @@
 
 👤 *Nama:* ${payload.nama}
 📱 *WhatsApp:* ${payload.wa}
-📧 *Email:* ${payload.email}
 
 📅 *Tanggal:* ${tgl}${jam ? '\n⏰ *Jam Selesai Target:* ' + jam : ''}
 📍 *Lokasi:* ${payload.lokasi}
@@ -1151,7 +1145,6 @@ ${paketLines}`;
     // Collect client info
     const nama     = document.getElementById('nama').value || '-';
     const wa       = document.getElementById('wa').value || '-';
-    const email    = document.getElementById('email').value || '-';
     const lokasi   = document.getElementById('lokasi').value || '-';
     const tanggal  = document.getElementById('tanggal').value || '-';
     const jam      = document.getElementById('jam_selesai').value || '-';
@@ -1219,7 +1212,6 @@ ${paketLines}`;
       <div class="print-meta">
         <div class="print-meta-item"><div class="pm-label">Nama Klien</div><div class="pm-value">${nama}</div></div>
         <div class="print-meta-item"><div class="pm-label">WhatsApp</div><div class="pm-value">${wa}</div></div>
-        <div class="print-meta-item"><div class="pm-label">Email</div><div class="pm-value">${email}</div></div>
         <div class="print-meta-item"><div class="pm-label">Tanggal Make Up</div><div class="pm-value">${tanggal}${jam !== '-' ? ' – selesai ' + jam : ''}</div></div>
         <div class="print-meta-item" style="grid-column:1/-1;"><div class="pm-label">Lokasi</div><div class="pm-value">${lokasi}</div></div>
       </div>
