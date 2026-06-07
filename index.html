@@ -399,6 +399,34 @@
     #invoiceCard .inv-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: #D4537E; padding: 10px 0 6px; border-top: 1.5px solid #D4537E; margin-top: 6px; }
     #invoiceCard .inv-rekening { margin-top: 20px; border: 1px solid #e8d0da; border-radius: 6px; padding: 10px 14px; font-size: 11.5px; color: #7a1f3d; text-align: center; line-height: 1.7; }
     #invoiceCard .inv-footer { margin-top: 24px; text-align: center; font-size: 10px; color: #bbb; border-top: 0.5px solid #eee; padding-top: 10px; }
+ /* ── RATE LIMIT MODAL ── */
+.rl-overlay {
+  display: none; position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.45); padding: 1rem;
+  align-items: center; justify-content: center;
+}
+.rl-overlay.visible { display: flex; }
+.rl-sheet {
+  background: #fff; border-radius: 16px; padding: 2rem 1.5rem;
+  max-width: 360px; width: 100%; text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  animation: sheetFade 0.22s ease both;
+}
+.rl-icon { font-size: 40px; margin-bottom: 0.75rem; }
+.rl-sheet h3 {
+  font-family: 'Cormorant Garamond', serif; font-size: 20px;
+  font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;
+}
+.rl-sheet p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.25rem; }
+.rl-sheet p strong { color: var(--pink); }
+.btn-rl-close {
+  width: 100%; padding: 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  color: #fff; background: var(--pink); border: none; border-radius: 8px;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-rl-close:hover { background: #bf4570; }
+  
   </style>
 </head>
 <body>
@@ -605,7 +633,15 @@
     </div>
   </div>
 </div>
-
+<!-- RATE LIMIT MODAL -->
+<div class="rl-overlay" id="rlOverlay">
+  <div class="rl-sheet">
+    <div class="rl-icon">⏳</div>
+    <h3>Mohon Tunggu Sebentar</h3>
+    <p>Kamu baru saja mengirim booking. Harap tunggu <strong id="rlSisaWaktu">—</strong> sebelum mengirim booking baru.</p>
+    <button class="btn-rl-close" onclick="tutupRLModal()">Mengerti</button>
+  </div>
+</div>
 <script>
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzW4Rs9Uc7psMTYJgKSRXnE_lWb8rKtJ1IxV4z_-D9R5tiZ4OoAYDAsIRxyd1hOc7NSAQ/exec";
 
@@ -1121,7 +1157,19 @@ ${paketLines}`;
     document.getElementById('waOverlay').classList.remove('visible');
     document.body.style.overflow = '';
   }
-
+/* ── RATE LIMIT MODAL ── */
+function tampilRateLimitModal(sisaLabel) {
+  document.getElementById('rlSisaWaktu').textContent = sisaLabel;
+  document.getElementById('rlOverlay').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function tutupRLModal() {
+  document.getElementById('rlOverlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+document.getElementById('rlOverlay').addEventListener('click', function(e) {
+  if (e.target === this) tutupRLModal();
+});
   // Tutup modal jika klik overlay (bukan sheet)
   document.getElementById('waOverlay').addEventListener('click', function(e) {
     if (e.target === this) tutupWAModal();
