@@ -982,7 +982,26 @@
       errorMsg.scrollIntoView({ behavior:'smooth', block:'center' });
       return;
     }
-
+ // ── PRE-CHECK RATE LIMIT ──
+    const waInput = document.getElementById('wa').value.trim();
+    try {
+      btnText.textContent = 'Memeriksa...';
+      btn.disabled = true; spinner.style.display = 'block';
+      const rlRes = await fetch(APPS_SCRIPT_URL + '?action=checkRateLimit&wa=' + encodeURIComponent(waInput));
+      const rlData = await rlRes.json();
+      if (rlData.rateLimited) {
+        const menit = Math.floor(rlData.sisaDetik / 60);
+        const detik = rlData.sisaDetik % 60;
+        const sisaLabel = menit > 0 ? `${menit} menit ${detik} detik` : `${rlData.sisaDetik} detik`;
+        tampilRateLimitModal(sisaLabel);
+        btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
+        return;
+      }
+    } catch (rlErr) {
+      // Jika pre-check gagal (network error dsb), lanjut submit saja
+      console.warn('Rate limit check gagal, lanjut submit:', rlErr);
+      btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
+    }
     let buktiInfo = 'Tidak diupload';
     const buktiFile = document.getElementById('bukti').files[0];
     if (!buktiFile) {
