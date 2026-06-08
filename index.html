@@ -856,22 +856,29 @@
   }
 
   /* ── PAYLOAD HELPERS ── */
-  function getPaketString() {
-    return paketRows.map(r => {
-      const opt = PAKET_OPTIONS.find(o => o.value === r.value) || PAKET_OPTIONS[0];
+ function getPaketString() {
+  return paketRows
+    .filter(r => r.value) // ← TAMBAHAN: skip baris yang belum dipilih
+    .map(r => {
+      const opt = PAKET_OPTIONS.find(o => o.value === r.value);
+      if (!opt) return null; // ← TAMBAHAN: guard
       return `${opt.label} x${r.jumlah} orang`;
-    }).join(' | ');
-  }
+    })
+    .filter(Boolean) // ← filter null
+    .join(' | ');
+}
 
   function getAddonString() {
-    if (addonRows.length === 0) return 'Tidak ada';
-    return addonRows.map(r => {
-      const opt = ADDON_OPTIONS.find(o => o.value === r.value) || ADDON_OPTIONS[0];
-      // Format konsisten dengan getPaketString: "Nama – Rp Harga xJumlah"
-      const hargaLabel = opt.harga === 0 ? 'Gratis' : 'Rp ' + opt.harga.toLocaleString('id-ID');
-      return `${opt.value} – ${hargaLabel} x${r.jumlah}`;
-    }).join(' | ');
-  }
+  if (addonRows.length === 0) return 'Tidak ada';
+  const filled = addonRows.filter(r => r.value); // ← TAMBAHAN: filter baris yang belum dipilih
+  if (filled.length === 0) return 'Tidak ada';   // ← TAMBAHAN: jika semua belum dipilih
+  return filled.map(r => {
+    const opt = ADDON_OPTIONS.find(o => o.value === r.value);
+    if (!opt) return null; // ← TAMBAHAN: guard jika tidak ketemu
+    const hargaLabel = opt.harga === 0 ? 'Gratis' : 'Rp ' + opt.harga.toLocaleString('id-ID');
+    return `${opt.value} – ${hargaLabel} x${r.jumlah}`;
+  }).filter(Boolean).join(' | '); // ← filter null hasil dari guard di atas
+}
 
   function getTotalOrang() { return paketRows.reduce((s,r) => s + r.jumlah, 0); }
 
@@ -1273,34 +1280,38 @@ document.getElementById('rlOverlay').addEventListener('click', function(e) {
     const dpVal          = parseRp(dpRaw);
 
     // Build paket rows HTML
-    let paketHTML = '';
-    let subtotal = 0;
-    paketRows.forEach(r => {
-      const opt = PAKET_OPTIONS.find(o => o.value === r.value) || PAKET_OPTIONS[0];
-      const sub = opt.harga * r.jumlah;
-      subtotal += sub;
-      paketHTML += `<div class="print-row">
-        <span class="pr-name">${opt.value}</span>
-        <span class="pr-qty">${r.jumlah} orang</span>
-        <span class="pr-price">${opt.harga === 0 ? 'Diskusi' : fmtRp(sub)}</span>
-      </div>`;
-    });
+let paketHTML = '';
+let subtotal = 0;
+paketRows.forEach(r => {
+  if (!r.value) return; // ← TAMBAHAN: skip baris yang belum dipilih
+  const opt = PAKET_OPTIONS.find(o => o.value === r.value);
+  if (!opt) return; // ← TAMBAHAN: skip jika tidak ketemu
+  const sub = opt.harga * r.jumlah;
+  subtotal += sub;
+  paketHTML += `<div class="print-row">
+    <span class="pr-name">${opt.value}</span>
+    <span class="pr-qty">${r.jumlah} orang</span>
+    <span class="pr-price">${opt.harga === 0 ? 'Diskusi' : fmtRp(sub)}</span>
+  </div>`;
+});
     if (!paketHTML) paketHTML = '<div class="print-row"><span class="pr-name" style="color:#bbb;">-</span></div>';
 
     // Build addon rows HTML
     let addonHTML = '';
-    if (addonRows.length > 0) {
-      addonRows.forEach(r => {
-        const opt = ADDON_OPTIONS.find(o => o.value === r.value) || ADDON_OPTIONS[0];
-        const sub = opt.harga * r.jumlah;
-        subtotal += sub;
-        addonHTML += `<div class="print-row">
-          <span class="pr-name">${opt.value}</span>
-          <span class="pr-qty">×${r.jumlah}</span>
-          <span class="pr-price">${opt.harga === 0 ? 'Gratis' : fmtRp(sub)}</span>
-        </div>`;
-      });
-    }
+   if (addonRows.length > 0) {
+  addonRows.forEach(r => {
+    if (!r.value) return; // ← TAMBAHAN: skip baris yang belum dipilih
+    const opt = ADDON_OPTIONS.find(o => o.value === r.value);
+    if (!opt) return; // ← TAMBAHAN: skip jika tidak ketemu
+    const sub = opt.harga * r.jumlah;
+    subtotal += sub;
+    addonHTML += `<div class="print-row">
+      <span class="pr-name">${opt.value}</span>
+      <span class="pr-qty">×${r.jumlah}</span>
+      <span class="pr-price">${opt.harga === 0 ? 'Gratis' : fmtRp(sub)}</span>
+    </div>`;
+  });
+}
 
     // Transport row
     let transportHTML = '';
