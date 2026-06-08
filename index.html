@@ -456,6 +456,10 @@
         <input type="tel" id="wa" name="wa" placeholder="08xxxxxxxxxx" required />
       </div>
 
+      <div class="form-group full">
+        <label class="field-label" for="instagram">Instagram</label>
+        <input type="text" id="instagram" name="instagram" placeholder="@username Instagram Anda" />
+      </div>
 
       <div class="form-group full">
         <label class="field-label" for="lokasi">Lokasi Make Up <span class="req">*</span></label>
@@ -571,7 +575,11 @@
         <p>Terima kasih telah booking. Kami akan konfirmasi melalui WhatsApp dalam 1×24 jam.</p>
       </div>
 
-      <div class="submit-row">
+    <div class="submit-row">
+        <label style="display:flex; align-items:flex-start; gap:10px; font-size:13px; color:#6b6b6b; cursor:pointer; line-height:1.5; width:100%; text-align:left;">
+          <input type="checkbox" id="agreeTC" style="margin-top:3px; accent-color:#D4537E; flex-shrink:0;" />
+          Saya menyetujui syarat &amp; ketentuan yang berlaku dari jasa make up artist ini.
+        </label>
         <button type="submit" class="btn-submit" id="submitBtn">
           <div class="spinner" id="spinner"></div>
           <span id="btnText">Kirim Booking</span>
@@ -961,6 +969,12 @@
     errorMsg.style.display = 'none';
 
     const requiredIds = ['nama','wa','lokasi','tanggal','dp'];
+    if (!document.getElementById('agreeTC').checked) {
+      errorMsg.innerHTML = '⚠ Harap centang persetujuan syarat & ketentuan sebelum mengirim booking.';
+      errorMsg.style.display = 'block';
+      errorMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
     let valid = true;
     requiredIds.forEach(fid => {
       const el = document.getElementById(fid);
