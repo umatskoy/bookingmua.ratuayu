@@ -474,10 +474,15 @@
         <input type="date" id="tanggal" name="tanggal" required />
       </div>
 
-      <div class="form-group">
-        <label class="field-label" for="jam_selesai">Jam Selesai Target</label>
-        <input type="time" id="jam_selesai" name="jam_selesai" />
-      </div>
+     <div class="form-group">
+  <label class="field-label" for="jam_selesai">Jam Selesai Target</label>
+  <input type="time" id="jam_selesai" name="jam_selesai" />
+</div>
+
+<div class="form-group" id="tanggal-day2-wrap" style="display:none;">
+  <label class="field-label" for="tanggal_day2">Tanggal Make Up <em style="font-style:normal;font-size:10px;background:#fdf0f5;color:#D4537E;padding:2px 7px;border-radius:20px;margin-left:6px;">Day 2</em></label>
+  <input type="date" id="tanggal_day2" name="tanggal_day2" />
+</div>
 
       <!-- Paket & Layanan -->
       <div class="section-label"><span>Paket &amp; Layanan</span></div>
@@ -729,12 +734,21 @@
     document.getElementById('paket-list').appendChild(row);
     refreshSummary();
   }
+const PAKET_DAY2 = 'Exclusive Private Makeup Class';
 
-  function paketChange(id, val) {
-    const r = paketRows.find(r => r.id === id);
-    if (r) r.value = val;
-    refreshSummary();
-  }
+function paketChange(id, val) {
+  const r = paketRows.find(r => r.id === id);
+  if (r) r.value = val;
+  refreshSummary();
+  checkDay2Visibility();
+}
+
+function checkDay2Visibility() {
+  const needsDay2 = paketRows.some(r => r.value === PAKET_DAY2);
+  const wrap = document.getElementById('tanggal-day2-wrap');
+  wrap.style.display = needsDay2 ? '' : 'none';
+  if (!needsDay2) document.getElementById('tanggal_day2').value = '';
+}
 
   function pkStep(id, delta) {
     const r = paketRows.find(r => r.id === id);
@@ -743,13 +757,12 @@
     document.getElementById('pk-qty-' + id).textContent = r.jumlah;
     refreshSummary();
   }
-
-  function hapusPaket(id) {
-    paketRows = paketRows.filter(r => r.id !== id);
-    document.getElementById('paket-row-' + id)?.remove();
-    refreshSummary();
-  }
-
+function hapusPaket(id) {
+  paketRows = paketRows.filter(r => r.id !== id);
+  document.getElementById('paket-row-' + id)?.remove();
+  refreshSummary();
+  checkDay2Visibility();
+}
   /* ── ADDON ── */
   function tambahAddon() {
     rowCtr++;
@@ -1063,6 +1076,8 @@
       wa: form.wa.value.trim(),
       lokasi: form.lokasi.value.trim(),
       tanggal: form.tanggal.value,
+      tanggal: form.tanggal.value,
+tanggal_day2: document.getElementById('tanggal_day2').value || '-',
       jam_selesai: (form.jam_selesai.value || '-').replace(':', '.'),
       paket: getPaketString(),
       jumlah_orang: getTotalOrang(),
