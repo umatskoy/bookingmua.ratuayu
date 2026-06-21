@@ -476,7 +476,12 @@
 
      <div class="form-group">
   <label class="field-label" for="jam_selesai">Jam Selesai Target</label>
-  <input type="time" id="jam_selesai" name="jam_selesai" />
+  <input type="time" id="jam_selesai" name="jam_selesai" oninput="updateJamMulai()" />
+</div>
+
+<div class="form-group">
+  <label class="field-label" for="jam_mulai">Estimasi Jam Mulai</label>
+  <input type="time" id="jam_mulai" name="jam_mulai" readonly />
 </div>
 
 <div class="form-group" id="tanggal-day2-wrap" style="display:none;">
@@ -740,6 +745,7 @@ function paketChange(id, val) {
   const r = paketRows.find(r => r.id === id);
   if (r) r.value = val;
   refreshSummary();
+  updateJamMulai();
   checkDay2Visibility();
 }
 
@@ -756,11 +762,13 @@ function checkDay2Visibility() {
     r.jumlah = Math.max(1, Math.min(50, r.jumlah + delta));
     document.getElementById('pk-qty-' + id).textContent = r.jumlah;
     refreshSummary();
+    updateJamMulai();
   }
 function hapusPaket(id) {
   paketRows = paketRows.filter(r => r.id !== id);
   document.getElementById('paket-row-' + id)?.remove();
   refreshSummary();
+  updateJamMulai();
   checkDay2Visibility();
 }
   /* ── ADDON ── */
@@ -902,6 +910,63 @@ function hapusPaket(id) {
 }
 
   function getTotalOrang() { return paketRows.reduce((s,r) => s + r.jumlah, 0); }
+
+  /* ── ESTIMASI JAM MULAI ── */
+  function normalizeText(str) {
+    return (str || '').toLowerCase();
+  }
+
+  function getDurasiMakeupMenit() {
+    const selectedRows = paketRows.filter(r => r.value);
+    if (selectedRows.length === 0) return null;
+
+    const hasWedding = selectedRows.some(r => normalizeText(r.value).startsWith('wedding'));
+    if (hasWedding) return 180;
+
+    const hasEngagementOrPrewedd = selectedRows.some(r => {
+      const val = normalizeText(r.value);
+      return val.includes('engagement') || val.includes('prewedd');
+    });
+    if (hasEngagementOrPrewedd) return 120;
+
+    const regularRows = selectedRows.filter(r => {
+      const val = normalizeText(r.value);
+      return val.includes('reguler') || val.includes('wisuda') || val.includes('pendamping');
+    });
+    if (regularRows.length === 0) return null;
+
+    const totalReguler = regularRows.reduce((sum, r) => sum + r.jumlah, 0);
+    const durasiReguler = {
+      1: 90,
+      2: 150,
+      3: 210,
+      4: 150
+    };
+    return durasiReguler[totalReguler] || null;
+  }
+
+  function subtractMinutesFromTime(timeValue, minutesToSubtract) {
+    if (!timeValue || minutesToSubtract === null) return '';
+    const [hours, minutes] = timeValue.split(':').map(Number);
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return '';
+
+    const dayMinutes = 24 * 60;
+    const endMinutes = hours * 60 + minutes;
+    const startMinutes = (endMinutes - minutesToSubtract + dayMinutes) % dayMinutes;
+    const startHours = Math.floor(startMinutes / 60);
+    const startMins = startMinutes % 60;
+
+    return `${String(startHours).padStart(2, '0')}:${String(startMins).padStart(2, '0')}`;
+  }
+
+  function updateJamMulai() {
+    const jamSelesai = document.getElementById('jam_selesai')?.value || '';
+    const jamMulai = document.getElementById('jam_mulai');
+    if (!jamMulai) return;
+
+    const durasiMenit = getDurasiMakeupMenit();
+    jamMulai.value = subtractMinutesFromTime(jamSelesai, durasiMenit);
+  }
 
   /* ── FILE ── */
   function showFileName(input) {
@@ -1071,14 +1136,18 @@ function hapusPaket(id) {
       }
     }
 
+    updateJamMulai();
+    const estimasiJamMulai = (form.jam_mulai.value || '-').replace(':', '.');
+
     const payload = {
       nama: form.nama.value.trim(),
       wa: form.wa.value.trim(),
       lokasi: form.lokasi.value.trim(),
       tanggal: form.tanggal.value,
-      tanggal: form.tanggal.value,
-tanggal_day2: document.getElementById('tanggal_day2').value || '-',
+      tanggal_day2: document.getElementById('tanggal_day2').value || '-',
       jam_selesai: (form.jam_selesai.value || '-').replace(':', '.'),
+      jam_mulai: estimasiJamMulai,
+      estimasi_jam_mulai: estimasiJamMulai,
       paket: getPaketString(),
       jumlah_orang: getTotalOrang(),
       addon: getAddonString(),
@@ -1127,6 +1196,9 @@ tanggal_day2: document.getElementById('tanggal_day2').value || '-',
       ? new Date(payload.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
       : '-';
     const jam = payload.jam_selesai && payload.jam_selesai !== '-' ? payload.jam_selesai : null;
+    const jamMulai = payload.estimasi_jam_mulai && payload.estimasi_jam_mulai !== '-'
+      ? payload.estimasi_jam_mulai
+      : (payload.jam_mulai && payload.jam_mulai !== '-' ? payload.jam_mulai : null);
 
     // Paket lines
     const paketLines = paketRows.map(r => {
@@ -1156,7 +1228,7 @@ tanggal_day2: document.getElementById('tanggal_day2').value || '-',
 👤 *Nama:* ${payload.nama}
 📱 *WhatsApp:* ${payload.wa}
 
-📅 *Tanggal:* ${tgl}${jam ? '\n⏰ *Jam Selesai Target:* ' + jam : ''}
+📅 *Tanggal:* ${tgl}${jamMulai ? '\n🕒 *Estimasi Jam Mulai:* ' + jamMulai : ''}${jam ? '\n⏰ *Jam Selesai Target:* ' + jam : ''}
 📍 *Lokasi:* ${payload.lokasi}
 
 💄 *Paket:*
@@ -1302,6 +1374,7 @@ document.getElementById('rlOverlay').addEventListener('click', function(e) {
     const lokasi   = document.getElementById('lokasi').value || '-';
     const tanggal  = document.getElementById('tanggal').value || '-';
     const jam      = document.getElementById('jam_selesai').value || '-';
+    const jamMulai = document.getElementById('jam_mulai').value || '-';
     const transportBiayaRaw = document.getElementById('transport_biaya').value || '';
     const dpRaw    = document.getElementById('dp').value || '';
 
@@ -1370,7 +1443,7 @@ paketRows.forEach(r => {
       <div class="print-meta">
         <div class="print-meta-item"><div class="pm-label">Nama Klien</div><div class="pm-value">${nama}</div></div>
         <div class="print-meta-item"><div class="pm-label">WhatsApp</div><div class="pm-value">${wa}</div></div>
-        <div class="print-meta-item"><div class="pm-label">Tanggal Make Up</div><div class="pm-value">${tanggal}${jam !== '-' ? ' – selesai ' + jam : ''}</div></div>
+        <div class="print-meta-item"><div class="pm-label">Tanggal Make Up</div><div class="pm-value">${tanggal}${jamMulai !== '-' ? ' – mulai ' + jamMulai : ''}${jam !== '-' ? ' – selesai ' + jam : ''}</div></div>
         <div class="print-meta-item" style="grid-column:1/-1;"><div class="pm-label">Lokasi</div><div class="pm-value">${lokasi}</div></div>
       </div>
 
