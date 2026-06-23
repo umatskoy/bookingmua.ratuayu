@@ -837,12 +837,13 @@ function hapusPaket(id) {
       </div>`;
     }).join('') || '<div style="font-size:13px;color:#b0b0b0;padding:4px 0;">Belum ada paket</div>';
 
-    // Addon rows
+   // Addon rows (manual + otomatis dari paket)
+    const autoAddons = getAutoAddons();
     const addonSection = document.getElementById('gs-addon-section');
     const addonContainer = document.getElementById('gs-addon-rows');
-    if (addonRows.length > 0) {
+    if (addonRows.length > 0 || autoAddons.length > 0) {
       addonSection.style.display = 'block';
-      addonContainer.innerHTML = addonRows.map(r => {
+      const manualHTML = addonRows.map(r => {
         if (!r.value) return `<div class="gs-row"><span class="gs-name" style="color:#b0b0b0;">Belum dipilih</span><span class="gs-qty">×${r.jumlah}</span><span class="gs-price" style="color:#b0b0b0;">—</span></div>`;
         const opt = ADDON_OPTIONS.find(o => o.value === r.value) || ADDON_OPTIONS[0];
         const sub = opt.harga * r.jumlah;
@@ -853,6 +854,14 @@ function hapusPaket(id) {
           <span class="gs-price">${opt.harga === 0 ? 'Gratis' : fmtRp(sub)}</span>
         </div>`;
       }).join('');
+
+      const autoHTML = autoAddons.map(a => `<div class="gs-row">
+        <span class="gs-name">${a.value} <span style="font-size:9.5px;color:var(--pink);background:var(--pink-light);padding:1px 6px;border-radius:10px;margin-left:4px;">Otomatis</span></span>
+        <span class="gs-qty">×${a.jumlah}</span>
+        <span class="gs-price">Gratis</span>
+      </div>`).join('');
+
+      addonContainer.innerHTML = manualHTML + autoHTML;
     } else {
       addonSection.style.display = 'none';
     }
@@ -898,18 +907,40 @@ function hapusPaket(id) {
 }
 
   function getAddonString() {
-  if (addonRows.length === 0) return 'Tidak ada';
-  const filled = addonRows.filter(r => r.value); // ← TAMBAHAN: filter baris yang belum dipilih
-  if (filled.length === 0) return 'Tidak ada';   // ← TAMBAHAN: jika semua belum dipilih
-  return filled.map(r => {
+  const autoAddons = getAutoAddons();
+  const filled = addonRows.filter(r => r.value);
+  if (filled.length === 0 && autoAddons.length === 0) return 'Tidak ada';
+
+  const manualStr = filled.map(r => {
     const opt = ADDON_OPTIONS.find(o => o.value === r.value);
-    if (!opt) return null; // ← TAMBAHAN: guard jika tidak ketemu
+    if (!opt) return null;
     const hargaLabel = opt.harga === 0 ? 'Gratis' : 'Rp ' + opt.harga.toLocaleString('id-ID');
     return `${opt.value} – ${hargaLabel} x${r.jumlah}`;
-  }).filter(Boolean).join(' | '); // ← filter null hasil dari guard di atas
+  }).filter(Boolean);
+
+  const autoStr = autoAddons.map(a => `${a.value} – Gratis x${a.jumlah}`);
+
+  return [...manualStr, ...autoStr].join(' | ') || 'Tidak ada';
 }
 
   function getTotalOrang() { return paketRows.reduce((s,r) => s + r.jumlah, 0); }
+
+/* ── AUTO ADD-ON DARI PAKET ── */
+function getAutoAddons() {
+  const selected = paketRows.filter(r => r.value);
+  const auto = [];
+
+  const hasHairdo = selected.some(r => normalizeText(r.value).includes('hairdo'));
+  if (hasHairdo) auto.push({ value: 'Hairdo Include', harga: 0, jumlah: 1 });
+
+  const hasDiamondOrGold = selected.some(r => {
+    const v = normalizeText(r.value);
+    return v.includes('diamond') || v.includes('gold');
+  });
+  if (hasDiamondOrGold) auto.push({ value: 'Make Up Mom Include', harga: 0, jumlah: 1 });
+
+  return auto;
+}
 
   /* ── ESTIMASI JAM MULAI ── */
   function normalizeText(str) {
@@ -1208,15 +1239,17 @@ function hapusPaket(id) {
       return `  • ${opt.value} ×${r.jumlah} orang = ${harga}`;
     }).filter(Boolean).join('\n');
 
-    // Addon lines
-    const addonLines = addonRows.length > 0
-      ? addonRows.map(r => {
-          const opt = ADDON_OPTIONS.find(o => o.value === r.value);
-          if (!opt) return '';
-          const harga = opt.harga === 0 ? 'Gratis' : 'Rp ' + (opt.harga * r.jumlah).toLocaleString('id-ID');
-          return `  • ${opt.value} ×${r.jumlah} = ${harga}`;
-        }).filter(Boolean).join('\n')
-      : null;
+  // Addon lines (manual + otomatis dari paket)
+    const autoAddonsWA = getAutoAddons();
+    const manualAddonLines = addonRows.map(r => {
+      const opt = ADDON_OPTIONS.find(o => o.value === r.value);
+      if (!opt) return '';
+      const harga = opt.harga === 0 ? 'Gratis' : 'Rp ' + (opt.harga * r.jumlah).toLocaleString('id-ID');
+      return `  • ${opt.value} ×${r.jumlah} = ${harga}`;
+    }).filter(Boolean);
+    const autoAddonLines = autoAddonsWA.map(a => `  • ${a.value} ×${a.jumlah} = Gratis`);
+    const combinedAddonLines = [...manualAddonLines, ...autoAddonLines];
+    const addonLines = combinedAddonLines.length > 0 ? combinedAddonLines.join('\n') : null;
 
     const transportBiaya = parseRp(payload.transport_biaya);
     const dpVal = parseRp(payload.dp);
@@ -1398,23 +1431,27 @@ paketRows.forEach(r => {
 });
     if (!paketHTML) paketHTML = '<div class="print-row"><span class="pr-name" style="color:#bbb;">-</span></div>';
 
-    // Build addon rows HTML
+   // Build addon rows HTML (manual + otomatis dari paket)
     let addonHTML = '';
-   if (addonRows.length > 0) {
-  addonRows.forEach(r => {
-    if (!r.value) return; // ← TAMBAHAN: skip baris yang belum dipilih
-    const opt = ADDON_OPTIONS.find(o => o.value === r.value);
-    if (!opt) return; // ← TAMBAHAN: skip jika tidak ketemu
-    const sub = opt.harga * r.jumlah;
-    subtotal += sub;
-    addonHTML += `<div class="print-row">
-      <span class="pr-name">${opt.value}</span>
-      <span class="pr-qty">×${r.jumlah}</span>
-      <span class="pr-price">${opt.harga === 0 ? 'Gratis' : fmtRp(sub)}</span>
-    </div>`;
-  });
-}
-
+    addonRows.forEach(r => {
+      if (!r.value) return;
+      const opt = ADDON_OPTIONS.find(o => o.value === r.value);
+      if (!opt) return;
+      const sub = opt.harga * r.jumlah;
+      subtotal += sub;
+      addonHTML += `<div class="print-row">
+        <span class="pr-name">${opt.value}</span>
+        <span class="pr-qty">×${r.jumlah}</span>
+        <span class="pr-price">${opt.harga === 0 ? 'Gratis' : fmtRp(sub)}</span>
+      </div>`;
+    });
+    getAutoAddons().forEach(a => {
+      addonHTML += `<div class="print-row">
+        <span class="pr-name">${a.value}</span>
+        <span class="pr-qty">×${a.jumlah}</span>
+        <span class="pr-price">Gratis</span>
+      </div>`;
+    });
     // Transport row
     let transportHTML = '';
     if (transportBiaya > 0) {
