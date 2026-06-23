@@ -923,7 +923,11 @@ function hapusPaket(id) {
   return [...manualStr, ...autoStr].join(' | ') || 'Tidak ada';
 }
 
-  function getTotalOrang() { return paketRows.reduce((s,r) => s + r.jumlah, 0); }
+ function getTotalOrang() {
+  const baseOrang = paketRows.filter(r => r.value).reduce((s, r) => s + r.jumlah, 0);
+  const extraOrang = getAutoAddons().reduce((s, a) => s + (a.extraOrang || 0), 0);
+  return baseOrang + extraOrang;
+}
 
 /* ── AUTO ADD-ON DARI PAKET ── */
 function getAutoAddons() {
@@ -931,13 +935,14 @@ function getAutoAddons() {
   const auto = [];
 
   const hasHairdo = selected.some(r => normalizeText(r.value).includes('hairdo'));
-  if (hasHairdo) auto.push({ value: 'Hairdo Include', harga: 0, jumlah: 1 });
+  if (hasHairdo) auto.push({ value: 'Hairdo Include', harga: 0, jumlah: 1, extraOrang: 0 });
 
   const hasDiamondOrGold = selected.some(r => {
     const v = normalizeText(r.value);
     return v.includes('diamond') || v.includes('gold');
   });
-  if (hasDiamondOrGold) auto.push({ value: 'Make Up Mom Include', harga: 0, jumlah: 2});
+  // Make Up Mom Include = +2 orang (mama pengantin & mama pasangan)
+  if (hasDiamondOrGold) auto.push({ value: 'Make Up Mom Include', harga: 0, jumlah: 1, extraOrang: 2 });
 
   return auto;
 }
