@@ -663,6 +663,16 @@
 <script>
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaUmkX2bKLDNKAsFKL6mGGMuLLsVB91qEZl1xEEhuCuoStIGpo83_fCmw-G3VcKyI3cQ/exec";
 
+  /* ── SUPABASE (cutover #6 awal, 16 Jul 2026) ──
+     Booking dikirim LANGSUNG ke Supabase (bukan lagi GAS submitBooking/Sheets).
+     Kunci publishable memang aman ditaruh di frontend; keamanan tulis dijaga
+     RLS "main anon booking insert": hanya INSERT ke tenant Ratu Ayu, wajib
+     source_row_index NULL & status 'dp' — selain itu ditolak server.
+     PENTING: insert TANPA select/returning (anon tak punya policy SELECT). */
+  const SUPABASE_URL = "https://xoopcbnwthhhyrnagrwn.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_RTyouOFptLq3OdepAk-0Dw_Ut89fZkx";
+  const TENANT_ID = "a4d7101e-6ab0-48e9-aa3f-f621f431990a"; // Ratu Ayu MUA
+
   let PAKET_OPTIONS = [
     { label: 'Wedding Silver – Rp 3.500.000',       value: 'Wedding Silver',       harga: 3500000 },
     { label: 'Wedding Gold – Rp 5.500.000',         value: 'Wedding Gold',         harga: 5500000 },
@@ -1197,14 +1207,48 @@ function getAutoAddons() {
     btn.disabled = true; spinner.style.display = 'block'; btnText.textContent = 'Mengirim...';
 
     try {
-      // Kirim via POST + no-cors (Apps Script CORS workaround)
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify({ action: 'submitBooking', ...payload })
-      });
+      /* ── Kirim LANGSUNG ke Supabase (menggantikan GAS submitBooking) ──
+         Bentuk kolom mengikuti tabel bookings dashboard. */
+      const angka = (v) => { const n = Number(String(v ?? '').replace(/[^0-9-]/g, '')); return Number.isNaN(n) ? 0 : n; };
+      const keJamDb = (v) => { const m = String(v || '').trim().match(/^(\d{1,2})[.:](\d{2})$/); return m ? m[1].padStart(2, '0') + ':' + m[2] + ':00' : null; };
+      const teks = (v) => { const s = String(v ?? '').trim(); return (!s || s === '-') ? null : s; };
 
-      // no-cors = response opaque, tidak bisa dibaca — anggap sukses jika tidak throw
+      const row = {
+        tenant_id: TENANT_ID,
+        order_timestamp: new Date().toISOString(),
+        customer_name: payload.nama || '-',
+        phone: teks(payload.wa),
+        location: teks(payload.lokasi),
+        event_date: payload.tanggal || null,
+        day2: teks(payload.tanggal_day2),
+        start_time: keJamDb(payload.estimasi_jam_mulai),
+        end_time: keJamDb(payload.jam_selesai),
+        package_name: teks(payload.paket),
+        add_ons: teks(payload.addon),
+        pax: angka(payload.jumlah_orang) || null,
+        transport_fee: angka(payload.transport_biaya),
+        dp_1: angka(payload.dp),
+        subtotal: angka(payload.subtotal),
+        remaining_payment: angka(payload.sisa_bayar),
+        status: 'dp',
+        proof_url: teks(payload.bukti)
+      };
+
+      const res = await fetch(SUPABASE_URL + '/rest/v1/bookings', {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal' // WAJIB: anon tak boleh SELECT (returning ditolak RLS)
+        },
+        body: JSON.stringify(row)
+      });
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => '');
+        throw new Error('Server menolak (' + res.status + '). ' + errBody.slice(0, 120));
+      }
+
       successMsg.style.display = 'block';
       btn.style.display = 'none';
       form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
