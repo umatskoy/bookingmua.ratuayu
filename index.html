@@ -661,7 +661,8 @@
   </div>
 </div>
 <script>
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaUmkX2bKLDNKAsFKL6mGGMuLLsVB91qEZl1xEEhuCuoStIGpo83_fCmw-G3VcKyI3cQ/exec";
+  /* 6E (20 Jul): Google Apps Script PENSIUN dari form — submit, rate-limit,
+     dan daftar harga semuanya lewat Supabase. Tak ada lagi APPS_SCRIPT_URL. */
 
   /* ── SUPABASE (cutover #6 awal, 16 Jul 2026) ──
      Booking dikirim LANGSUNG ke Supabase (bukan lagi GAS submitBooking/Sheets).
@@ -1062,8 +1063,9 @@ function getAutoAddons() {
     return new Promise((res, rej) => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.onerror = rej; rd.readAsDataURL(file); });
   }
 
-  /* ── INIT: fetch paket & addon dari Google Sheet ── */
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzaUmkX2bKLDNKAsFKL6mGGMuLLsVB91qEZl1xEEhuCuoStIGpo83_fCmw-G3VcKyI3cQ/exec';
+  /* ── INIT: fetch paket & addon dari SUPABASE (6E — GAS pensiun) ──
+     RPC price_list(slug): nama+harga master (paket/addon/addon_custom).
+     Sumber sama dengan kalkulator estimasi. */
 
   function fmtLabel(nama, harga) {
     return harga === 0
@@ -1073,28 +1075,23 @@ function getAutoAddons() {
 
   window.addEventListener('DOMContentLoaded', async () => {
     try {
-      const [resPaket, resAddon] = await Promise.all([
-        fetch(GAS_URL + '?action=getPakets').then(r => r.json()),
-        fetch(GAS_URL + '?action=getAddOns').then(r => r.json()),
-      ]);
+      const resHarga = await fetch(SUPABASE_URL + '/rest/v1/rpc/price_list', {
+        method: 'POST',
+        headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_slug: 'ratu-ayu-mua' })
+      }).then(r => r.json());
+      const rows = Array.isArray(resHarga) ? resHarga : [];
+      const byKind = (kind) => rows
+        .filter(r => r.kind === kind)
+        .map(r => ({ label: fmtLabel(r.nama, Number(r.harga)), value: r.nama, harga: Number(r.harga) }))
+        .sort((a, b) => a.value.localeCompare(b.value, 'id'));
 
-      if (resPaket.success && resPaket.pakets && resPaket.pakets.length > 0) {
-        PAKET_OPTIONS = resPaket.pakets.map(p => ({
-          label: fmtLabel(p.nama, p.harga),
-          value: p.nama,
-          harga: p.harga,
-        }));
-      }
-
-      if (resAddon.success && resAddon.addons && resAddon.addons.length > 0) {
-        ADDON_OPTIONS = resAddon.addons.map(a => ({
-          label: fmtLabel(a.nama, a.harga),
-          value: a.nama,
-          harga: a.harga,
-        }));
-      }
+      const pakets = byKind('paket');
+      const addons = byKind('addon');
+      if (pakets.length > 0) PAKET_OPTIONS = pakets;
+      if (addons.length > 0) ADDON_OPTIONS = addons;
     } catch(e) {
-      console.warn('Gagal fetch dari Sheet, pakai data default:', e);
+      console.warn('Gagal fetch harga dari Supabase, pakai data default:', e);
     }
 
     tambahPaket();
@@ -1151,12 +1148,20 @@ function getAutoAddons() {
     try {
       btnText.textContent = 'Memeriksa...';
       btn.disabled = true; spinner.style.display = 'block';
-      const rlRes = await fetch(APPS_SCRIPT_URL + '?action=checkRateLimit&wa=' + encodeURIComponent(waInput));
-      const rlData = await rlRes.json();
-      if (rlData.rateLimited) {
-        const menit = Math.floor(rlData.sisaDetik / 60);
-        const detik = rlData.sisaDetik % 60;
-        const sisaLabel = menit > 0 ? `${menit} menit ${detik} detik` : `${rlData.sisaDetik} detik`;
+      // 6E: rate-limit via RPC Supabase (menggantikan GAS checkRateLimit).
+      // Cek booking terakhir dari nomor WA yang sama (window 10 menit).
+      const rlRes = await fetch(SUPABASE_URL + '/rest/v1/rpc/check_booking_rate_limit', {
+        method: 'POST',
+        headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_wa: waInput })
+      });
+      const rlRows = await rlRes.json();
+      const rlData = Array.isArray(rlRows) ? (rlRows[0] || {}) : rlRows;
+      if (rlData.rate_limited) {
+        const sisa = Number(rlData.sisa_detik) || 0;
+        const menit = Math.floor(sisa / 60);
+        const detik = sisa % 60;
+        const sisaLabel = menit > 0 ? `${menit} menit ${detik} detik` : `${sisa} detik`;
         tampilRateLimitModal(sisaLabel);
         btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
         return;
