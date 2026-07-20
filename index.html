@@ -673,6 +673,25 @@
   const SUPABASE_KEY = "sb_publishable_RTyouOFptLq3OdepAk-0Dw_Ut89fZkx";
   const TENANT_ID = "a4d7101e-6ab0-48e9-aa3f-f621f431990a"; // Ratu Ayu MUA
 
+  /* Kompres bukti sisi-klien (~maks 1600px, JPEG q0.7) → hemat Storage privat.
+     Return Blob JPEG; reject bila format tak bisa didecode (mis. HEIC) → caller
+     fallback ke file asli (bucket bukti-transfer izinkan heic/png/webp). */
+  function kompresGambar(file) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () {
+        var w = img.width, h = img.height, MAX = 1600;
+        if (Math.max(w, h) > MAX) { var r = MAX / Math.max(w, h); w = Math.round(w * r); h = Math.round(h * r); }
+        var canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(img.src);
+        canvas.toBlob(function (b) { b ? resolve(b) : reject(new Error('toBlob null')); }, 'image/jpeg', 0.7);
+      };
+      img.onerror = function () { URL.revokeObjectURL(img.src); reject(new Error('decode gagal')); };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
   let PAKET_OPTIONS = [
     { label: 'Wedding Silver – Rp 3.500.000',       value: 'Wedding Silver',       harga: 3500000 },
     { label: 'Wedding Gold – Rp 5.500.000',         value: 'Wedding Gold',         harga: 5500000 },
@@ -1156,29 +1175,33 @@ function getAutoAddons() {
       return;
     }
     if (buktiFile) {
-      if (buktiFile.size > 3 * 1024 * 1024) {
-        errorMsg.innerHTML = '⚠ Ukuran file bukti transfer melebihi 3 MB.';
+      if (buktiFile.size > 10 * 1024 * 1024) {
+        errorMsg.innerHTML = '⚠ Ukuran file bukti transfer melebihi 10 MB.';
         errorMsg.style.display = 'block';
         return;
       }
-      // Upload ke ImgBB
+      // Kompres → upload ke Supabase Storage PRIVAT (bukti-transfer/<tenant>/…).
+      // Menggantikan ImgBB (publik). proof_url menyimpan PATH; dashboard buka via signed URL.
       try {
         btnText.textContent = 'Mengupload bukti...';
         btn.disabled = true; spinner.style.display = 'block';
-        const formData = new FormData();
-        formData.append('image', buktiFile);
-        const imgbbRes = await fetch('https://api.imgbb.com/1/upload?key=0c93df7398d1a708af4386afbfa9b45d', {
+        var blob = buktiFile, mime = buktiFile.type || 'image/jpeg';
+        try { var kompres = await kompresGambar(buktiFile); if (kompres) { blob = kompres; mime = 'image/jpeg'; } }
+        catch (e) { /* format tak terdecode (HEIC dll) → pakai file asli */ }
+        var ext = mime.indexOf('png') >= 0 ? 'png' : mime.indexOf('webp') >= 0 ? 'webp' : mime.indexOf('heic') >= 0 ? 'heic' : 'jpg';
+        var path = TENANT_ID + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+        var up = await fetch(SUPABASE_URL + '/storage/v1/object/bukti-transfer/' + path, {
           method: 'POST',
-          body: formData
+          headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': mime },
+          body: blob
         });
-        const imgbbData = await imgbbRes.json();
-        if (imgbbData.success) {
-          buktiInfo = imgbbData.data.url.replace('i.ibb.co/', 'i.ibb.co.com/');
-        } else {
-          throw new Error('Upload gagal');
-        }
-      } catch {
-        buktiInfo = buktiFile.name + ' (gagal upload)';
+        if (!up.ok) throw new Error('HTTP ' + up.status);
+        buktiInfo = path; // simpan path relatif bucket (bukan URL) — dashboard yg sign
+      } catch (err) {
+        errorMsg.innerHTML = '⚠ Gagal mengunggah bukti transfer. Cek koneksi & coba lagi.<br><small style="color:#999;">' + err.message + '</small>';
+        errorMsg.style.display = 'block';
+        btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
+        return; // JANGAN kirim booking tanpa bukti tersimpan
       }
     }
 
