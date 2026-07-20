@@ -664,15 +664,32 @@
   /* 6E (20 Jul): Google Apps Script PENSIUN dari form — submit, rate-limit,
      dan daftar harga semuanya lewat Supabase. Tak ada lagi APPS_SCRIPT_URL. */
 
-  /* ── SUPABASE (cutover #6 awal, 16 Jul 2026) ──
-     Booking dikirim LANGSUNG ke Supabase (bukan lagi GAS submitBooking/Sheets).
-     Kunci publishable memang aman ditaruh di frontend; keamanan tulis dijaga
-     RLS "main anon booking insert": hanya INSERT ke tenant Ratu Ayu, wajib
-     source_row_index NULL & status 'dp' — selain itu ditolak server.
-     PENTING: insert TANPA select/returning (anon tak punya policy SELECT). */
+  /* ── SUPABASE — 6F (20 Jul): form MULTI-TENANT, satu deploy semua tenant ──
+     Browser hanya mengirim SLUG; SERVER yang meresolusi slug → tenant_id
+     (RPC submit_booking, SECURITY DEFINER). Browser TIDAK PERNAH menentukan
+     tenant_id, jadi tak bisa menulis ke tenant lain. Validasi + rate-limit
+     juga di server. Kunci publishable memang aman di frontend. */
   const SUPABASE_URL = "https://xoopcbnwthhhyrnagrwn.supabase.co";
   const SUPABASE_KEY = "sb_publishable_RTyouOFptLq3OdepAk-0Dw_Ut89fZkx";
-  const TENANT_ID = "a4d7101e-6ab0-48e9-aa3f-f621f431990a"; // Ratu Ayu MUA
+
+  /* Slug tenant dari URL: ?slug=xxx  ATAU  /book/xxx.
+     Tanpa keduanya → tenant utama (kompat link lama ratuayubooking-mua). */
+  const TENANT_SLUG = (function () {
+    var q = new URLSearchParams(location.search).get('slug');
+    if (q && q.trim()) return q.trim();
+    var m = location.pathname.match(/\/book\/([^/?#]+)/);
+    return m ? decodeURIComponent(m[1]) : 'ratu-ayu-mua';
+  })();
+  var TENANT_ID = null;   // diisi saat load (resolve_tenant) — dipakai path Storage
+  var TENANT_NAME = '';
+
+  function rpc(fn, body) {
+    return fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); });
+  }
 
   /* Kompres bukti sisi-klien (~maks 1600px, JPEG q0.7) → hemat Storage privat.
      Return Blob JPEG; reject bila format tak bisa didecode (mis. HEIC) → caller
@@ -1075,11 +1092,14 @@ function getAutoAddons() {
 
   window.addEventListener('DOMContentLoaded', async () => {
     try {
-      const resHarga = await fetch(SUPABASE_URL + '/rest/v1/rpc/price_list', {
-        method: 'POST',
-        headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_slug: 'ratu-ayu-mua' })
-      }).then(r => r.json());
+      // 6F: resolusi tenant dari slug (perlu id utk path Storage) + daftar harga
+      const [resTenant, resHarga] = await Promise.all([
+        rpc('resolve_tenant', { p_slug: TENANT_SLUG }),
+        rpc('price_list', { p_slug: TENANT_SLUG }),
+      ]);
+      const t = Array.isArray(resTenant) ? resTenant[0] : null;
+      if (t && t.id) { TENANT_ID = t.id; TENANT_NAME = t.name || ''; }
+      else console.warn('Slug tenant tak dikenal:', TENANT_SLUG);
       const rows = Array.isArray(resHarga) ? resHarga : [];
       const byKind = (kind) => rows
         .filter(r => r.kind === kind)
@@ -1150,12 +1170,7 @@ function getAutoAddons() {
       btn.disabled = true; spinner.style.display = 'block';
       // 6E: rate-limit via RPC Supabase (menggantikan GAS checkRateLimit).
       // Cek booking terakhir dari nomor WA yang sama (window 10 menit).
-      const rlRes = await fetch(SUPABASE_URL + '/rest/v1/rpc/check_booking_rate_limit', {
-        method: 'POST',
-        headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_wa: waInput })
-      });
-      const rlRows = await rlRes.json();
+      const rlRows = await rpc('check_booking_rate_limit', { p_wa: waInput, p_slug: TENANT_SLUG });
       const rlData = Array.isArray(rlRows) ? (rlRows[0] || {}) : rlRows;
       if (rlData.rate_limited) {
         const sisa = Number(rlData.sisa_detik) || 0;
@@ -1194,6 +1209,7 @@ function getAutoAddons() {
         try { var kompres = await kompresGambar(buktiFile); if (kompres) { blob = kompres; mime = 'image/jpeg'; } }
         catch (e) { /* format tak terdecode (HEIC dll) → pakai file asli */ }
         var ext = mime.indexOf('png') >= 0 ? 'png' : mime.indexOf('webp') >= 0 ? 'webp' : mime.indexOf('heic') >= 0 ? 'heic' : 'jpg';
+        if (!TENANT_ID) throw new Error('Link booking tidak valid (slug "' + TENANT_SLUG + '" tak dikenal)');
         var path = TENANT_ID + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
         var up = await fetch(SUPABASE_URL + '/storage/v1/object/bukti-transfer/' + path, {
           method: 'POST',
@@ -1242,8 +1258,7 @@ function getAutoAddons() {
       const teks = (v) => { const s = String(v ?? '').trim(); return (!s || s === '-') ? null : s; };
 
       const row = {
-        tenant_id: TENANT_ID,
-        order_timestamp: new Date().toISOString(),
+        slug: TENANT_SLUG, // server yang resolusi ke tenant_id (6F)
         customer_name: payload.nama || '-',
         phone: teks(payload.wa),
         location: teks(payload.lokasi),
@@ -1258,23 +1273,22 @@ function getAutoAddons() {
         dp_1: angka(payload.dp),
         subtotal: angka(payload.subtotal),
         remaining_payment: angka(payload.sisa_bayar),
-        status: 'dp',
         proof_url: teks(payload.bukti)
       };
 
-      const res = await fetch(SUPABASE_URL + '/rest/v1/bookings', {
-        method: 'POST',
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': 'application/json',
-          Prefer: 'return=minimal' // WAJIB: anon tak boleh SELECT (returning ditolak RLS)
-        },
-        body: JSON.stringify(row)
-      });
-      if (!res.ok) {
-        const errBody = await res.text().catch(() => '');
-        throw new Error('Server menolak (' + res.status + '). ' + errBody.slice(0, 120));
+      /* 6F: kirim lewat RPC submit_booking — server resolusi slug→tenant,
+         validasi, rate-limit, lalu INSERT. Browser tak menyentuh tenant_id. */
+      const hasil = await rpc('submit_booking', { payload: row });
+      if (!hasil || hasil.ok !== true) {
+        const kode = (hasil && hasil.error) || 'tidak diketahui';
+        if (kode === 'rate_limited') {
+          const sisa = Number(hasil.sisa_detik) || 0;
+          const mnt = Math.floor(sisa / 60);
+          tampilRateLimitModal(mnt > 0 ? mnt + ' menit ' + (sisa % 60) + ' detik' : sisa + ' detik');
+          btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
+          return;
+        }
+        throw new Error('Server menolak: ' + kode);
       }
 
       successMsg.style.display = 'block';
