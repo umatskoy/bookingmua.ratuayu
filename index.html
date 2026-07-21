@@ -981,8 +981,13 @@ function getAutoAddons() {
   const selected = paketRows.filter(r => r.value);
   const auto = [];
 
-  const hasHairdo = selected.some(r => normalizeText(r.value).includes('hairdo'));
-  if (hasHairdo) auto.push({ value: 'Hairdo Include', harga: 0, jumlah: 1, extraOrang: 0 });
+  /* Hairdo Include = 1 per ORANG di paket ber-"hairdo" (bukan sekadar ada/tidak).
+     Jadi 2 paket hairdo @1 orang → ×2; 1 paket hairdo 3 orang → ×3.
+     extraOrang 0: hairdo untuk orang yang sama, bukan tambahan orang. */
+  const hairdoQty = selected
+    .filter(r => normalizeText(r.value).includes('hairdo'))
+    .reduce((s, r) => s + (parseInt(r.jumlah, 10) || 1), 0);
+  if (hairdoQty > 0) auto.push({ value: 'Hairdo Include', harga: 0, jumlah: hairdoQty, extraOrang: 0 });
 
   const hasDiamondOrGold = selected.some(r => {
     const v = normalizeText(r.value);
