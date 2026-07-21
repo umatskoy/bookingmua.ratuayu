@@ -672,12 +672,16 @@
   const SUPABASE_URL = "https://xoopcbnwthhhyrnagrwn.supabase.co";
   const SUPABASE_KEY = "sb_publishable_RTyouOFptLq3OdepAk-0Dw_Ut89fZkx";
 
-  /* Slug tenant dari URL: ?slug=xxx  ATAU  /book/xxx.
-     Tanpa keduanya → tenant utama (kompat link lama ratuayubooking-mua). */
+  /* Slug tenant dari URL: ?slug=xxx  ATAU  /book/xxx  ATAU  /formbooking-xxx.
+     Bentuk /formbooking-xxx dipakai domain sendiri (rayutools.web.id) yang
+     mem-PROXY ke halaman ini lewat rewrite Vercel. Karena rewrite tak mengubah
+     URL di browser, query ?slug= dari sisi server TIDAK terlihat oleh JS —
+     slug wajib dibaca dari pathname.
+     Tanpa ketiganya → tenant utama (kompat link lama ratuayubooking-mua). */
   const TENANT_SLUG = (function () {
     var q = new URLSearchParams(location.search).get('slug');
     if (q && q.trim()) return q.trim();
-    var m = location.pathname.match(/\/book\/([^/?#]+)/);
+    var m = location.pathname.match(/\/(?:book\/|formbooking-)([^/?#]+)/);
     return m ? decodeURIComponent(m[1]) : 'ratu-ayu-mua';
   })();
   var TENANT_ID = null;   // diisi saat load (resolve_tenant) — dipakai path Storage
