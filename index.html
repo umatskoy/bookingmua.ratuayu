@@ -126,6 +126,7 @@
 
     .info-note { grid-column: 1 / -1; background: #fdf6f9; border: 0.5px solid rgba(212,83,126,0.2); border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: #9a3a5f; line-height: 1.55; display: flex; gap: 8px; align-items: flex-start; }
     .info-note i { margin-top: 1px; flex-shrink: 0; font-size: 15px; }
+    .info-note a { color: var(--pink); font-weight: 500; text-decoration: underline; }
 
     .submit-row { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 0.5rem; }
     .btn-submit { width: 100%; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; background: var(--pink); border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s, transform 0.1s, opacity 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -481,7 +482,15 @@
 
 <div class="form-group">
   <label class="field-label" for="jam_mulai">Estimasi Jam Mulai</label>
-  <input type="time" id="jam_mulai" name="jam_mulai" readonly />
+  <input type="time" id="jam_mulai" name="jam_mulai" readonly aria-describedby="note-jam-mulai" />
+</div>
+
+<div class="info-note" id="note-jam-mulai">
+  <i class="ti ti-clock-hour-4" aria-hidden="true"></i>
+  <span><strong>Estimasi Jam Mulai terhitung otomatis</strong> dari Jam Selesai Target dikurangi
+  durasi paket yang dipilih — tidak perlu diisi manual. Kalau jamnya dirasa kurang pas,
+  sampaikan penyesuaiannya lewat <a href="https://wa.me/62895358671213" target="_blank" rel="noopener">WhatsApp</a>
+  setelah mengirim booking.</span>
 </div>
 
 <div class="form-group" id="tanggal-day2-wrap" style="display:none;">
