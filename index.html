@@ -489,7 +489,7 @@
   <i class="ti ti-clock-hour-4" aria-hidden="true"></i>
   <span><strong>Estimasi Jam Mulai terhitung otomatis</strong> dari Jam Selesai Target dikurangi
   durasi paket yang dipilih — tidak perlu diisi manual. Kalau jamnya dirasa kurang pas,
-  sampaikan penyesuaiannya lewat <a href="https://wa.me/62895358671213" target="_blank" rel="noopener">WhatsApp</a>
+  sampaikan penyesuaiannya lewat <a id="waPenyesuaian" href="#" target="_blank" rel="noopener">WhatsApp</a>
   setelah mengirim booking.</span>
 </div>
 
@@ -565,9 +565,9 @@
         </div>
       </div>
 
-      <div class="rekening-note">
+      <div class="rekening-note" id="rekeningNote" style="display:none;">
         <i class="ti ti-shield-check" aria-hidden="true"></i>
-        <span>Transfer hanya ke rekening <strong>006591161301 - BLU by BCA Digital</strong> a.n. <strong>Fairuz Qu Ratu Ayu</strong><br>Hati-hati penipuan</span>
+        <span id="rekeningNoteText"></span>
       </div>
 
       <div class="form-group full">
@@ -695,6 +695,38 @@
   })();
   var TENANT_ID = null;   // diisi saat load (resolve_tenant) — dipakai path Storage
   var TENANT_NAME = '';
+  var TENANT_BANK = '';   // norek per-tenant (resolve_tenant) — tampil di form & invoice
+
+  /* Normalisasi nomor WA ke format wa.me (628xxxx). Kosong → '' (tombol WA
+     tetap jalan tanpa nomor tak akan dibuat). */
+  function normalizeWA(v) {
+    var d = String(v || '').replace(/[^0-9]/g, '');
+    if (!d) return '';
+    if (d.charAt(0) === '0') return '62' + d.slice(1);
+    if (d.slice(0, 2) === '62') return d;
+    if (d.charAt(0) === '8') return '62' + d;
+    return d;
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* Catatan rekening di form: hanya tampil bila tenant sudah mengisi norek.
+     Norek diatur tenant di Pengaturan → Profil Bisnis (dashboard). */
+  function renderRekeningNote() {
+    var note = document.getElementById('rekeningNote');
+    var txt = document.getElementById('rekeningNoteText');
+    if (!note || !txt) return;
+    if (TENANT_BANK) {
+      txt.innerHTML = 'Transfer hanya ke rekening <strong>' + escapeHtml(TENANT_BANK) + '</strong><br>Hati-hati penipuan';
+      note.style.display = '';
+    } else {
+      note.style.display = 'none';
+    }
+  }
 
   function rpc(fn, body) {
     return fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
@@ -1116,8 +1148,13 @@ function getAutoAddons() {
         rpc('price_list', { p_slug: TENANT_SLUG }),
       ]);
       const t = Array.isArray(resTenant) ? resTenant[0] : null;
-      if (t && t.id) { TENANT_ID = t.id; TENANT_NAME = t.name || ''; }
-      else console.warn('Slug tenant tak dikenal:', TENANT_SLUG);
+      if (t && t.id) {
+        TENANT_ID = t.id; TENANT_NAME = t.name || '';
+        TENANT_BANK = String(t.bank_account || '').trim();
+        const wa = normalizeWA(t.phone);
+        if (wa) WA_ADMIN = wa;
+        renderRekeningNote();
+      } else console.warn('Slug tenant tak dikenal:', TENANT_SLUG);
       const rows = Array.isArray(resHarga) ? resHarga : [];
       const byKind = (kind) => rows
         .filter(r => r.kind === kind)
@@ -1131,6 +1168,10 @@ function getAutoAddons() {
     } catch(e) {
       console.warn('Gagal fetch harga dari Supabase, pakai data default:', e);
     }
+
+    // Link WA "penyesuaian jam" → nomor admin tenant (fallback bila gagal resolve).
+    var waLink = document.getElementById('waPenyesuaian');
+    if (waLink) waLink.href = 'https://wa.me/' + WA_ADMIN;
 
     tambahPaket();
   });
@@ -1334,8 +1375,9 @@ function getAutoAddons() {
     el.addEventListener('input', () => { el.style.borderColor = ''; });
   });
 
-  /* ── NOMOR WA ADMIN ── */
-  const WA_ADMIN = '62895358671213'; // ganti dengan nomor WA admin (format: 628xxxxxxxx)
+  /* ── NOMOR WA ADMIN ── diisi dari profil tenant (resolve_tenant.phone) saat
+     load; nilai ini hanya fallback bila tenant belum mengisi No WhatsApp. */
+  let WA_ADMIN = '62895358671213';
 
   /* ── BUILD PESAN WA ── */
   function buildWAMessage(payload) {
@@ -1610,10 +1652,10 @@ paketRows.forEach(r => {
       <div class="print-calc-row dp-row"><span>DP</span><span>${dpVal > 0 ? '− ' + fmtRp(dpVal) : '−'}</span></div>
       <div class="print-total-row"><span>SISA PEMBAYARAN</span><span>${fmtRp(sisaBayar)}</span></div>
 
-      <div class="print-rekening">
-        Transfer hanya ke rekening <strong>006591161301 - BLU by BCA Digital</strong> a.n. <strong>Fairuz Qu Ratu Ayu</strong><br>
+      ${TENANT_BANK ? `<div class="print-rekening">
+        Transfer hanya ke rekening <strong>${escapeHtml(TENANT_BANK)}</strong><br>
         Hati-hati penipuan
-      </div>
+      </div>` : ''}
 
       <div class="print-footer">Terima kasih telah mempercayakan momen spesial Anda kepada kami 🌸</div>
     `;
