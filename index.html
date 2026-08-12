@@ -1251,12 +1251,16 @@ function getAutoAddons() {
       errorMsg.innerHTML = '⚠ Harap upload bukti transfer sebelum mengirim booking.';
       errorMsg.style.display = 'block';
       errorMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+      // Reset tombol: pre-check rate-limit sudah men-disable + "Memeriksa..." →
+      // tanpa reset ini, tombol mentok "Memeriksa..." saat bukti belum diupload.
+      btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
       return;
     }
     if (buktiFile) {
       if (buktiFile.size > 10 * 1024 * 1024) {
         errorMsg.innerHTML = '⚠ Ukuran file bukti transfer melebihi 10 MB.';
         errorMsg.style.display = 'block';
+        btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
         return;
       }
       // Kompres → upload ke Supabase Storage PRIVAT (bukti-transfer/<tenant>/…).
