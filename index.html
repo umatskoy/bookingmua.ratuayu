@@ -728,11 +728,12 @@
     }
   }
 
-  function rpc(fn, body) {
+  function rpc(fn, body, opts) {
     return fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
       method: 'POST',
       headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: opts && opts.signal
     }).then(function (r) { return r.json(); });
   }
 
@@ -1224,12 +1225,17 @@ function getAutoAddons() {
     }
  // ── PRE-CHECK RATE LIMIT ──
     const waInput = document.getElementById('wa').value.trim();
+    // Timeout 8 detik: pre-check hanya UX; submit_booking mengecek rate-limit
+    // sendiri di server. Jika jaringan menggantung, abort → lanjut submit,
+    // supaya tombol tak mentok "Memeriksa..." selamanya.
+    const rlCtrl = new AbortController();
+    const rlTimer = setTimeout(function () { rlCtrl.abort(); }, 8000);
     try {
       btnText.textContent = 'Memeriksa...';
       btn.disabled = true; spinner.style.display = 'block';
       // 6E: rate-limit via RPC Supabase (menggantikan GAS checkRateLimit).
       // Cek booking terakhir dari nomor WA yang sama (window 10 menit).
-      const rlRows = await rpc('check_booking_rate_limit', { p_wa: waInput, p_slug: TENANT_SLUG });
+      const rlRows = await rpc('check_booking_rate_limit', { p_wa: waInput, p_slug: TENANT_SLUG }, { signal: rlCtrl.signal });
       const rlData = Array.isArray(rlRows) ? (rlRows[0] || {}) : rlRows;
       if (rlData.rate_limited) {
         const sisa = Number(rlData.sisa_detik) || 0;
@@ -1241,9 +1247,11 @@ function getAutoAddons() {
         return;
       }
     } catch (rlErr) {
-      // Jika pre-check gagal (network error dsb), lanjut submit saja
-      console.warn('Rate limit check gagal, lanjut submit:', rlErr);
+      // Pre-check gagal/timeout (network dsb) → lanjut submit (server tetap cek).
+      console.warn('Rate limit check gagal/timeout, lanjut submit:', rlErr);
       btn.disabled = false; spinner.style.display = 'none'; btnText.textContent = 'Kirim Booking';
+    } finally {
+      clearTimeout(rlTimer);
     }
     let buktiInfo = 'Tidak diupload';
     const buktiFile = document.getElementById('bukti').files[0];
