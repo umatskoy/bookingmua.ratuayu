@@ -1002,7 +1002,7 @@ function hapusPaket(id) {
   function getAddonString() {
   const autoAddons = getAutoAddons();
   const filled = addonRows.filter(r => r.value);
-  if (filled.length === 0 && autoAddons.length === 0) return 'Tidak ada';
+  if (filled.length === 0 && autoAddons.length === 0) return '-';
 
   const manualStr = filled.map(r => {
     const opt = ADDON_OPTIONS.find(o => o.value === r.value);
@@ -1013,7 +1013,7 @@ function hapusPaket(id) {
 
   const autoStr = autoAddons.map(a => `${a.value} – Gratis x${a.jumlah}`);
 
-  return [...manualStr, ...autoStr].join(' | ') || 'Tidak ada';
+  return [...manualStr, ...autoStr].join(' | ') || '-';
 }
 
  function getTotalOrang() {
